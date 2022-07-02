@@ -19,6 +19,11 @@ class UserController extends Controller
 
     public function login(request $request)
     {
-        return $request;
+        return response()->json([
+            'success'=>'succes', 
+            'results'=>User::where('username', '=', $request->Username) ->orWhere('email', 'like', $request->Password)
+            ->get('id')
+        ]);
+       
     }
 }
