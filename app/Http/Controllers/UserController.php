@@ -21,8 +21,10 @@ class UserController extends Controller
     {
         return response()->json([
             'success'=>'succes', 
-            'results'=>User::where('username', '=', $request->Username) ->orWhere('email', 'like', $request->Password)
-            ->get('id')
+            'results'=> array(
+                'role' => 'roel',
+                'user' => User::where('username', '=', $request->Username) ->Where('email', '=', $request->Password)->get(['id','username'])
+            )
         ]);
        
     }
