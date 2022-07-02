@@ -13,13 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('mobilebanner', function (Blueprint $table) {
+        Schema::create('splashscreen_mobiles', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('index');
-            $table->text('image_url');
-            $table->boolean('isactive');
-            $table->text('url');
-            $table->text('text');
+            $table->text('meta_name');
+            $table->text('meta_value');
         });
     }
 
@@ -30,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('mobilebanner');
+        Schema::dropIfExists('splashscreen_mobiles');
     }
 };

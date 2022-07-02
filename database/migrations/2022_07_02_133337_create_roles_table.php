@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('role', function (Blueprint $table) {
+        Schema::create('roles', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->text('userId');
             $table->text('meta_role');
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('role');
+        Schema::dropIfExists('roles');
     }
 };
