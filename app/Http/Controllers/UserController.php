@@ -34,11 +34,16 @@ class UserController extends Controller
             $status="success";
         }
 
+        if($query->value('status') == "Waiting Activation"){
+            $status="Your account is not active. Please check your email to activate your account";
+        }
 
+      
         return response()->json([
             'status'=>$status, 
             'results'=> array(
-                'user' => $query->get(['id','username']),
+                'user_id' => $query->value('id'),
+                'username' => $query->value('username'),
             )
         ]);
 
