@@ -27,12 +27,18 @@ class UserController extends Controller
         } else {
             $field = 'username';
         }
+        $query = User::where($field,$request->username)->where("password",md5($request->password));
+        if($query->count()== 0){
+                $status = "Invalid Username or Password";
+        }else{
+            $status="success";
+        }
+
 
         return response()->json([
-            'success'=>'succes', 
+            'status'=>$status, 
             'results'=> array(
-                //'role' => User::where('username',$request->username)->orWhere('email',$request->username)->where('password',md5($request->password))->get(['id','username']),
-                'user' => User::where($field,$request->username)->where('password',md5($request->password))->get(['id','username']),
+                'user' => $query->get(['id','username']),
             )
         ]);
 
