@@ -20,12 +20,19 @@ class UserController extends Controller
 
     public function login(request $request)
     {
+        if(is_numeric($request->username)){
+            $field = 'phone_number';
+        } elseif (filter_var($request->username, FILTER_VALIDATE_EMAIL)) {
+            $field = 'email';
+        } else {
+            $field = 'username';
+        }
 
         return response()->json([
             'success'=>'succes', 
             'results'=> array(
-                'role' => User::where('username',$request->username)->orWhere('email',$request->username)->where('password',md5($request->password))->get(['id','username']),
-                'user' => User::where('username',$request->username)->orWhere('email',$request->username)->where('password',md5($request->password))->get(['id','username'])
+                //'role' => User::where('username',$request->username)->orWhere('email',$request->username)->where('password',md5($request->password))->get(['id','username']),
+                'user' => User::where($field,$request->username)->where('password',md5($request->password))->get(['id','username']),
             )
         ]);
 
