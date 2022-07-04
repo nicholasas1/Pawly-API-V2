@@ -6,14 +6,35 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Support\Facades\DB;
+use ReallySimpleJWT\Token;
+use ReallySimpleJWT\Parse;
+use ReallySimpleJWT\Jwt;
+use ReallySimpleJWT\Decode;
+
 
 class UserController extends Controller
 {
     //
-    public function getlist()
+    public function getlist(request $request)
     {
+        $token = $request->header("Authorization");
+
+        $secret = 'Hello&MikeFooBar123';
+        
+        $result = Token::validate($token, $secret);
+
+        $data = Token::getPayload($token);
+
+        $jwt = new Jwt($token);
+
+
+        
         return response()->json([
             'success'=>'succes', 
+            'token'     => $result,
+            'data'  => $data,
+            'new token' => $jwt->getToken(),
+            'expired'   => Token::validateExpiration($token),
             'results'=>User::all()
         ]);
     }
@@ -37,6 +58,17 @@ class UserController extends Controller
         if($query->value('status') == "Waiting Activation"){
             $status="Your account is not active. Please check your email to activate your account";
         }
+        $payload = [
+            'user_id' => $query->value('id'),
+            'username' => $query->value('username'),
+            'iat' => time(),
+            'exp' => time() + 60,
+            'iss' => 'localhost'
+        ];
+        
+        $secret = 'Hello&MikeFooBar123';
+        
+        $token = Token::customPayload($payload, $secret);
 
       
         return response()->json([
@@ -45,6 +77,7 @@ class UserController extends Controller
                 'user_id'   => $query->value('id'),
                 'username'  => $query->value('username'),
                 'role'      => Role::where('id',$query->value('id'))->get(),
+                'token'     => $token,
             )
         ]);
 
