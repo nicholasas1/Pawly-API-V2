@@ -22,4 +22,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('profile/getlist', [UserController::class, 'getlist']);
 
-Route::get('profile/login', [UserController::class, 'login']);
+Route::post('profile/login', [UserController::class, 'login']);
