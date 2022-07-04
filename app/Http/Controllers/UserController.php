@@ -42,8 +42,9 @@ class UserController extends Controller
         return response()->json([
             'status'=>$status, 
             'results'=> array(
-                'user_id' => $query->value('id'),
-                'username' => $query->value('username'),
+                'user_id'   => $query->value('id'),
+                'username'  => $query->value('username'),
+                'role'      => Role::where('id',$query->value('id'))->get(),
             )
         ]);
 
