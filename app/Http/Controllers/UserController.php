@@ -63,7 +63,7 @@ class UserController extends Controller
             $query = User::insert(
                 [
                     'username' => $request->username, 
-                    'password' => $request->password, 
+                    'password' => md5($request->password), 
                     'profile_picture' => $request->profile_picture, 
                     'nickname' => $request->nick_name, 
                     'fullname' => $request->full_name, 
