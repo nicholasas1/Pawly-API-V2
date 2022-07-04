@@ -43,4 +43,46 @@ class UserController extends Controller
         ]);
 
     }
+
+    public function register(request $request){
+        if(User::where('username',$request->username)->count() <= 0){
+            $status = "success";
+            if(User::where('email',$request->email)->count() <= 0){
+                $status = "success";
+            }else{
+                $error = 1;
+                $status = "Email sudah terdaftar";
+            }
+        } else{
+            $status = "Username sudah digunakan";
+            $error = 1;
+        }
+
+        
+        if(isset($error) != 1){
+            $query = User::insert(
+                [
+                    'username' => $request->username, 
+                    'password' => $request->password, 
+                    'profile_picture' => $request->profile_picture, 
+                    'nickname' => $request->nick_name, 
+                    'fullname' => $request->full_name, 
+                    'email' => $request->email, 
+                    'birthday' => $request->tanggal_lahir, 
+                    'phone_number' => $request->phone_number, 
+                    'gender' => $request->gender,
+                    'status' => 'Waiting Activation'
+                ]
+            );
+            if($query == 1){
+                $status = "Registration Success";
+            }
+        }
+
+        return response()->json([
+            'status'=>$status
+        ]);
+        
+       
+    }
 }
