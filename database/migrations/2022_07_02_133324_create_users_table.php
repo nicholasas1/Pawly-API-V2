@@ -26,6 +26,9 @@ return new class extends Migration
             $table->char('profile_picture',100)->nullable();;
             $table->char('status',20);
             $table->char('sosmed_login',50)->nullable();;
+            $table->timestamp('create_at')->nullable();
+            $table->timestamp('update_at')->nullable();
+            $table->char('session_id',100);;
         });
     }
 
