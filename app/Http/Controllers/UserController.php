@@ -89,13 +89,21 @@ class UserController extends Controller
             $error = 1;
         }
 
+        $uppercase = preg_match('@[A-Z]@', $request->password);
+        $lowercase = preg_match('@[a-z]@', $request->password);
+        $number    = preg_match('@[0-9]@', $request->password);
+        $specialChars = preg_match('@[^\w]@', $request->password);
         
+        if(!$uppercase || !$lowercase || !$number || !$specialChars || strlen($request->password) < 8) {
+            $status ="Pasword setidaknya harus 8 karakter dan harus memiliki huruf besar, huruf kecil, angka, dan spesial karakter.";
+        }
+
         if(isset($error) != 1){
             $query = User::insert(
                 [
                     'username' => $request->username, 
-                    'password' => md5($request->password), 
-                    'profile_picture' => $request->profile_picture, 
+                    'password' => md5($request->password),
+                    'profile_picture' => $request->profile_picture,
                     'nickname' => $request->nick_name, 
                     'fullname' => $request->full_name, 
                     'email' => $request->email, 
