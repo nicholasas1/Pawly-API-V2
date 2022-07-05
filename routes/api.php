@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\SplashscreenMobileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -25,3 +26,11 @@ Route::get('profile/getlist', [UserController::class, 'getlist']);
 Route::post('profile/login', [UserController::class, 'login']);
 
 Route::post('profile/user_registration', [UserController::class, 'register']);
+
+Route::get('mobile/getSplash', [SplashscreenMobileController::class, 'getSplash']);
+
+Route::post('mobile/deleteSplash', [SplashscreenMobileController::class, 'deleteSplash']);
+
+Route::post('mobile/createSplash', [SplashscreenMobileController::class, 'createSplash']);
+
+Route::post('mobile/updateSplash', [SplashscreenMobileController::class, 'updateSplash']);
