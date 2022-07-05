@@ -27,6 +27,11 @@ Route::post('profile/login', [UserController::class, 'login']);
 
 Route::post('profile/user_registration', [UserController::class, 'register']);
 
+
+Route::post('profile/update_query', [UserController::class, 'update_query']);
+
+Route::post('cms/update_token', [UserController::class, 'update_token']);
+
 Route::get('mobile/getSplash', [SplashscreenMobileController::class, 'getSplash']);
 
 Route::post('mobile/deleteSplash', [SplashscreenMobileController::class, 'deleteSplash']);
@@ -34,3 +39,4 @@ Route::post('mobile/deleteSplash', [SplashscreenMobileController::class, 'delete
 Route::post('mobile/createSplash', [SplashscreenMobileController::class, 'createSplash']);
 
 Route::post('mobile/updateSplash', [SplashscreenMobileController::class, 'updateSplash']);
+
