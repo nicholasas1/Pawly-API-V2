@@ -130,7 +130,13 @@ class UserController extends Controller
         $id = $request->query('id');
         $query = User::find($id)->update(
             [
-                'nickname' =>  $request->nickname
+                'username' => $request->username, 
+                'profile_picture' => $request->profile_picture,
+                'nickname' => $request->nick_name, 
+                'fullname' => $request->full_name, 
+                'birthday' => $request->tanggal_lahir, 
+                'phone_number' => $request->phone_number, 
+                'gender' => $request->gender
             ]
         );
 
