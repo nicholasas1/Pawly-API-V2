@@ -124,4 +124,19 @@ class UserController extends Controller
         
        
     }
+
+    public function update_profile(request $request){
+        
+        $query = User::where('username',$request->username)->update(['nickname'=>$request->nickname]);
+
+        if($query == 1){
+            $status = 'sukses';
+        } else{
+            $status = 'gagal';
+        }
+
+        return response()->json([
+            'status'=>$status
+        ]);
+    }
 }
