@@ -20,15 +20,15 @@ return new class extends Migration
             $table->char('nickname',100);
             $table->char('fullname',100);
             $table->char('password',100);
-            $table->char('phone_number',15)->nullable();;
-            $table->date('birthday')->nullable();;
-            $table->char('gender',2)->nullable();;
-            $table->char('profile_picture',100)->nullable();;
+            $table->char('phone_number',15)->nullable();
+            $table->date('birthday')->nullable();
+            $table->char('gender',2)->nullable();
+            $table->char('profile_picture',100)->nullable();
             $table->char('status',20);
-            $table->char('sosmed_login',50)->nullable();;
+            $table->char('sosmed_login',50)->nullable();
             $table->timestamp('create_at')->nullable();
             $table->timestamp('update_at')->nullable();
-            $table->char('session_id',100);;
+            $table->char('session_id',100)->nullable();
         });
     }
 
