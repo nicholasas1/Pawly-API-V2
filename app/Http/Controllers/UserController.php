@@ -6,16 +6,40 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Role;
 use Illuminate\Support\Facades\DB;
+use ReallySimpleJWT\Token;
+use ReallySimpleJWT\Parse;
+use ReallySimpleJWT\Jwt;
+use ReallySimpleJWT\Decode;
+use App\Http\Controllers\JWTValidator;
+
 
 class UserController extends Controller
 {
     //
-    public function getlist()
+    protected $JWTValidator;
+    public function __construct(JWTValidator $JWTValidator)
     {
-        return response()->json([
-            'success'=>'succes', 
-            'results'=>User::all()
-        ]);
+        $this->JWTValidator = $JWTValidator;
+    }
+
+    public function getlist(request $request)
+    {
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+
+        if($result['status'] == 200){
+            return response()->json([
+                'success'=>'succes', 
+                'results'=>User::all()
+            ]);
+        }else{
+            return array(
+                $result
+            );
+        }
+
+        
+        
     }
 
     public function login(request $request)
@@ -34,11 +58,18 @@ class UserController extends Controller
             $status="success";
         }
 
-
+        if($query->value('status') == "Waiting Activation"){
+            $status="Your account is not active. Please check your email to activate your account";
+        }
+        
+        $token = $this->JWTValidator->createToken($query->value('id'), $query->value('username'));
+      
         return response()->json([
             'status'=>$status, 
             'results'=> array(
-                'user' => $query->get(['id','username']),
+                'username'  => $query->value('username'),
+                'role'      => Role::where('id',$query->value('id'))->get(),
+                'token'     => $token,
             )
         ]);
 
