@@ -157,11 +157,11 @@ class UserController extends Controller
         $result = $this->JWTValidator->validateToken($token);
 
         if($result['status'] == 200){
-            
-            $user = User::get('id');
+
+            $user = $result['body']['user_id'];
             User::where('id', $user)->update(
                 [   
-                    'username' => $request->username, 
+                    'username' => $request->username,
                     'profile_picture' => $request->profile_picture,
                     'nickname' => $request->nick_name, 
                     'fullname' => $request->full_name, 
@@ -171,7 +171,7 @@ class UserController extends Controller
                 ]);
             return response()->json([
                 'success'=>'succes', 
-                'result'=>User::all()
+                'result'=> User::where('id',$user)->get()
                 ]);
         }else{
             return array(
