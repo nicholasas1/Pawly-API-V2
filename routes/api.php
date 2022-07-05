@@ -26,4 +26,6 @@ Route::post('profile/login', [UserController::class, 'login']);
 
 Route::post('profile/user_registration', [UserController::class, 'register']);
 
-Route::post('profile/update_profiles', [UserController::class, 'update_profile']);
+Route::post('profile/update_query', [UserController::class, 'update_query']);
+
+Route::post('cms/update_token', [UserController::class, 'update_token']);

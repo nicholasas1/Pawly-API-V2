@@ -125,7 +125,7 @@ class UserController extends Controller
        
     }
 
-    public function update_profile(request $request){
+    public function update_query(request $request){
         
         $id = $request->query('id');
         $query = User::find($id)->update(
@@ -149,5 +149,34 @@ class UserController extends Controller
         return response()->json([
             'status'=>$status
         ]);
+    }
+
+    public function update_token(request $request){
+        
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+
+        if($result['status'] == 200){
+            
+            $user = User::get('id');
+            User::where('id', $user)->update(
+                [   
+                    'username' => $request->username, 
+                    'profile_picture' => $request->profile_picture,
+                    'nickname' => $request->nick_name, 
+                    'fullname' => $request->full_name, 
+                    'birthday' => $request->tanggal_lahir, 
+                    'phone_number' => $request->phone_number, 
+                    'gender' => $request->gender
+                ]);
+            return response()->json([
+                'success'=>'succes', 
+                'result'=>User::all()
+                ]);
+        }else{
+            return array(
+                $result
+            );
+        }
     }
 }
