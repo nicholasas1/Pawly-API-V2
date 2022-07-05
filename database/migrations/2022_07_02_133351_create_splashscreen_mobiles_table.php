@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('splashscreen_mobiles', function (Blueprint $table) {
             $table->increments('id')->autoIncrement();;
             $table->string('meta_name', 15)->nullable();
-            $table->string('meta_value', 100)->nullable();
+            $table->text('meta_value', 100)->nullable();
         });
     }
 
