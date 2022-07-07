@@ -124,7 +124,6 @@ class UserController extends Controller
         
        
     }
-
     public function uploadBase64(request $request)
     {
 
@@ -143,5 +142,59 @@ class UserController extends Controller
                 'file_url'   => env('APP_URL') . $file,
             )
         ]);
+    }
+    public function update_query(request $request){
+        
+        $id = $request->query('id');
+        $query = User::find($id)->update(
+            [
+                'username' => $request->username, 
+                'profile_picture' => $request->profile_picture,
+                'nickname' => $request->nick_name, 
+                'fullname' => $request->full_name, 
+                'birthday' => $request->tanggal_lahir, 
+                'phone_number' => $request->phone_number, 
+                'gender' => $request->gender
+            ]
+        );
+
+        if($query == 1){
+            $status = 'sukses';
+        } else{
+            $status = 'gagal';
+        }
+
+        return response()->json([
+            'status'=>$status
+        ]);
+    }
+
+    public function update_token(request $request){
+        
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+
+        if($result['status'] == 200){
+
+            $user = $result['body']['user_id'];
+            User::where('id', $user)->update(
+                [   
+                    'username' => $request->username,
+                    'profile_picture' => $request->profile_picture,
+                    'nickname' => $request->nick_name, 
+                    'fullname' => $request->full_name, 
+                    'birthday' => $request->tanggal_lahir, 
+                    'phone_number' => $request->phone_number, 
+                    'gender' => $request->gender
+                ]);
+            return response()->json([
+                'success'=>'succes', 
+                'result'=> User::where('id',$user)->get()
+                ]);
+        }else{
+            return array(
+                $result
+            );
+        }
     }
 }
