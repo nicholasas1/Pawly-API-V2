@@ -27,6 +27,7 @@ Route::post('profile/login', [UserController::class, 'login']);
 
 Route::post('profile/user_registration', [UserController::class, 'register']);
 
+Route::post('upload_base_64', [UserController::class,'uploadBase64']);
 
 Route::post('profile/update_query', [UserController::class, 'update_query']);
 
