@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Role;
+use App\Models\role;
 use Illuminate\Support\Facades\DB;
 use ReallySimpleJWT\Token;
 use ReallySimpleJWT\Parse;
@@ -37,8 +37,6 @@ class UserController extends Controller
                 $result
             );
         }
-
-        
         
     }
 
@@ -68,7 +66,7 @@ class UserController extends Controller
             'status'=>$status, 
             'results'=> array(
                 'username'  => $query->value('username'),
-                'role'      => Role::where('id',$query->value('id'))->get(),
+                'role'      => role::where('id',$query->value('id'))->get(),
                 'token'     => $token,
             )
         ]);
@@ -131,17 +129,18 @@ class UserController extends Controller
         $image_type_aux = explode("image/", $image_parts[0]);
         $image_type = $image_type_aux[1];
         $image_base64 = base64_decode($image_parts[1]);
-        $file = env('Folder_APP') . uniqid() . '.'.$image_type;
+        $file = uniqid() . '.'.$image_type;
 
-        file_put_contents($file, $image_base64);
+        file_put_contents(env('Folder_APP').$file, $image_base64);
 
         return response()->json([
             'status'=>"success", 
             'results'=> array(
                 'file_path'  => $file,
-                'file_url'   => env('APP_URL') . $file,
+                'file_url'   => env('IMAGE_URL') . $file,
             )
         ]);
+
     }
     public function update_query(request $request){
         
@@ -195,6 +194,8 @@ class UserController extends Controller
             return array(
                 $result
             );
+            
         }
     }
+
 }
