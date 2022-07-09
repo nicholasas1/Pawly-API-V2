@@ -198,4 +198,47 @@ class UserController extends Controller
         }
     }
 
+    
+    public function sosmedlogin(request $request){
+        
+        $query = User::where("email",$request->email)->where("sosmed_login",$request->sosmed_id);
+        $emailvalid = User::where("email",$request->email);
+        $token = $this->JWTValidator->createToken($query->value('id'), $query->value('email'));
+        
+        if($query->count() == 1){
+            $status = "Login Success"; 
+                return response()->JSON([
+                    'status' => $status,
+                    'token' => $token,
+                ]);
+        } else if(isset($request->email)&&isset($request->sosmed_id)&&$query->count()==0&&$emailvalid->count()==1){
+            User::insert("sosmedlogin",$request->sosmed_id)->where("email",$request->email);
+                $status = "Login Success";
+                    return response()->JSON([
+                    'status' => $status,
+                    'token' => $token
+                ]);
+        } else{
+            User::insert([
+                    'username' => $request->username, 
+                    'password' => md5($request->password),
+                    'profile_picture' => $request->profile_picture,
+                    'nickname' => $request->nick_name, 
+                    'fullname' => $request->full_name, 
+                    'email' => $request->email, 
+                    'birthday' => $request->tanggal_lahir, 
+                    'phone_number' => $request->phone_number, 
+                    'gender' => $request->gender,
+                    'status' => 'Active'
+            ]);
+
+            $status = "Registration Success";
+                return response()->JSON([
+                    'status' => $status,
+                    'token' => $token
+                ]);
+        }
+        
+    }
+
 }
