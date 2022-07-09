@@ -33,6 +33,8 @@ Route::post('profile/update_query', [UserController::class, 'update_query']);
 
 Route::post('cms/update_token', [UserController::class, 'update_token']);
 
+Route::post('profile/sosmedlogin', [UserController::class, 'sosmedlogin']);
+
 Route::get('mobile/getSplash', [SplashscreenMobileController::class, 'getSplash']);
 
 Route::post('mobile/deleteSplash', [SplashscreenMobileController::class, 'deleteSplash']);
