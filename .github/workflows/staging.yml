@@ -29,7 +29,7 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Change .env
-        run: sudo cp .env.satging .env
+        run: sudo cp .env.staging .env
 
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@4.0.0
