@@ -23,7 +23,7 @@ return new class extends Migration
             $table->char('phone_number',15)->nullable();
             $table->date('birthday')->nullable();
             $table->char('gender',2)->nullable();
-            $table->char('profile_picture',100)->nullable();
+            $table->char('profile_picture',250)->nullable();
             $table->char('status',20);
             $table->char('sosmed_login',50)->nullable();
             $table->timestamp('create_at')->nullable();
