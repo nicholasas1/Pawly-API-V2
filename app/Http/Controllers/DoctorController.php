@@ -29,14 +29,14 @@ class DoctorController extends Controller
             $error = 1;
         }
 
-        if($error != 1){
+        if(isset($error) != 1){
             $query = doctor::insert([
                 'name' => $request->name,
                 'description' => $request->description,
                 'profile_picture' => $request->profile,
-                'experience' => $request->experience
+                'graduated_since' => $request->graduated
             ]);
-    
+            
             if($query==1){
                 $status = "Registration Success";
             } 
@@ -47,4 +47,19 @@ class DoctorController extends Controller
         ]);
     }
 
+    public function getlistdoctor(request $request){
+
+        $query = doctor::where("name",$request->name);
+
+        if($query->count()==1){
+            return response()->JSON([
+                'nama' => $query->value("name"),
+                'deskripsi' => $query->value("description"),
+                'lulus sejak' => $query->value("graduated_since")
+            ]);
+        }
+
+    }
+
+    
 }
