@@ -17,12 +17,12 @@ return new class extends Migration
             $table->bigIncrements("id");
             $table->char("name",100);
             $table->longText("address");
-            $table->decimal('long', 10, 7)->nullable();
-            $table->decimal('lat', 10, 7)->nullable();
+            $table->float('long', 8, 0)->nullable();
+            $table->float('lat', 8, 0)->nullable();
             $table->longText("description")->nullable();
             $table->char("clinic_photo",250)->nullable();
-            $table->timestamp("opening_hour")->nullable();
-            $table->timestamp("close_hour")->nullable();
+            $table->time("opening_hour")->nullable();
+            $table->time("close_hour")->nullable();
         });
     }
 

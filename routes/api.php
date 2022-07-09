@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SplashscreenMobileController;
 use App\Http\Controllers\UserController;
@@ -43,3 +44,8 @@ Route::post('mobile/createSplash', [SplashscreenMobileController::class, 'create
 
 Route::post('mobile/updateSplash', [SplashscreenMobileController::class, 'updateSplash']);
 
+Route::post('clinic/addClinic', [ClinicController::class, 'addClinic']);
+
+Route::post('clinic/updateClinic', [ClinicController::class, 'update_query']);
+
+Route::get('clinic/getDetail', [ClinicController::class, 'getDetail']);
