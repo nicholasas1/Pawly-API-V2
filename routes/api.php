@@ -48,3 +48,7 @@ Route::post('doctor/registration', [DoctorController::class, 'regisasdoctor']);
 
 Route::get('doctor/getdetaildoctor', [DoctorController::class, 'getlistdoctor']);
 
+Route::post('doctor/updatedoctor', [DoctorController::class, 'updatedoctor']);
+
+
+

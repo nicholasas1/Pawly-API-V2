@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\role;
+use App\Models\doctor_speciality;
 use App\Models\doctor;
 use Illuminate\Support\Facades\DB;
 use ReallySimpleJWT\Token;
@@ -11,6 +12,7 @@ use ReallySimpleJWT\Parse;
 use ReallySimpleJWT\Jwt;
 use ReallySimpleJWT\Decode;
 use App\Http\Controllers\JWTValidator;
+use DeepCopy\Filter\Doctrine\DoctrineEmptyCollectionFilter;
 
 class DoctorController extends Controller
 {
@@ -34,7 +36,7 @@ class DoctorController extends Controller
                 'name' => $request->name,
                 'description' => $request->description,
                 'profile_picture' => $request->profile,
-                'graduated_since' => $request->graduated
+                'graduated_since' => $request->graduated,
             ]);
             
             if($query==1){
@@ -49,17 +51,36 @@ class DoctorController extends Controller
 
     public function getlistdoctor(request $request){
 
-        $query = doctor::where("name",$request->name);
+        $query = doctor::where("id",$request->id);
 
         if($query->count()==1){
             return response()->JSON([
                 'nama' => $query->value("name"),
                 'deskripsi' => $query->value("description"),
-                'lulus sejak' => $query->value("graduated_since")
+                'lulus sejak' => $query->value("graduated_since"),
+                'speciality' => doctor_speciality::where('doctor_id',$query->value('id'))->get('speciality')
             ]);
         }
-
     }
 
-    
+    public function updatedoctor(request $request){
+
+        $query = doctor::where('id',$request->id)->update([
+            'name' => $request->name,
+            'description' => $request->description,
+            'profile_picture' => $request->profile_picture,
+            'graduated_since' => $request->graduated
+        ]);
+
+        if($query==1){
+            $status = "Update Success";
+                return response()->JSON([
+                    'status' => $status,
+                    'result' => doctor::where('id',$request->id)->get()
+                ]);
+        } else{
+            $status = "Update Failed";
+            return $status;
+        }
+    }
 }
