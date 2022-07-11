@@ -83,4 +83,25 @@ class DoctorController extends Controller
             return $status;
         }
     }
+
+    public function adddoctorspeciality(request $request){
+        
+        $doctorname = doctor::where('id',$request->doctor_id)->get('name');
+
+        $query = doctor_speciality::insert([
+            'doctor_id' => $request->doctor_id,
+            'speciality' => $request->speciality
+        ]);
+
+        if($query==1){
+            $status = "Speciality Added for dr. ". $doctorname;
+                return response()->JSON([
+                    'status' => $status
+                ]);
+        } else{
+            $status = "Failed to add";
+            return $status;
+        }   
+    }
+
 }
