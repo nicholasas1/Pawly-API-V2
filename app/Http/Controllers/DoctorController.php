@@ -134,4 +134,10 @@ class DoctorController extends Controller
 
     }
 
+    public function deletedoctorspeciality(request $request){
+
+        doctor_speciality::where('doctor_id',$request->doctor_id)->delete();
+
+    }
+
 }
