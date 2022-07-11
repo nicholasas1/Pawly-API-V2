@@ -54,5 +54,7 @@ Route::post('doctor/adddoctorspeciality', [DoctorController::class, 'adddoctorsp
 
 Route::post('doctor/updatedoctorspeciality', [DoctorController::class, 'updatedoctorspeciality']);
 
+Route::post('doctor/deletedoctor', [DoctorController::class, 'deletedoctorlist']);
+
 
 
