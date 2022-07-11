@@ -113,13 +113,10 @@ class DoctorController extends Controller
 
     public function updatedoctorspeciality(request $request){
 
-        doctor_speciality::where('doctor_id',$request->doctor_id)->delete();
-
         $doctorname = doctor::where('id',$request->doctor_id)->get('name');
 
-        $query = doctor_speciality::insert([
-            'doctor_id' => $request->doctor_id,
-            'speciality' => $request->speciality
+        $query = doctor_speciality::where('doctor_id',$request->doctor_id)->where('speciality',$request->specfrom)->update([
+            'speciality' => $request->specto
         ]);
 
         if($query==1){
