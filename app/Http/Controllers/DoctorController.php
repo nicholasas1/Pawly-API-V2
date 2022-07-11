@@ -94,7 +94,7 @@ class DoctorController extends Controller
         ]);
 
         if($query==1){
-            $status = "Speciality Added for dr. ". $doctorname;
+            $status = "Speciality Added for dr. $doctorname";
                 return response()->JSON([
                     'status' => $status
                 ]);
@@ -102,6 +102,29 @@ class DoctorController extends Controller
             $status = "Failed to add";
             return $status;
         }   
+    }
+
+    public function updatedoctorspeciality(request $request){
+
+        doctor_speciality::where('doctor_id',$request->doctor_id)->delete();
+
+        $doctorname = doctor::where('id',$request->doctor_id)->get('name');
+
+        $query = doctor_speciality::insert([
+            'doctor_id' => $request->doctor_id,
+            'speciality' => $request->speciality
+        ]);
+
+        if($query==1){
+            $status = "Speciality Updated for dr. $doctorname";
+                return response()->JSON([
+                    'status' => $status
+                ]);
+        } else{
+            $status = "Failed to Update";
+            return $status;
+        } 
+
     }
 
 }

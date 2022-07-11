@@ -50,5 +50,9 @@ Route::get('doctor/getdetaildoctor', [DoctorController::class, 'getlistdoctor'])
 
 Route::post('doctor/updatedoctor', [DoctorController::class, 'updatedoctor']);
 
+Route::post('doctor/adddoctorspeciality', [DoctorController::class, 'adddoctorspeciality']);
+
+Route::post('doctor/updatedoctorspeciality', [DoctorController::class, 'updatedoctorspeciality']);
+
 
 
