@@ -11,6 +11,8 @@ use ReallySimpleJWT\Parse;
 use ReallySimpleJWT\Jwt;
 use ReallySimpleJWT\Decode;
 use App\Http\Controllers\JWTValidator;
+use App\Mail\activateEmail;
+use Illuminate\Support\Facades\Mail;
 
 
 class UserController extends Controller
@@ -112,7 +114,8 @@ class UserController extends Controller
                 ]
             );
             if($query == 1){
-                $status = "Registration Success";
+                $status = "Please Verified Your Account";
+                Mail::to($request->email)->send(new activateEmail('https://google.com'));
             }
         }
 
