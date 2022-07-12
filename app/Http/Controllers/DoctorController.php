@@ -117,23 +117,21 @@ class DoctorController extends Controller
 
     public function updatedoctorspeciality(request $request){
 
-        $doctorid = doctor_speciality::where('id',$request->idspeciality)->value('doctor_id');
+        $doctorid = doctor_speciality::where('id',$request->id)->value('doctor_id');
 
         $doctorname = doctor::where('id',$doctorid)->value('name');
 
-        $query = doctor_speciality::where('id',$request->idspeciality)->update([
+        $query = doctor_speciality::where('id',$request->id)->update([
             'speciality' => $request->speciality
         ]);
-
-        $speciality = doctor_speciality::where('id',$request->idspeciality);
 
         if($query==1){
             $status = "Speciality Updated for dr. $doctorname";
                 return response()->JSON([
                     'status' => $status,
                     'result' => array([
-                        'id' => $request->idspeciality,
-                        'speciality' => $request->idspeciality
+                        'id' => $request->id,
+                        'speciality' => $request->speciality
                     ])
                 ]);
         } else{
@@ -145,7 +143,7 @@ class DoctorController extends Controller
 
     public function deletedoctorspeciality(request $request){
 
-        doctor_speciality::where('doctor_id',$request->doctor_id)->delete();
+        doctor_speciality::where('id',$request->id)->delete();
 
     }
 
