@@ -122,7 +122,7 @@ class UserController extends Controller
 
         return response()->json([
             'status'=>$status,
-            'link_activation' => env('Activate_Account_URL')
+            'link_activation' => $url . $urlActivation . $lastid
         ]);
         
        
