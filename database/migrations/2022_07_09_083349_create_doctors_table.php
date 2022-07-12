@@ -18,7 +18,7 @@ return new class extends Migration
             $table->char("name",100);
             $table->longText("description")->nullable();
             $table->char("profile_picture",250)->nullable();
-            $table->char("experience",100)->nullable();
+            $table->year("graduated_since")->nullable();
         });
     }
 
