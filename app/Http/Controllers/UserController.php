@@ -114,15 +114,13 @@ class UserController extends Controller
                 ]
             );
             $status = "Registration Success. Please Verified Your Account";
-            $url = env('Activate_Account_URL');
             $urlActivation =  '/profile/ActivateAccount?id=';
             $lastid = base64_encode($query);
-            Mail::to($request->email)->send(new activateEmail($url . $urlActivation . $lastid));
-        }
+            Mail::to($request->email)->send(new activateEmail(env('Activate_Account_URL') . $urlActivation . $lastid));        }
 
         return response()->json([
             'status'=>$status,
-            'link_activation' => $url . $urlActivation . $lastid
+            'link_activation' => env('Activate_Account_URL') . $urlActivation . $lastid
         ]);
         
        
