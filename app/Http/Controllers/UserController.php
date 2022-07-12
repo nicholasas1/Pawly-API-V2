@@ -100,7 +100,7 @@ class UserController extends Controller
         }
 
         if(isset($error) != 1){
-            $query = User::Insert(
+            $query = User::insert(
                 [
                     'username' => $request->username, 
                     'password' => md5($request->password),
@@ -130,8 +130,7 @@ class UserController extends Controller
         
 
         return response()->json([
-            'status'=>$status,
-            'link_activation' => env('Activate_Account_URL') . $urlActivation . $lastid
+            'status'=>$status
         ]);
         
        
