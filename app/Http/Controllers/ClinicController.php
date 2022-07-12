@@ -37,8 +37,7 @@ class ClinicController extends Controller
         ]);       
     }
 
-    public function update_query(request $request){
-        
+    public function update_query(request $request){     
         if($request->query('id')!== NULL){
             $id = $request->query('id');
             $query = clinic::find($id)->update(
@@ -55,9 +54,9 @@ class ClinicController extends Controller
             );
     
             if($query == 1){
-                $status = 'sukses';
+                $status = 'success';
             } else{
-                $status = 'gagal';
+                $status = 'error';
             }
         }else{
             $status = "Id tidak boleh kosong";
