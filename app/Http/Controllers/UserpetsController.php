@@ -21,10 +21,10 @@ class UserpetsController extends Controller
             'birthdate' => $request->birthdate,
             'neutered' => $request->neutered,
             'vaccinated' => $request->vaccinated,
-            'fdwldogs' => $request->fdwldogs, //friendly with dogs
-            'fdwlcats' => $request->fdwlcats, //friendly with cats
-            'fdwlkidsless10' => $request->fdwlless10, //friendly with kids < 10 years old
-            'fdwlkidsmore10' => $request->fdwlmore10, //friendly with kids > 10 years old
+            'fdlwdogs' => $request->fdlwdogs, //friendly with dogs
+            'fdlwcats' => $request->fdlwcats, //friendly with cats
+            'fdlywkidsless10' => $request->fdlywkidsless10, //friendly with kids < 10 years old
+            'fdlwkidsmore10' => $request->fdlwkidsmore10, //friendly with kids > 10 years old
             'microchipped' => $request->microchipped,
             'purbered' => $request->purbered
         ]);
@@ -37,7 +37,7 @@ class UserpetsController extends Controller
                 'result' => array([
                     'pet owner' => $petowner,
                     'pet name' => $request->pets_name,
-                    'species and breed' => $request->breed . $request->species,
+                    'species and breed' => $request->breed .' '. $request->species,
                 ])
             ]);
         } else{
@@ -81,18 +81,44 @@ class UserpetsController extends Controller
     public function updatepet(request $request){
         
         $query = userpets::where('id',$request->id)->update([
-            'user_id' => $request->user_id,
             'petsname' => $request->pets_name,
             'species' => $request->species,
             'breed' => $request->breed,
+            'size' => $request->size,
             'gender' => $request->gender,
             'birthdate' => $request->birthdate,
-
+            'neutered' => $request->neutered,
+            'vaccinated' => $request->vaccinated,
+            'fdlwdogs' => $request->fdlwdogs, //friendly with dogs
+            'fdlwcats' => $request->fdlwcats, //friendly with cats
+            'fdlywkidsless10' => $request->fdlywkidsless10, //friendly with kids < 10 years old
+            'fdlwkidsmore10' => $request->fdlwkidsmore10, //friendly with kids > 10 years old
+            'microchipped' => $request->microchipped,
+            'purbered' => $request->purbered
         ]);
+
+        if($query==1){
+            $status = 'sukses';
+            return response()->JSON([
+                'status' => $status,
+                'result' => userpets::where('id',$request->id)->get()
+            ]);
+        } else{
+            $status = 'failed to update';
+            return $status;
+        }
 
     }
 
     public function deletepet(request $request){
+        $query = userpets::where('id',$request->id)->delete();
 
+        if($query==1){
+            $status = 'delete success';
+            return $status;
+        } else{
+            $status = 'no pet to delete';
+            return $status;
+        }
     }
 }

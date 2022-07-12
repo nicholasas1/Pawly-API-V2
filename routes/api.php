@@ -65,5 +65,9 @@ Route::get('pet/getuserpet', [UserpetsController::class, 'getuserpet']);
 
 Route::get('pet/getpetdetail', [UserpetsController::class, 'getpetdetail']);
 
+Route::post('pet/updatepet', [UserpetsController::class, 'updatepet']);
+
+Route::post('pet/deletepet', [UserpetsController::class, 'deletepet']);
+
 
 
