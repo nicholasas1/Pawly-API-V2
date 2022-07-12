@@ -99,7 +99,7 @@ class UserController extends Controller
         }
 
         if(isset($error) != 1){
-            $query = User::insert(
+            $query = User::insertGetId(
                 [
                     'username' => $request->username, 
                     'password' => md5($request->password),
@@ -113,14 +113,16 @@ class UserController extends Controller
                     'status' => 'Waiting Activation'
                 ]
             );
-            if($query == 1){
-                $status = "Please Verified Your Account";
-                Mail::to($request->email)->send(new activateEmail('https://google.com'));
-            }
+            $status = "Registration Success. Please Verified Your Account";
+            $url = env('Activate_Account_URL');
+            $urlActivation =  '/profile/ActivateAccount?id=';
+            $lastid = base64_encode($query);
+            Mail::to($request->email)->send(new activateEmail($url . $urlActivation . $lastid));
         }
 
         return response()->json([
-            'status'=>$status
+            'status'=>$status,
+            'link_activation' => env('Activate_Account_URL')
         ]);
         
        
@@ -244,4 +246,21 @@ class UserController extends Controller
         
     }
 
+    public function ActivateEmail(Request $request){
+        $id = base64_decode($request->query('id'));
+
+        $query = User::find($id)->update(
+            [
+                'status' => 'Active',
+            ]
+        );
+
+        if($query == 1){
+            return view('AccountActive');
+        } else{
+            return response()->json([
+                'success'=>'failed'
+            ]);
+        }
+    }
 }

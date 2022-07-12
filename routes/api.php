@@ -60,3 +60,6 @@ Route::post('doctor/deletedoctorspeciality', [DoctorController::class, 'deletedo
 
 
 
+
+
+
