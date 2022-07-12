@@ -12,8 +12,9 @@ class SplashscreenMobileController extends Controller
         return response()->json([
             'success'=>'succes', 
             'splash_image' => splashscreen_mobile::where('meta_name','splash_image')->value('meta_value'),
+            'splash_image_id' => splashscreen_mobile::where('meta_name','splash_image')->value('id'),
             'total' =>splashscreen_mobile::where('meta_name','splash_text')->count(),
-            'result' => splashscreen_mobile::where('meta_name','splash_text')->get('meta_value')
+            'result' => splashscreen_mobile::where('meta_name','splash_text')->get('id','meta_value')
         ]);
     }
 
