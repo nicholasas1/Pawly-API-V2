@@ -100,7 +100,7 @@ class UserController extends Controller
         }
 
         if(isset($error) != 1){
-            $query = User::insertGetId(
+            $query = User::Insert(
                 [
                     'username' => $request->username, 
                     'password' => md5($request->password),
@@ -123,7 +123,7 @@ class UserController extends Controller
                 ]);
                 $status = "Registration Success. Please Verified Your Account";
                 $urlActivation =  '/profile/ActivateAccount?id=';
-                $lastid = base64_encode($query);
+                $lastid = base64_encode($userid );
                  Mail::to($request->email)->send(new activateEmail(env('Activate_Account_URL') . $urlActivation . $lastid));
             }
         }
