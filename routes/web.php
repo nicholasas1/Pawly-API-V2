@@ -24,3 +24,7 @@ Route::get('migrate', function () {
 });
 
 Route::get('/sendActivateMail', [MailServer::class, 'index']);
+
+Route::get('/lala', function () {
+    return view('AccountActive');
+});
