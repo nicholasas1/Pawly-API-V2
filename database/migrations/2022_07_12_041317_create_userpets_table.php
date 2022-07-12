@@ -14,8 +14,22 @@ return new class extends Migration
     public function up()
     {
         Schema::create('userpets', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->bigIncrements('id');
+            $table->text('user_id',100);
+            $table->text('petsname',100);
+            $table->text('species',100);
+            $table->text('breed',100);
+            $table->text('size',100)->nullable();
+            $table->text('gender',10);
+            $table->date('birthdate');
+            $table->boolean('neutered')->nullable();
+            $table->boolean('vaccinated')->nullable();
+            $table->boolean('fdlwdogs')->nullable(); //friendly with dogs
+            $table->boolean('fdlwcats')->nullable(); //friendly with cats
+            $table->boolean('fdlywkidsless10')->nullable(); //friendly with kids < 10 years old
+            $table->boolean('fdlwkidsmore10')->nullable(); //friendly with kids > 10 years old
+            $table->boolean('microchipped')->nullable();
+            $table->boolean('purbered')->nullable();
         });
     }
 

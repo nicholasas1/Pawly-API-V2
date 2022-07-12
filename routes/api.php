@@ -4,6 +4,7 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SplashscreenMobileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserpetsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -57,6 +58,12 @@ Route::post('doctor/updatedoctorspeciality', [DoctorController::class, 'updatedo
 Route::post('doctor/deletedoctor', [DoctorController::class, 'deletedoctorlist']);
 
 Route::post('doctor/deletedoctorspeciality', [DoctorController::class, 'deletedoctorspeciality']);
+
+Route::post('pet/addpet', [UserpetsController::class, 'addpet']);
+
+Route::get('pet/getuserpet', [UserpetsController::class, 'getuserpet']);
+
+Route::get('pet/getpetdetail', [UserpetsController::class, 'getpetdetail']);
 
 
 
