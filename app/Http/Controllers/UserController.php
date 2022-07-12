@@ -11,6 +11,8 @@ use ReallySimpleJWT\Parse;
 use ReallySimpleJWT\Jwt;
 use ReallySimpleJWT\Decode;
 use App\Http\Controllers\JWTValidator;
+use App\Mail\activateEmail;
+use Illuminate\Support\Facades\Mail;
 
 
 class UserController extends Controller
@@ -98,7 +100,7 @@ class UserController extends Controller
         }
 
         if(isset($error) != 1){
-            $query = User::insert(
+            $query = User::insertGetId(
                 [
                     'username' => $request->username, 
                     'password' => md5($request->password),
@@ -112,18 +114,24 @@ class UserController extends Controller
                     'status' => 'Waiting Activation'
                 ]
             );
+
             if($query == 1){
                 $userid = User::where('username',$request->username)->value('id');
                 Role::insert([
                     'userId'=> $userid,
                     'meta_role' => 'User'
                 ]);
-                $status = "Registration Success";
+                $status = "Registration Success. Please Verified Your Account";
+                $urlActivation =  '/profile/ActivateAccount?id=';
+                $lastid = base64_encode($query);
+                 Mail::to($request->email)->send(new activateEmail(env('Activate_Account_URL') . $urlActivation . $lastid));
             }
         }
+        
 
         return response()->json([
-            'status'=>$status
+            'status'=>$status,
+            'link_activation' => env('Activate_Account_URL') . $urlActivation . $lastid
         ]);
         
        
@@ -247,4 +255,21 @@ class UserController extends Controller
         
     }
 
+    public function ActivateEmail(Request $request){
+        $id = base64_decode($request->query('id'));
+
+        $query = User::find($id)->update(
+            [
+                'status' => 'Active',
+            ]
+        );
+
+        if($query == 1){
+            return view('AccountActive');
+        } else{
+            return response()->json([
+                'success'=>'failed'
+            ]);
+        }
+    }
 }
