@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\mail;
+use App\Http\Controllers\MailServer;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,3 +22,5 @@ Route::get('/', function () {
 Route::get('migrate', function () {
     $exitCode = Artisan::call('migrate:fresh --seed --force');
 });
+
+Route::get('/sendActivateMail', [MailServer::class, 'index']);
