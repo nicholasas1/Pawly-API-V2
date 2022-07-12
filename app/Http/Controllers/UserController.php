@@ -68,7 +68,7 @@ class UserController extends Controller
             'status'=>$status, 
             'results'=> array(
                 'username'  => $query->value('username'),
-                'role'      => role::where('id',$query->value('id'))->get(),
+                'role'      => role::where('userId',$query->value('id'))->get(),
                 'token'     => $token,
             )
         ]);
@@ -96,10 +96,11 @@ class UserController extends Controller
         
         if(!$uppercase || !$lowercase || !$number || !$specialChars || strlen($request->password) < 8) {
             $status ="Pasword setidaknya harus 8 karakter dan harus memiliki huruf besar, huruf kecil, angka, dan spesial karakter.";
+            $error = 1;
         }
 
         if(isset($error) != 1){
-            $query = User::insertGetId(
+            $query = User::insert(
                 [
                     'username' => $request->username, 
                     'password' => md5($request->password),
@@ -113,16 +114,23 @@ class UserController extends Controller
                     'status' => 'Waiting Activation'
                 ]
             );
-            $status = "Registration Success. Please Verified Your Account";
-            $url = env('Activate_Account_URL');
-            $urlActivation =  '/profile/ActivateAccount?id=';
-            $lastid = base64_encode($query);
-            Mail::to($request->email)->send(new activateEmail($url . $urlActivation . $lastid));
+
+            if($query == 1){
+                $userid = User::where('username',$request->username)->value('id');
+                Role::insert([
+                    'userId'=> $userid,
+                    'meta_role' => 'User'
+                ]);
+                $status = "Registration Success. Please Verified Your Account";
+                $urlActivation =  '/profile/ActivateAccount?id=';
+                $lastid = base64_encode($userid );
+                 Mail::to($request->email)->send(new activateEmail(env('Activate_Account_URL') . $urlActivation . $lastid));
+            }
         }
+        
 
         return response()->json([
-            'status'=>$status,
-            'link_activation' => $url . $urlActivation . $lastid
+            'status'=>$status
         ]);
         
        

@@ -24,25 +24,16 @@ class DoctorController extends Controller
 
     public function regisasdoctor(request $request){
 
-        if(doctor::where('name',$request->name)->count() <= 0){
-            $status = "success";
-        } else{
-            $status = "nama dokter sudah digunakan";
-            $error = 1;
-        }
-
-        if(isset($error) != 1){
-            $query = doctor::insert([
-                'name' => $request->name,
-                'description' => $request->description,
-                'profile_picture' => $request->profile,
-                'graduated_since' => $request->graduated,
-            ]);
+     $query = doctor::insert([
+            'name' => $request->name,
+            'description' => $request->description,
+            'profile_picture' => $request->profile,
+            'graduated_since' => $request->graduated,
+        ]);
             
-            if($query==1){
-                $status = "Registration Success";
-            } 
-        }
+        if($query==1){
+            $status = "Registration Success";
+        } 
        
         return response()->JSON([
             'status' => $status
@@ -55,6 +46,7 @@ class DoctorController extends Controller
 
         if($query->count()==1){
             return response()->JSON([
+                'id' => $query->value("id"),
                 'nama' => $query->value("name"),
                 'deskripsi' => $query->value("description"),
                 'lulus sejak' => $query->value("graduated_since"),
@@ -72,11 +64,19 @@ class DoctorController extends Controller
             'graduated_since' => $request->graduated
         ]);
 
+        $doctor = doctor::where('id',$request->id);
+
         if($query==1){
             $status = "Update Success";
                 return response()->JSON([
                     'status' => $status,
-                    'result' => doctor::where('id',$request->id)->get()
+                    'result' => array([
+                        'id' => $doctor->value("id"),
+                        'nama' => $doctor->value("name"),
+                        'deskripsi' => $doctor->value("description"),
+                        'lulus sejak' => $doctor->value("graduated_since"),
+                        'speciality' => doctor_speciality::where('doctor_id',$doctor->value('id'))->get('speciality')
+                    ])
                 ]);
         } else{
             $status = "Update Failed";
@@ -93,7 +93,7 @@ class DoctorController extends Controller
 
     public function adddoctorspeciality(request $request){
         
-        $doctorname = doctor::where('id',$request->doctor_id)->get('name');
+        $doctorname = doctor::where('id',$request->doctor_id)->value('name');
 
         $query = doctor_speciality::insert([
             'doctor_id' => $request->doctor_id,
@@ -103,7 +103,11 @@ class DoctorController extends Controller
         if($query==1){
             $status = "Speciality Added for dr. $doctorname";
                 return response()->JSON([
-                    'status' => $status
+                    'status' => $status,
+                    'result' => array([
+                        'id' => doctor_speciality::where('doctor_id',$request->doctor_id)->where('speciality',$request->speciality)->value('id'),
+                        'speciality' => $request->speciality
+                    ])
                 ]);
         } else{
             $status = "Failed to add";
@@ -113,16 +117,22 @@ class DoctorController extends Controller
 
     public function updatedoctorspeciality(request $request){
 
-        $doctorname = doctor::where('id',$request->doctor_id)->get('name');
+        $doctorid = doctor_speciality::where('id',$request->id)->value('doctor_id');
 
-        $query = doctor_speciality::where('doctor_id',$request->doctor_id)->where('speciality',$request->specfrom)->update([
-            'speciality' => $request->specto
+        $doctorname = doctor::where('id',$doctorid)->value('name');
+
+        $query = doctor_speciality::where('id',$request->id)->update([
+            'speciality' => $request->speciality
         ]);
 
         if($query==1){
             $status = "Speciality Updated for dr. $doctorname";
                 return response()->JSON([
-                    'status' => $status
+                    'status' => $status,
+                    'result' => array([
+                        'id' => $request->id,
+                        'speciality' => $request->speciality
+                    ])
                 ]);
         } else{
             $status = "Failed to Update";
@@ -133,7 +143,7 @@ class DoctorController extends Controller
 
     public function deletedoctorspeciality(request $request){
 
-        doctor_speciality::where('doctor_id',$request->doctor_id)->delete();
+        doctor_speciality::where('id',$request->id)->delete();
 
     }
 

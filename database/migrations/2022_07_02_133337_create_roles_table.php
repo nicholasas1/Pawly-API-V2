@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->text('userId');
-            $table->text('meta_role');
-            $table->text('meta_id');
+            $table->text('userId',10);
+            $table->text('meta_role',100);
+            $table->text('meta_id')->nullable();
         });
     }
 
