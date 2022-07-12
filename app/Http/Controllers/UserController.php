@@ -66,7 +66,7 @@ class UserController extends Controller
             'status'=>$status, 
             'results'=> array(
                 'username'  => $query->value('username'),
-                'role'      => role::where('id',$query->value('id'))->get(),
+                'role'      => role::where('userId',$query->value('id'))->get(),
                 'token'     => $token,
             )
         ]);
@@ -94,6 +94,7 @@ class UserController extends Controller
         
         if(!$uppercase || !$lowercase || !$number || !$specialChars || strlen($request->password) < 8) {
             $status ="Pasword setidaknya harus 8 karakter dan harus memiliki huruf besar, huruf kecil, angka, dan spesial karakter.";
+            $error = 1;
         }
 
         if(isset($error) != 1){
@@ -112,6 +113,11 @@ class UserController extends Controller
                 ]
             );
             if($query == 1){
+                $userid = User::where('username',$request->username)->value('id');
+                Role::insert([
+                    'userId'=> $userid,
+                    'meta_role' => 'User'
+                ]);
                 $status = "Registration Success";
             }
         }
