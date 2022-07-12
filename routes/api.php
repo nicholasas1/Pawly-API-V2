@@ -49,3 +49,5 @@ Route::post('clinic/addClinic', [ClinicController::class, 'addClinic']);
 Route::post('clinic/updateClinic', [ClinicController::class, 'update_query']);
 
 Route::get('clinic/getDetail', [ClinicController::class, 'getDetail']);
+
+Route::post('clinic/delete', [ClinicController::class, 'delete']);

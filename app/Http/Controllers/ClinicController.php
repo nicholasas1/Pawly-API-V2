@@ -85,4 +85,21 @@ class ClinicController extends Controller
             'result'=> $response
         ]);
     }
+
+    public function delete(request $request){
+        
+        if($request->query('id')!== NULL){
+            $id = $request->query('id');
+            $status = "Success";
+            $response = clinic::where('id',$id)->delete();
+        }else{
+            $status = "Id tidak boleh kosong";
+            $response = "Null";
+        }
+       
+
+        return response()->json([
+            'status'=> $status
+        ]);
+    }
 }
