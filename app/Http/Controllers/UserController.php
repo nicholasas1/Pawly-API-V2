@@ -66,6 +66,21 @@ class UserController extends Controller
         
     }
 
+    public function deleteuser(request $request){
+
+        $query = User::where('id', $request->id);
+
+        if($query==1){
+            User::where('id',$request->id)->delete();
+            $status = 'User berhasil dihapus';
+        } else{
+            $status = "User tidak ditemukan";
+        }
+
+        return $status;
+
+    }
+
     public function login(request $request)
     {
         if(is_numeric($request->username)){
