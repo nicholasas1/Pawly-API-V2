@@ -70,7 +70,7 @@ class UserController extends Controller
 
         $query = User::where('id', $request->id);
 
-        if($query==1){
+        if($query->count()==1){
             User::where('id',$request->id)->delete();
             $status = 'User berhasil dihapus';
         } else{
