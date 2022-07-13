@@ -216,7 +216,7 @@ class UserController extends Controller
         
         $query = User::where("email",$request->email)->where("sosmed_login",$request->sosmed_id);
         $emailvalid = User::where("email",$request->email);
-        $token = $this->JWTValidator->createToken($query->value('id'), $query->value('email'));
+        $token = $this->JWTValidator->createToken($query->value('id'),$query->value('email'));
         
         if($query->count() == 1){
             $status = "Login Success"; 
@@ -225,14 +225,18 @@ class UserController extends Controller
                     'token' => $token,
                 ]);
         } else if(isset($request->email)&&isset($request->sosmed_id)&&$query->count()==0&&$emailvalid->count()==1){
-            User::insert("sosmedlogin",$request->sosmed_id)->where("email",$request->email);
+            User::where("email",$request->email)->update([
+                'sosmed_login' => $request->sosmed_id,
+                'status' => 'Active'
+            ]);
                 $status = "Login Success";
                     return response()->JSON([
                     'status' => $status,
                     'token' => $token
                 ]);
         } else{
-            User::insert([
+            $queri = User::insert([
+
                     'username' => $request->username, 
                     'password' => md5($request->password),
                     'profile_picture' => $request->profile_picture,
@@ -245,11 +249,14 @@ class UserController extends Controller
                     'status' => 'Active'
             ]);
 
-            $status = "Registration Success";
+            if($queri==1){
+                $status = "Registration Success";
                 return response()->JSON([
                     'status' => $status,
                     'token' => $token
                 ]);
+            }
+            
         }
         
     }
