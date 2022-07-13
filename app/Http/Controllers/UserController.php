@@ -211,7 +211,6 @@ class UserController extends Controller
         }
     }
 
-    
     public function sosmedlogin(request $request){
         
         $query = User::where("email",$request->email)->where("sosmed_login",$request->sosmed_id);
@@ -222,7 +221,10 @@ class UserController extends Controller
             $status = "Login Success"; 
                 return response()->JSON([
                     'status' => $status,
-                    'token' => $token,
+                    'results' => array([
+                        'User' => User::where('email',$request->email)->where('sosmed_login',$request->sosmed_id)->get(),
+                        'token' => $token
+                        ])
                 ]);
         } else if(isset($request->email)&&isset($request->sosmed_id)&&$query->count()==0&&$emailvalid->count()==1){
             User::where("email",$request->email)->update([
@@ -232,11 +234,14 @@ class UserController extends Controller
                 $status = "Login Success";
                     return response()->JSON([
                     'status' => $status,
-                    'token' => $token
+                    'token' => $token,
+                    'results' => array([
+                        'User' => User::where('email',$request->email)->where('sosmed_login',$request->sosmed_id)->get(),
+                        'token' => $token
+                        ])
                 ]);
         } else{
-            $queri = User::insert([
-
+            User::insertGetId([
                     'username' => $request->username, 
                     'password' => md5($request->password),
                     'profile_picture' => $request->profile_picture,
@@ -246,16 +251,17 @@ class UserController extends Controller
                     'birthday' => $request->tanggal_lahir, 
                     'phone_number' => $request->phone_number, 
                     'gender' => $request->gender,
-                    'status' => 'Active'
+                    'status' => 'Active',
+                    'sosmed_login' => $request->sosmed_id
             ]);
 
-            if($queri==1){
                 $status = "Registration Success";
                 return response()->JSON([
                     'status' => $status,
-                    'token' => $token
+                    'results' => array([
+                        'token' => $token,
+                    ])
                 ]);
-            }
             
         }
         
