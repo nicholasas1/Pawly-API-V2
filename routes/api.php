@@ -25,6 +25,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('profile/getlist', [UserController::class, 'getlist']);
 
+Route::get('profile/getuserdetail', [UserController::class, 'getuserdetail']);
+
 Route::post('profile/login', [UserController::class, 'login']);
 
 Route::post('profile/user_registration', [UserController::class, 'register']);
@@ -36,6 +38,8 @@ Route::post('profile/update_query', [UserController::class, 'update_query']);
 Route::post('cms/update_token', [UserController::class, 'update_token']);
 
 Route::post('profile/sosmedlogin', [UserController::class, 'sosmedlogin']);
+
+Route::post('profile/deleteuser', [UserController::class, 'deleteuser']);
 
 Route::get('mobile/getSplash', [SplashscreenMobileController::class, 'getSplash']);
 

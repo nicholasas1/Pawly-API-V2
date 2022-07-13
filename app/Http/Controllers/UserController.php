@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\role;
+use App\Models\userpets;
 use Illuminate\Support\Facades\DB;
 use ReallySimpleJWT\Token;
 use ReallySimpleJWT\Parse;
@@ -40,6 +41,44 @@ class UserController extends Controller
             );
         }
         
+    }
+
+    public function getuserdetail(request $request){
+
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+
+        if($result['status'] == 200){
+            $userid = $result['body']['user_id'];
+            return response()->json([
+                'success'=>'succes', 
+                'results'=>array([
+                    'user' => User::where('id',$userid)->select(['username','email','nickname','fullname','phone_number','birthday','gender','profile_picture'])->get(),
+                    'role' => role::where('userId',$userid)->select(['meta_role','meta_id'])->get(),
+                    'pets' => userpets::where('user_id',$userid)->select(['petsname','species','breed','gender','birthdate'])->get()
+                ])
+            ]);
+        }else{
+            return array(
+                $result
+            );
+        }
+        
+    }
+
+    public function deleteuser(request $request){
+
+        $query = User::where('id', $request->id);
+
+        if($query->count()==1){
+            User::where('id',$request->id)->delete();
+            $status = 'User berhasil dihapus';
+        } else{
+            $status = "User tidak ditemukan";
+        }
+
+        return $status;
+
     }
 
     public function login(request $request)
