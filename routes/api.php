@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SplashscreenMobileController;
@@ -68,6 +69,8 @@ Route::get('pet/getpetdetail', [UserpetsController::class, 'getpetdetail']);
 Route::post('pet/updatepet', [UserpetsController::class, 'updatepet']);
 
 Route::post('pet/deletepet', [UserpetsController::class, 'deletepet']);
+
+Route::get('location/autocomplete', [ClinicController::class, 'autocomplete']);
 
 
 
