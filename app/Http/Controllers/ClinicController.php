@@ -33,20 +33,29 @@ class ClinicController extends Controller
     		$arr[] = "[".$row['description']."]";
     	}
 
-		return response()->JSON([
-			'status' => 'success',
-			'results' =>array([
-				'place' => $arr
-			])
-		]);
+		$status = $details['status'];
+		if($status == 'OK'){
+			return response()->JSON([
+				'status' => $status,
+				'results' =>array([
+					'place' => $arr
+				])
+			]);
+		} else{
+			return response()->JSON([
+				'status' => $status,
+				'result' => 'none'
+			]);
+		}
   
   }
   
-  public function get_geocode(request $request){
+  public function getplace(request $request){
 
   	$apikey = $this->api_key;
   	$latlong = $request->lattitude.','.$request->longtitude;
         $query = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.$latlong.'&key='.$apikey;
+		;
 	    $ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $query);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -55,10 +64,23 @@ class ClinicController extends Controller
 	    curl_close($ch); // close curl session
 
 	$details = json_decode($data, true);
-	$map['lat'] = $details['result']['geometry']['location']['lat'];
-	$map['long'] = $details['result']['geometry']['location']['lng'];
-	
-    return json_encode($map);
+
+	$status = $details['status'];
+
+	if($status == 'OK'){
+		return response()->JSON([
+			'status' => $status,
+			'result' => array([
+				'place' => $details
+			])
+		]);
+	} else{
+		return response()->JSON([
+			'status' => $status,
+			'result' => 'none'
+		]);
+	}
+    
   }
 
 }

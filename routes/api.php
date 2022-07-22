@@ -72,6 +72,8 @@ Route::post('pet/deletepet', [UserpetsController::class, 'deletepet']);
 
 Route::get('location/autocomplete', [ClinicController::class, 'autocomplete']);
 
+Route::get('location/getplace', [ClinicController::class, 'getplace']);
+
 
 
 
