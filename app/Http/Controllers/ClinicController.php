@@ -29,20 +29,24 @@ class ClinicController extends Controller
     	curl_close($ch);
     	$details = json_decode($data1, true);
     	header("Content-Type: application/json");
-    	$json =  "{\"results\": [";
     	foreach($details['predictions'] as $key=>$row) {
-    		$arr[] = "{\"id\": \"".$row['reference']."\", \"value\": \"".$row['description']."\"}";
+    		$arr[] = "[".$row['description']."]";
     	}
-    	$json .= implode(", ", $arr);
-    	echo $json . "]}";
+
+		return response()->JSON([
+			'status' => 'success',
+			'results' =>array([
+				'place' => $arr
+			])
+		]);
   
   }
   
-  public function get_geocode(){
+  public function get_geocode(request $request){
 
   	$apikey = $this->api_key;
-  	$reference = $_GET["reference"];
-        $query = 'https://maps.googleapis.com/maps/api/place/details/json?reference='.urlencode($reference).'&sensor=true&key='.$apikey;
+  	$latlong = $request->lattitude.','.$request->longtitude;
+        $query = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.$latlong.'&key='.$apikey;
 	    $ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $query);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
