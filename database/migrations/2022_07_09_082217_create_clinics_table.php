@@ -17,8 +17,8 @@ return new class extends Migration
             $table->bigIncrements("id");
             $table->char("name",100);
             $table->longText("address");
-            $table->decimal('long', 10, 7)->nullable();
-            $table->decimal('lat', 10, 7)->nullable();
+            $table->float('long')->nullable();
+            $table->float('lat')->nullable();
             $table->longText("description")->nullable();
             $table->char("clinic_photo",250)->nullable();
             $table->timestamp("opening_hour")->nullable();
