@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\role;
+use App\Models\userpets;
 use Illuminate\Support\Facades\DB;
 use ReallySimpleJWT\Token;
 use ReallySimpleJWT\Parse;
@@ -40,6 +41,44 @@ class UserController extends Controller
             );
         }
         
+    }
+
+    public function getuserdetail(request $request){
+
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+
+        if($result['status'] == 200){
+            $userid = $result['body']['user_id'];
+            return response()->json([
+                'success'=>'succes', 
+                'results'=>array([
+                    'user' => User::where('id',$userid)->select(['username','email','nickname','fullname','phone_number','birthday','gender','profile_picture'])->get(),
+                    'role' => role::where('userId',$userid)->select(['meta_role','meta_id'])->get(),
+                    'pets' => userpets::where('user_id',$userid)->select(['petsname','species','breed','gender','birthdate'])->get()
+                ])
+            ]);
+        }else{
+            return array(
+                $result
+            );
+        }
+        
+    }
+
+    public function deleteuser(request $request){
+
+        $query = User::where('id', $request->id);
+
+        if($query->count()==1){
+            User::where('id',$request->id)->delete();
+            $status = 'User berhasil dihapus';
+        } else{
+            $status = "User tidak ditemukan";
+        }
+
+        return $status;
+
     }
 
     public function login(request $request)
@@ -211,7 +250,6 @@ class UserController extends Controller
         }
     }
 
-    
     public function sosmedlogin(request $request){
         
         $query = User::where("email",$request->email)->where("sosmed_login",$request->sosmed_id);
@@ -222,7 +260,10 @@ class UserController extends Controller
             $status = "Login Success"; 
                 return response()->JSON([
                     'status' => $status,
-                    'token' => $token,
+                    'results' => array([
+                        'User' => User::where('email',$request->email)->where('sosmed_login',$request->sosmed_id)->get(),
+                        'token' => $token
+                        ])
                 ]);
         } else if(isset($request->email)&&isset($request->sosmed_id)&&$query->count()==0&&$emailvalid->count()==1){
             User::where("email",$request->email)->update([
@@ -232,11 +273,14 @@ class UserController extends Controller
                 $status = "Login Success";
                     return response()->JSON([
                     'status' => $status,
-                    'token' => $token
+                    'token' => $token,
+                    'results' => array([
+                        'User' => User::where('email',$request->email)->where('sosmed_login',$request->sosmed_id)->get(),
+                        'token' => $token
+                        ])
                 ]);
         } else{
-            $queri = User::insert([
-
+            User::insertGetId([
                     'username' => $request->username, 
                     'password' => md5($request->password),
                     'profile_picture' => $request->profile_picture,
@@ -246,16 +290,17 @@ class UserController extends Controller
                     'birthday' => $request->tanggal_lahir, 
                     'phone_number' => $request->phone_number, 
                     'gender' => $request->gender,
-                    'status' => 'Active'
+                    'status' => 'Active',
+                    'sosmed_login' => $request->sosmed_id
             ]);
 
-            if($queri==1){
                 $status = "Registration Success";
                 return response()->JSON([
                     'status' => $status,
-                    'token' => $token
+                    'results' => array([
+                        'token' => $token,
+                    ])
                 ]);
-            }
             
         }
         
