@@ -78,6 +78,9 @@ Route::get('location/autocomplete', [ClinicController::class, 'autocomplete']);
 
 Route::get('location/getplace', [ClinicController::class, 'getplace']);
 
+Route::get('location/getlatlong', [ClinicController::class, 'getlatlong']);
+
+
 
 
 
