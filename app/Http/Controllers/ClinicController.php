@@ -29,7 +29,7 @@ class ClinicController extends Controller
     	$details = json_decode($data1, true);
 
     	foreach($details['predictions'] as $key=>$row) {
-    		$arr[] = ['place_id' => $row['place_id'], 'Description' => $row['description']];
+    		$arr[] = ['place_id' => $row['place_id'], 'description' => $row['description']];
     	}
 
 		$status = $details['status'];
@@ -63,15 +63,15 @@ class ClinicController extends Controller
 	    curl_close($ch); // close curl session
 
 	$details = json_decode($data, true);
-
+	foreach($details['results'] as $key=>$row) {
+		$placedetail[] = ['address_components' => $row['address_components'],'coordinate' => $row['geometry']['location'], 'full_address' =>$row['formatted_address']];
+	}
 	$status = $details['status'];
 
 	if($status == 'OK'){
 		return response()->JSON([
 			'status' => $status,
-			'result' => array([
-				'place' => $details
-			])
+			'result' => $placedetail
 		]);
 	} else{
 		return response()->JSON([
@@ -95,15 +95,15 @@ class ClinicController extends Controller
 	    curl_close($ch); // close curl session
 
 	$details = json_decode($data, true);
-
+	foreach($details['results'] as $key=>$row) {
+		$placedetail = ['address' => $row['formatted_address'],'coordinate' => $row['geometry']['location']];
+	}
 	$status = $details['status'];
 
 	if($status == 'OK'){
 		return response()->JSON([
 			'status' => $status,
-			'result' => array([
-				'place' => $details
-			])
+			'result' => $placedetail
 		]);
 	} else{
 		return response()->JSON([
