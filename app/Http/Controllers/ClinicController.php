@@ -27,16 +27,17 @@ class ClinicController extends Controller
     	$data1 = curl_exec($ch);
     	curl_close($ch);
     	$details = json_decode($data1, true);
-    	// foreach($details['predictions'] as $key=>$row) {
-    	// 	$arr[] = "[".'ID : '.$row['place_id'].' , '.$row['description']."]";
-    	// }
+
+    	foreach($details['predictions'] as $key=>$row) {
+    		$arr[] = ['place_id' => $row['place_id'], 'Description' => $row['description']];
+    	}
 
 		$status = $details['status'];
 		if($status == 'OK'){
 			return response()->JSON([
 				'status' => $status,
 				'results' =>array([
-					'place' => $details
+					'place' => $arr
 				])
 			]);
 		} else{
@@ -81,4 +82,34 @@ class ClinicController extends Controller
     
   }
 
+  public function getlatlong(request $request){
+	$apikey = $this->api_key;
+  	$placeid = $request->placeid;
+        $query = 'https://maps.googleapis.com/maps/api/geocode/json?place_id='.$placeid.'&key='.$apikey;
+		;
+	    $ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $query);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    
+	    $data = curl_exec($ch); // execute curl session
+	    curl_close($ch); // close curl session
+
+	$details = json_decode($data, true);
+
+	$status = $details['status'];
+
+	if($status == 'OK'){
+		return response()->JSON([
+			'status' => $status,
+			'result' => array([
+				'place' => $details
+			])
+		]);
+	} else{
+		return response()->JSON([
+			'status' => $status,
+			'result' => 'none'
+		]);
+	}
+  }
 }
