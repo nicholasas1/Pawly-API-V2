@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\ClinicController;
+use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SplashscreenMobileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserpetsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +26,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('profile/getlist', [UserController::class, 'getlist']);
 
+Route::get('profile/getuserdetail', [UserController::class, 'getuserdetail']);
+
 Route::post('profile/login', [UserController::class, 'login']);
 
 Route::post('profile/user_registration', [UserController::class, 'register']);
@@ -35,6 +40,8 @@ Route::post('cms/update_token', [UserController::class, 'update_token']);
 
 Route::post('profile/sosmedlogin', [UserController::class, 'sosmedlogin']);
 
+Route::post('profile/deleteuser', [UserController::class, 'deleteuser']);
+
 Route::get('mobile/getSplash', [SplashscreenMobileController::class, 'getSplash']);
 
 Route::post('mobile/deleteSplash', [SplashscreenMobileController::class, 'deleteSplash']);
@@ -42,4 +49,40 @@ Route::post('mobile/deleteSplash', [SplashscreenMobileController::class, 'delete
 Route::post('mobile/createSplash', [SplashscreenMobileController::class, 'createSplash']);
 
 Route::post('mobile/updateSplash', [SplashscreenMobileController::class, 'updateSplash']);
+
+Route::post('doctor/registration', [DoctorController::class, 'regisasdoctor']);
+
+Route::get('doctor/getdetaildoctor', [DoctorController::class, 'getlistdoctor']);
+
+Route::post('doctor/updatedoctor', [DoctorController::class, 'updatedoctor']);
+
+Route::post('doctor/adddoctorspeciality', [DoctorController::class, 'adddoctorspeciality']);
+
+Route::post('doctor/updatedoctorspeciality', [DoctorController::class, 'updatedoctorspeciality']);
+
+Route::post('doctor/deletedoctor', [DoctorController::class, 'deletedoctorlist']);
+
+Route::post('doctor/deletedoctorspeciality', [DoctorController::class, 'deletedoctorspeciality']);
+
+Route::post('pet/addpet', [UserpetsController::class, 'addpet']);
+
+Route::get('pet/getuserpet', [UserpetsController::class, 'getuserpet']);
+
+Route::get('pet/getpetdetail', [UserpetsController::class, 'getpetdetail']);
+
+Route::post('pet/updatepet', [UserpetsController::class, 'updatepet']);
+
+Route::post('pet/deletepet', [UserpetsController::class, 'deletepet']);
+
+Route::get('location/autocomplete', [ClinicController::class, 'autocomplete']);
+
+Route::get('location/getplace', [ClinicController::class, 'getplace']);
+
+Route::get('location/getlatlong', [ClinicController::class, 'getlatlong']);
+
+
+
+
+
+
 
