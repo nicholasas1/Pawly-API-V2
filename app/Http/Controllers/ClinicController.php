@@ -15,10 +15,9 @@ class ClinicController extends Controller
   }
   
   public function autocomplete(request $request){
-    
-        header("Cache-Control: private, max-age=86400");
-	    header("Expires: ".gmdate('r', time()+86400));
-        $query = $request->cityname;
+
+        $place = $request->cityname;
+		$query = str_replace(' ', '-', $place);
 		$location = $request->lattitude.','.$request->longtitude;
     	$apikey = $this->api_key;
     	$url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input='.$query.'&types=establishment&location='.$location.'&radius=500&key='.$apikey;
@@ -28,17 +27,16 @@ class ClinicController extends Controller
     	$data1 = curl_exec($ch);
     	curl_close($ch);
     	$details = json_decode($data1, true);
-    	header("Content-Type: application/json");
-    	foreach($details['predictions'] as $key=>$row) {
-    		$arr[] = "[".$row['description']."]";
-    	}
+    	// foreach($details['predictions'] as $key=>$row) {
+    	// 	$arr[] = "[".'ID : '.$row['place_id'].' , '.$row['description']."]";
+    	// }
 
 		$status = $details['status'];
 		if($status == 'OK'){
 			return response()->JSON([
 				'status' => $status,
 				'results' =>array([
-					'place' => $arr
+					'place' => $details
 				])
 			]);
 		} else{
