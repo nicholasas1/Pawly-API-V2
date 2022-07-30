@@ -49,10 +49,11 @@ class UserController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         
         if($result['status'] == 200){
-            $userid = $result['body']['user_id'];
+        $userid = $result['body']['user_id'];
+        $user = User::where('id',$userid);
         $roles = role::where('userId',$userid)->select(['meta_role','meta_id'])->get();
         $pets = userpets::where('user_id',$userid)->select(['petsname','species','breed','gender','birthdate'])->get();
-        $arr = ['Username' => User::where('id',$userid)->value('username'),'Full_Name' => User::where('id',$userid)->value('fullname'), 'Roles' => $roles, 'Pets' => $pets]; 
+        $arr = ['Username' => $user->value('Username'),'Nickname' => $user->value('nickname'),'Full_Name' => $user->value('fullname'), 'Email' => $user->value('email'),'phone_number' => $user->value('phone_number'),'birthday' => $user->value('birthday'),'gender'=> $user->value('gender'),'profile_picture'=>$user->value('profile_picture'),'Roles' => $roles, 'Pets' => $pets]; 
             return response()->json([
                 'success'=>'succes', 
                 'results'=> $arr
