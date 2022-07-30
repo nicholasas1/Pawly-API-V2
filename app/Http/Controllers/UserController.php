@@ -47,16 +47,15 @@ class UserController extends Controller
 
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
-
+        
         if($result['status'] == 200){
             $userid = $result['body']['user_id'];
+        $roles = role::where('userId',$userid)->select(['meta_role','meta_id'])->get();
+        $pets = userpets::where('user_id',$userid)->select(['petsname','species','breed','gender','birthdate'])->get();
+        $arr = ['Username' => User::where('id',$userid)->value('username'),'Full_Name' => User::where('id',$userid)->value('fullname'), 'Roles' => $roles, 'Pets' => $pets]; 
             return response()->json([
                 'success'=>'succes', 
-                'results'=>array([
-                    'user' => User::where('id',$userid)->select(['username','email','nickname','fullname','phone_number','birthday','gender','profile_picture'])->get(),
-                    'role' => role::where('userId',$userid)->select(['meta_role','meta_id'])->get(),
-                    'pets' => userpets::where('user_id',$userid)->select(['petsname','species','breed','gender','birthdate'])->get()
-                ])
+                'results'=> $arr
             ]);
         }else{
             return array(
