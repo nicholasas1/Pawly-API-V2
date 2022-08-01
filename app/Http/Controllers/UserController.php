@@ -32,7 +32,7 @@ class UserController extends Controller
 
         if($result['status'] == 200){
             return response()->json([
-                'success'=>'succes', 
+                'status'=>'success', 
                 'results'=>User::all()
             ]);
         }else{
@@ -55,7 +55,7 @@ class UserController extends Controller
         $pets = userpets::where('user_id',$userid)->select(['petsname','species','breed','gender','birthdate'])->get();
         $arr = ['Username' => $user->value('Username'),'Nickname' => $user->value('nickname'),'Full_Name' => $user->value('fullname'), 'Email' => $user->value('email'),'phone_number' => $user->value('phone_number'),'birthday' => $user->value('birthday'),'gender'=> $user->value('gender'),'profile_picture'=>$user->value('profile_picture'),'Roles' => $roles, 'Pets' => $pets]; 
             return response()->json([
-                'success'=>'succes', 
+                'status'=>'success', 
                 'results'=> $arr
             ]);
         }else{
@@ -243,7 +243,7 @@ class UserController extends Controller
                     'gender' => $request->gender
                 ]);
             return response()->json([
-                'success'=>'succes', 
+                'status'=>'success', 
                 'result'=> User::where('id',$user)->get()
                 ]);
         }else{
@@ -322,7 +322,7 @@ class UserController extends Controller
             return view('AccountActive');
         } else{
             return response()->json([
-                'success'=>'failed'
+                'status'=>'failed'
             ]);
         }
     }
