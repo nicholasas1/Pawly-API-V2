@@ -47,16 +47,16 @@ class UserController extends Controller
 
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
-
+        
         if($result['status'] == 200){
-            $userid = $result['body']['user_id'];
+        $userid = $result['body']['user_id'];
+        $user = User::where('id',$userid);
+        $roles = role::where('userId',$userid)->select(['meta_role','meta_id'])->get();
+        $pets = userpets::where('user_id',$userid)->select(['petsname','species','breed','gender','birthdate'])->get();
+        $arr = ['Username' => $user->value('Username'),'Nickname' => $user->value('nickname'),'Full_Name' => $user->value('fullname'), 'Email' => $user->value('email'),'phone_number' => $user->value('phone_number'),'birthday' => $user->value('birthday'),'gender'=> $user->value('gender'),'profile_picture'=>$user->value('profile_picture'),'Roles' => $roles, 'Pets' => $pets]; 
             return response()->json([
                 'success'=>'succes', 
-                'results'=>array([
-                    'user' => User::where('id',$userid)->select(['username','email','nickname','fullname','phone_number','birthday','gender','profile_picture'])->get(),
-                    'role' => role::where('userId',$userid)->select(['meta_role','meta_id'])->get(),
-                    'pets' => userpets::where('user_id',$userid)->select(['petsname','species','breed','gender','birthdate'])->get()
-                ])
+                'results'=> $arr
             ]);
         }else{
             return array(
@@ -164,12 +164,16 @@ class UserController extends Controller
                 $urlActivation =  '/profile/ActivateAccount?id=';
                 $lastid = base64_encode($userid );
                  Mail::to($request->email)->send(new activateEmail(env('Activate_Account_URL') . $urlActivation . $lastid));
+                
             }
+            $emails = $request->email;
+            $token = $this->JWTValidator->createToken($userid,$emails);
         }
         
 
         return response()->json([
-            'status'=>$status
+            'status'=>$status,
+            'token' => $token
         ]);
         
        
@@ -254,33 +258,27 @@ class UserController extends Controller
         
         $query = User::where("email",$request->email)->where("sosmed_login",$request->sosmed_id);
         $emailvalid = User::where("email",$request->email);
-        $token = $this->JWTValidator->createToken($query->value('id'),$query->value('email'));
         
         if($query->count() == 1){
-            $status = "Login Success"; 
+            $status = "Login Success";
+            $token = $this->JWTValidator->createToken($query->value('id'),$query->value('email'));
                 return response()->JSON([
                     'status' => $status,
-                    'results' => array([
-                        'User' => User::where('email',$request->email)->where('sosmed_login',$request->sosmed_id)->get(),
-                        'token' => $token
-                        ])
+                    'token' => $token
                 ]);
         } else if(isset($request->email)&&isset($request->sosmed_id)&&$query->count()==0&&$emailvalid->count()==1){
-            User::where("email",$request->email)->update([
+            $addsosmedid = User::where("email",$request->email)->update([
                 'sosmed_login' => $request->sosmed_id,
                 'status' => 'Active'
             ]);
                 $status = "Login Success";
+                $token = $this->JWTValidator->createToken($addsosmedid->value('id'),$addsosmedid->value('email'));
                     return response()->JSON([
                     'status' => $status,
                     'token' => $token,
-                    'results' => array([
-                        'User' => User::where('email',$request->email)->where('sosmed_login',$request->sosmed_id)->get(),
-                        'token' => $token
-                        ])
                 ]);
         } else{
-            User::insertGetId([
+            $insertnew = User::insertGetId([
                     'username' => $request->username, 
                     'password' => md5($request->password),
                     'profile_picture' => $request->profile_picture,
@@ -294,12 +292,17 @@ class UserController extends Controller
                     'sosmed_login' => $request->sosmed_id
             ]);
 
+                $query = User::where('id',$insertnew)->where('email',$request->email);
+                $token = $this->JWTValidator->createToken($query->value('id'),$query->value('email'));
+                Role::insert([
+                    'userId' => $insertnew,
+                    'meta_role'=> 'User'
+                ]);
+
                 $status = "Registration Success";
                 return response()->JSON([
                     'status' => $status,
-                    'results' => array([
-                        'token' => $token,
-                    ])
+                    'token' => $token,
                 ]);
             
         }
