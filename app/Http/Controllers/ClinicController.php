@@ -29,16 +29,14 @@ class ClinicController extends Controller
     	$details = json_decode($data1, true);
 
     	foreach($details['predictions'] as $key=>$row) {
-    		$arr[] = ['place_id' => $row['place_id'], 'description' => $row['description']];
+    		$arr[] = ['place_id' => $row['place_id'], 'description' => $row['description'], 'main_text' => $row['structured_formatting']['main_text'], 'secondary_text' => $row['structured_formatting']['secondary_text']];
     	}
 
 		$status = $details['status'];
 		if($status == 'OK'){
 			return response()->JSON([
 				'status' => $status,
-				'results' =>array([
-					'place' => $arr
-				])
+				'results' => $arr
 			]);
 		} else{
 			return response()->JSON([
