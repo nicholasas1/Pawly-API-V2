@@ -61,9 +61,12 @@ class ClinicController extends Controller
 	    curl_close($ch); // close curl session
 
 	$details = json_decode($data, true);
-	foreach($details['results'] as $key=>$row) {
-		$placedetail[] = ['address_components' => $row['address_components'],'coordinate' => $row['geometry']['location'], 'full_address' =>$row['formatted_address']];
-	}
+	// foreach($details['results'] as $row) {
+	// 	$placedetail = $row;
+	// 	// $placedetail[] = ['route' => $row['address_components'],'coordinate' => $row['geometry']['location'], 'full_address' =>$row['formatted_address']];
+	// }
+
+	$placedetail[] = ['route' => $details['results'][0]['address_components'][1]['long_name'], 'coordinate' => $details['results'][0]['geometry']['location'], 'full_address' => $details['results'][0]['formatted_address']];
 	$status = $details['status'];
 
 	if($status == 'OK'){
