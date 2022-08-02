@@ -237,7 +237,6 @@ class UserController extends Controller
         if($result['status'] == 200){
 
             $user = $result['body']['user_id'];
-            echo $user;
             User::where('id', $user)->update(
                 [   
                     'username' => $request->username,
