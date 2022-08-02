@@ -50,15 +50,17 @@ class UserpetsController extends Controller
         $query = userpets::where('user_id',$request->user_id);
 
         if($query->count()>0){
-            $status = 'there is '.$query->count().' pets';
+            $status = 'success';
             return response()->JSON([
                 'status' => $status,
-                'results' => userpets::where('user_id',$request->user_id)->get()
+                'results' => userpets::where('user_id',$request->user_id)->get(),
+                'total_result' => $query->count()
             ]);
         } else{
             $status = "no_pet_avaiable";
             return response()->JSON([
-                'status' => $status
+                'status' => $status,
+                'results' => userpets::where('user_id',$request->user_id)->get()
             ]);
         }
     }
