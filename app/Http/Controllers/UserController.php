@@ -224,7 +224,8 @@ class UserController extends Controller
         }
 
         return response()->json([
-            'status'=>$status
+            'status'=>$status,
+            'results'=>User::where('id',$id)->select('username','profile_picture','nickname','fullname','birthday','phone_number','gender')->get()
         ]);
     }
 
@@ -236,6 +237,7 @@ class UserController extends Controller
         if($result['status'] == 200){
 
             $user = $result['body']['user_id'];
+            echo $user;
             User::where('id', $user)->update(
                 [   
                     'username' => $request->username,
@@ -248,7 +250,7 @@ class UserController extends Controller
                 ]);
             return response()->json([
                 'status'=>'success', 
-                'result'=> User::where('id',$user)->get()
+                'result'=> User::where('id',$user)->select('username','profile_picture','nickname','fullname','birthday','phone_number','gender')->get()
                 ]);
         }else{
             return array(
