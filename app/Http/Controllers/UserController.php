@@ -53,7 +53,7 @@ class UserController extends Controller
         $user = User::where('id',$userid);
         $roles = role::where('userId',$userid)->select(['meta_role','meta_id'])->get();
         $pets = userpets::where('user_id',$userid)->select(['petsname','species','breed','gender','birthdate'])->get();
-        $arr = ['Username' => $user->value('Username'),'Nickname' => $user->value('nickname'),'Full_Name' => $user->value('fullname'), 'Email' => $user->value('email'),'phone_number' => $user->value('phone_number'),'birthday' => $user->value('birthday'),'gender'=> $user->value('gender'),'profile_picture'=>$user->value('profile_picture'),'Roles' => $roles, 'Pets' => $pets]; 
+        $arr = ['Id' => $userid,'Username' => $user->value('Username'),'Nickname' => $user->value('nickname'),'Full_Name' => $user->value('fullname'), 'Email' => $user->value('email'),'phone_number' => $user->value('phone_number'),'birthday' => $user->value('birthday'),'gender'=> $user->value('gender'),'profile_picture'=>$user->value('profile_picture'),'Roles' => $roles, 'Pets' => $pets]; 
             return response()->json([
                 'status'=>'success', 
                 'results'=> $arr
@@ -93,24 +93,28 @@ class UserController extends Controller
         $query = User::where($field,$request->username)->where("password",md5($request->password));
         if($query->count()== 0){
                 $status = "Invalid Username or Password";
+                return response()->JSON([
+                    'status' => $status,
+                    'results' => 'null'
+                ]);
         }else{
             $status="success";
-        }
-
-        if($query->value('status') == "Waiting Activation"){
-            $status="Your account is not active. Please check your email to activate your account";
+            if($query->value('status') == "Waiting Activation"){
+                $status="Your account is not active. Please check your email to activate your account";
+            }
+            
+            $token = $this->JWTValidator->createToken($query->value('id'), $query->value('username'));
+          
+            return response()->json([
+                'status'=>$status, 
+                'results'=> array(
+                    'username'  => $query->value('username'),
+                    'role'      => role::where('userId',$query->value('id'))->get(),
+                    'token'     => $token,
+                )
+            ]);
         }
         
-        $token = $this->JWTValidator->createToken($query->value('id'), $query->value('username'));
-      
-        return response()->json([
-            'status'=>$status, 
-            'results'=> array(
-                'username'  => $query->value('username'),
-                'role'      => role::where('userId',$query->value('id'))->get(),
-                'token'     => $token,
-            )
-        ]);
 
     }
 
@@ -220,7 +224,8 @@ class UserController extends Controller
         }
 
         return response()->json([
-            'status'=>$status
+            'status'=>$status,
+            'results'=>User::where('id',$id)->select('username','profile_picture','nickname','fullname','birthday','phone_number','gender')->get()
         ]);
     }
 
@@ -232,6 +237,7 @@ class UserController extends Controller
         if($result['status'] == 200){
 
             $user = $result['body']['user_id'];
+            echo $user;
             User::where('id', $user)->update(
                 [   
                     'username' => $request->username,
@@ -244,7 +250,7 @@ class UserController extends Controller
                 ]);
             return response()->json([
                 'status'=>'success', 
-                'result'=> User::where('id',$user)->get()
+                'result'=> User::where('id',$user)->select('username','profile_picture','nickname','fullname','birthday','phone_number','gender')->get()
                 ]);
         }else{
             return array(
@@ -280,7 +286,6 @@ class UserController extends Controller
         } else{
             $insertnew = User::insertGetId([
                     'username' => $request->username, 
-                    'password' => md5($request->password),
                     'profile_picture' => $request->profile_picture,
                     'nickname' => $request->nick_name, 
                     'fullname' => $request->full_name, 
