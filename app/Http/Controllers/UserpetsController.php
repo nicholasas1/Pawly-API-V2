@@ -31,17 +31,14 @@ class UserpetsController extends Controller
 
         $petowner = User::where('id',$request->user_id)->value('username');
         if($query==1){
-            $status = 'add success';
+            $status = 'success';
+            $pet = ['pet_owner' => $petowner, 'pet_name' => $request->pets_name, 'species_breed' => $request->breed.' '.$request->species];
             return response()->JSON([
                 'status' => $status,
-                'result' => array([
-                    'pet owner' => $petowner,
-                    'pet name' => $request->pets_name,
-                    'species and breed' => $request->breed .' '. $request->species,
-                ])
+                'result' => $pet
             ]);
         } else{
-            $status = "Failed to add";
+            $status = "fail";
             return response()->JSON([
                 'status' => $status
             ]);
@@ -56,10 +53,10 @@ class UserpetsController extends Controller
             $status = 'there is '.$query->count().' pets';
             return response()->JSON([
                 'status' => $status,
-                'pets' => userpets::where('user_id',$request->user_id)->get()
+                'results' => userpets::where('user_id',$request->user_id)->get()
             ]);
         } else{
-            $status = "no pets";
+            $status = "no_pet_avaiable";
             return response()->JSON([
                 'status' => $status
             ]);
@@ -69,15 +66,16 @@ class UserpetsController extends Controller
     public function getpetdetail(request $request){
 
         $query = userpets::where('Id',$request->id);
+        $pets = userpets::where('id',$request->id)->get();
 
         if($query->count()>0){
             $status = 'Success';
             return response()->JSON([
                 'status' => $status,
-                'results' => userpets::where('id',$request->id)->get()
+                'results' => $pets
             ]);
         } else{
-            $status = "no pets";
+            $status = "no_pet_avaiable";
             return response()->JSON([
                 'status' => $status
             ]);
@@ -104,13 +102,13 @@ class UserpetsController extends Controller
         ]);
 
         if($query==1){
-            $status = 'sukses';
+            $status = 'success';
             return response()->JSON([
                 'status' => $status,
                 'result' => userpets::where('id',$request->id)->get()
             ]);
         } else{
-            $status = 'failed to update';
+            $status = 'fail';
             return response()->JSON([
                 'status' => $status
             ]);
@@ -122,12 +120,12 @@ class UserpetsController extends Controller
         $query = userpets::where('id',$request->id)->delete();
 
         if($query==1){
-            $status = 'delete success';
+            $status = 'success';
             return response()->JSON([
                 'status' => $status
             ]);
         } else{
-            $status = 'no pet to delete';
+            $status = 'fail';
             return response()->JSON([
                 'status' => $status
             ]);
