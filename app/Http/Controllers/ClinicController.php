@@ -118,7 +118,7 @@ class ClinicController extends Controller
 
 	$details = json_decode($data, true);
 	foreach($details['results'] as $key=>$row) {
-		$placedetail = ['route' => $row['address_components'][1]['long_name'],'address' => $row['formatted_address'],'coordinate' => $row['geometry']['location']];
+		$placedetail = ['route' => $row['address_components'][1]['long_name'],'coordinate' => $row['geometry']['location'],'full_address' => $row['formatted_address']];
 	}
 	$status = $details['status'];
 
