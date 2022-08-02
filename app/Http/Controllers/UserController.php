@@ -252,9 +252,10 @@ class UserController extends Controller
                 'result'=> User::where('id',$user)->select('username','profile_picture','nickname','fullname','birthday','phone_number','gender')->get()
                 ]);
         }else{
-            return array(
-                $result
-            );
+            return response()->JSON([
+                'status' => 'fail',
+                'results' => ' '
+            ]);
             
         }
     }
