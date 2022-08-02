@@ -42,7 +42,9 @@ class UserpetsController extends Controller
             ]);
         } else{
             $status = "Failed to add";
-            return $status;
+            return response()->JSON([
+                'status' => $status
+            ]);
         }
     }
 
@@ -58,7 +60,9 @@ class UserpetsController extends Controller
             ]);
         } else{
             $status = "no pets";
-            return $status;
+            return response()->JSON([
+                'status' => $status
+            ]);
         }
     }
 
@@ -74,7 +78,9 @@ class UserpetsController extends Controller
             ]);
         } else{
             $status = "no pets";
-            return $status;
+            return response()->JSON([
+                'status' => $status
+            ]);
         }
     }
 
@@ -91,7 +97,7 @@ class UserpetsController extends Controller
             'vaccinated' => $request->vaccinated,
             'fdlwdogs' => $request->fdlwdogs, //friendly with dogs
             'fdlwcats' => $request->fdlwcats, //friendly with cats
-            'fdlywkidsless10' => $request->fdlywkidsless10, //friendly with kids < 10 years old
+            'fdlywkidsless10' => $request->fdlywkidsless10, //friendly with kids     < 10 years old
             'fdlwkidsmore10' => $request->fdlwkidsmore10, //friendly with kids > 10 years old
             'microchipped' => $request->microchipped,
             'purbered' => $request->purbered
@@ -105,7 +111,9 @@ class UserpetsController extends Controller
             ]);
         } else{
             $status = 'failed to update';
-            return $status;
+            return response()->JSON([
+                'status' => $status
+            ]);
         }
 
     }
@@ -115,10 +123,14 @@ class UserpetsController extends Controller
 
         if($query==1){
             $status = 'delete success';
-            return $status;
+            return response()->JSON([
+                'status' => $status
+            ]);
         } else{
             $status = 'no pet to delete';
-            return $status;
+            return response()->JSON([
+                'status' => $status
+            ]);
         }
     }
 }
