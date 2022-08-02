@@ -34,9 +34,9 @@ Route::post('profile/user_registration', [UserController::class, 'register']);
 
 Route::post('upload_base_64', [UserController::class,'uploadBase64']);
 
-Route::post('profile/update_query', [UserController::class, 'update_query']);
+Route::post('cms/update_query', [UserController::class, 'update_query']);
 
-Route::post('cms/update_token', [UserController::class, 'update_token']);
+Route::post('profile/update_token', [UserController::class, 'update_token']);
 
 Route::post('profile/sosmedlogin', [UserController::class, 'sosmedlogin']);
 
