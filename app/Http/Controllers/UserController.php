@@ -93,24 +93,28 @@ class UserController extends Controller
         $query = User::where($field,$request->username)->where("password",md5($request->password));
         if($query->count()== 0){
                 $status = "Invalid Username or Password";
+                return response()->JSON([
+                    'status' => $status,
+                    'results' => 'null'
+                ]);
         }else{
             $status="success";
-        }
-
-        if($query->value('status') == "Waiting Activation"){
-            $status="Your account is not active. Please check your email to activate your account";
+            if($query->value('status') == "Waiting Activation"){
+                $status="Your account is not active. Please check your email to activate your account";
+            }
+            
+            $token = $this->JWTValidator->createToken($query->value('id'), $query->value('username'));
+          
+            return response()->json([
+                'status'=>$status, 
+                'results'=> array(
+                    'username'  => $query->value('username'),
+                    'role'      => role::where('userId',$query->value('id'))->get(),
+                    'token'     => $token,
+                )
+            ]);
         }
         
-        $token = $this->JWTValidator->createToken($query->value('id'), $query->value('username'));
-      
-        return response()->json([
-            'status'=>$status, 
-            'results'=> array(
-                'username'  => $query->value('username'),
-                'role'      => role::where('userId',$query->value('id'))->get(),
-                'token'     => $token,
-            )
-        ]);
 
     }
 
