@@ -19,7 +19,7 @@ return new class extends Migration
             $table->char('email',100);
             $table->char('nickname',100);
             $table->char('fullname',100);
-            $table->char('password',100);
+            $table->char('password',100)->nullable();
             $table->char('phone_number',15)->nullable();
             $table->date('birthday')->nullable();
             $table->char('gender',2)->nullable();
