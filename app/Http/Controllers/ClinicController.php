@@ -62,11 +62,32 @@ class ClinicController extends Controller
 
 	$details = json_decode($data, true);
 	// foreach($details['results'] as $row) {
-	// 	$placedetail = $row;
-	// 	// $placedetail[] = ['route' => $row['address_components'],'coordinate' => $row['geometry']['location'], 'full_address' =>$row['formatted_address']];
+	// 	// $placedetail = $row;
+	// 	$placedetail[] = ['route' => $row['address_components'][1]['long_name'],'coordinate' => $row['geometry']['location'], 'full_address' =>$row['formatted_address']];
 	// }
 
-	$placedetail[] = ['route' => $details['results'][0]['address_components'][1]['long_name'], 'coordinate' => $details['results'][0]['geometry']['location'], 'full_address' => $details['results'][0]['formatted_address']];
+	// foreach($details['results'] as $row){
+	// 	foreach($row['address_components'] as $rows){
+	// 		$placedetail[] = ['route' => $rows['long_name']];
+	// 	}
+	// }
+
+	// foreach($details['results'] as $row){
+	// 	foreach($row['address_components'] as $rows){
+	// 			$placedetail[] = [
+	// 						'route' => $rows['long_name'],
+	// 						'cordinate' => $row['geometry']['location'],
+	// 						'full_addres' => $row['formatted_address']
+	// 			];
+	// 		}
+	// }
+	// foreach($details['results'][0]['address_components'] as $rows){
+	// 	// if(in_array("routes", $rows['types'])){
+	// 		$placedetail = $rows;
+	// 	// }
+	// }
+	// $placedetail = $details;
+	$placedetail = ['route' => $details['results'][0]['address_components'][1]['long_name'], 'coordinate' => $details['results'][0]['geometry']['location'], 'full_address' => $details['results'][0]['formatted_address']];
 	$status = $details['status'];
 
 	if($status == 'OK'){
@@ -97,7 +118,7 @@ class ClinicController extends Controller
 
 	$details = json_decode($data, true);
 	foreach($details['results'] as $key=>$row) {
-		$placedetail = ['address' => $row['formatted_address'],'coordinate' => $row['geometry']['location']];
+		$placedetail = ['route' => $row['address_components'][1]['long_name'],'coordinate' => $row['geometry']['location'],'full_address' => $row['formatted_address']];
 	}
 	$status = $details['status'];
 
