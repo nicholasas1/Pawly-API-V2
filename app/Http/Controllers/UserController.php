@@ -284,7 +284,6 @@ class UserController extends Controller
         } else{
             $insertnew = User::insertGetId([
                     'username' => $request->username, 
-                    'password' => md5($request->password),
                     'profile_picture' => $request->profile_picture,
                     'nickname' => $request->nick_name, 
                     'fullname' => $request->full_name, 
