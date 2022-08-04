@@ -14,7 +14,7 @@ use ReallySimpleJWT\Decode;
 use App\Http\Controllers\JWTValidator;
 use App\Mail\activateEmail;
 use Illuminate\Support\Facades\Mail;
-
+use Carbon;
 
 class UserController extends Controller
 {
@@ -90,6 +90,9 @@ class UserController extends Controller
         } else {
             $field = 'username';
         }
+
+        $current_date_time = date('Y-m-d H:i:s');
+
         $query = User::where($field,$request->username)->where("password",md5($request->password));
         if($query->count()== 0){
                 $status = "Invalid Username or Password";
@@ -131,7 +134,7 @@ class UserController extends Controller
             $status = "Username sudah digunakan";
             $error = 1;
         }
-
+        $current_date_time = date('Y-m-d H:i:s');
         $uppercase = preg_match('@[A-Z]@', $request->password);
         $lowercase = preg_match('@[a-z]@', $request->password);
         $number    = preg_match('@[0-9]@', $request->password);
@@ -154,7 +157,8 @@ class UserController extends Controller
                     'birthday' => $request->tanggal_lahir, 
                     'phone_number' => $request->phone_number, 
                     'gender' => $request->gender,
-                    'status' => 'Waiting Activation'
+                    'status' => 'Waiting Activation',
+                    'create_at' => $current_date_time
                 ]
             );
 
@@ -174,7 +178,6 @@ class UserController extends Controller
             $token = $this->JWTValidator->createToken($userid,$emails);
         }
         
-
         return response()->json([
             'status'=>$status,
             'token' => $token
@@ -185,6 +188,9 @@ class UserController extends Controller
     public function uploadBase64(request $request)
     {
 
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+
         $image_parts = explode(";base64,", $request->img);
         $image_type_aux = explode("image/", $image_parts[0]);
         $image_type = $image_type_aux[1];
@@ -192,19 +198,33 @@ class UserController extends Controller
         $file = uniqid() . '.'.$image_type;
 
         file_put_contents(env('Folder_APP').$file, $image_base64);
-
-        return response()->json([
-            'status'=>"success", 
-            'results'=> array(
-                'file_path'  => $file,
-                'file_url'   => env('IMAGE_URL') . $file,
-            )
-        ]);
+        $userid = $result['body']['user_id'];
+        $query = User::where('id',$userid)->update(
+            [
+            'profile_picture' => env('IMAGE_URL') . $file
+            ]
+        );
+        if($query==1){
+            return response()->json([
+                'status'=>"success", 
+                'results'=> array(
+                    'file_path'  => $file,
+                    'file_url'   => env('IMAGE_URL') . $file,
+                )
+            ]);
+        } else{
+            return response()->JSON([
+                'status' => 'data_not_loaded',
+                'results' => array()
+            ]);
+        }
+        
 
     }
     public function update_query(request $request){
         
         $id = $request->query('id');
+        $current_date_time = date('Y-m-d H:i:s');
         $query = User::find($id)->update(
             [
                 'username' => $request->username, 
@@ -213,7 +233,8 @@ class UserController extends Controller
                 'fullname' => $request->full_name, 
                 'birthday' => $request->tanggal_lahir, 
                 'phone_number' => $request->phone_number, 
-                'gender' => $request->gender
+                'gender' => $request->gender,
+                'update_at' => $current_date_time
             ]
         );
 
@@ -233,7 +254,7 @@ class UserController extends Controller
         
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
-
+        $current_date_time = date('Y-m-d H:i:s');
         if($result['status'] == 200){
 
             $user = $result['body']['user_id'];
@@ -245,7 +266,8 @@ class UserController extends Controller
                     'fullname' => $request->full_name, 
                     'birthday' => $request->tanggal_lahir, 
                     'phone_number' => $request->phone_number, 
-                    'gender' => $request->gender
+                    'gender' => $request->gender,
+                    'update_at' => $current_date_time
                 ]);
             return response()->json([
                 'status'=>'success', 
@@ -264,7 +286,7 @@ class UserController extends Controller
         
         $query = User::where("email",$request->email)->where("sosmed_login",$request->sosmed_id);
         $emailvalid = User::where("email",$request->email);
-        
+        $current_date_time = date('Y-m-d H:i:s');
         if($query->count() == 1){
             $status = "Login Success";
             $token = $this->JWTValidator->createToken($query->value('id'),$query->value('email'));
@@ -294,7 +316,8 @@ class UserController extends Controller
                     'phone_number' => $request->phone_number, 
                     'gender' => $request->gender,
                     'status' => 'Active',
-                    'sosmed_login' => $request->sosmed_id
+                    'sosmed_login' => $request->sosmed_id,
+                    'create_at' => $current_date_time
             ]);
 
                 $query = User::where('id',$insertnew)->where('email',$request->email);
