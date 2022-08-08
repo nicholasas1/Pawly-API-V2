@@ -133,4 +133,41 @@ class UserpetsController extends Controller
             ]);
         }
     }
+
+    public function uploadBase64(request $request)
+    {
+
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+
+        $image_parts = explode(";base64,", $request->img);
+        $image_type_aux = explode("image/", $image_parts[0]);
+        $image_type = $image_type_aux[1];
+        $image_base64 = base64_decode($image_parts[1]);
+        $file = uniqid() . '.'.$image_type;
+
+        file_put_contents(env('Folder_APP').$file, $image_base64);
+        $userid = $result['body']['user_id'];
+        $query = userpets::where('id',$request->id)->update(
+            [
+            'pets_picture' => env('IMAGE_URL') . $file
+            ]
+        );
+        if($query==1){
+            return response()->json([
+                'status'=>"success", 
+                'results'=> array(
+                    'file_path'  => $file,
+                    'file_url'   => env('IMAGE_URL') . $file,
+                )
+            ]);
+        } else{
+            return response()->JSON([
+                'status' => 'data_not_loaded',
+                'results' => array()
+            ]);
+        }
+        
+
+    }
 }
