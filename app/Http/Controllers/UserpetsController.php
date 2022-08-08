@@ -5,18 +5,33 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\userpets;
 use App\Models\User;
+use ReallySimpleJWT\Token;
+use ReallySimpleJWT\Parse;
+use ReallySimpleJWT\Jwt;
+use ReallySimpleJWT\Decode;
+use App\Http\Controllers\JWTValidator;
 
 class UserpetsController extends Controller
 {
-    //
+    //\
+    protected $JWTValidator;
+    public function __construct(JWTValidator $JWTValidator)
+    {
+        $this->JWTValidator = $JWTValidator;
+    }
+
     public function addpet(request $request){
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+        $userid = $result['body']['user_id'];
 
         $query = userpets::insert([
-            'user_id' => $request->user_id,
+            'user_id' => $userid,
             'petsname' => $request->pets_name,
             'species' => $request->species,
             'breed' => $request->breed,
             'size' => $request->size,
+            'pets_picture' => $request->picture,
             'gender' => $request->gender,
             'birthdate' => $request->birthdate,
             'neutered' => $request->neutered,
@@ -29,7 +44,7 @@ class UserpetsController extends Controller
             'purbered' => $request->purbered
         ]);
 
-        $petowner = User::where('id',$request->user_id)->value('username');
+        $petowner = User::where('id',$userid)->value('username');
         if($query==1){
             $status = 'success';
             $pet = ['pet_owner' => $petowner, 'pet_name' => $request->pets_name, 'species_breed' => $request->breed.' '.$request->species];
@@ -47,13 +62,20 @@ class UserpetsController extends Controller
 
     public function getuserpet(request $request){
 
-        $query = userpets::where('user_id',$request->user_id);
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+        $userid = $result['body']['user_id'];
+
+        $query = userpets::where('user_id',$userid);
 
         if($query->count()>0){
             $status = 'success';
+            foreach($query as $row){
+                $pets[] = ['pets_name' => 'petsname'];
+            }
             return response()->JSON([
                 'status' => $status,
-                'results' => userpets::where('user_id',$request->user_id)->get(),
+                'results' => $pets,
                 'total_result' => $query->count()
             ]);
         } else{
@@ -68,7 +90,24 @@ class UserpetsController extends Controller
     public function getpetdetail(request $request){
 
         $query = userpets::where('Id',$request->id);
-        $pets = userpets::where('id',$request->id)->get();
+        $pets = [
+        'id' => $request->id,
+        'petsname' => $query->value('petsname'),
+        'species' => $query->value('species'),
+        'breed' => $query->value('breed'),
+        'size' => $query->value('size'),
+        'pets_picture' => $query->value('pets_picture'),
+        'gender' => $query->value('gender'),
+        'birth' => $query->value('birthdate'),
+        'neutered' => $query->value('neutered'),
+        'vaccinated' => $query->value('vaccinated'),
+        'fdlwdogs' => $query->value('fdlwdogs'), //friendly with dogs
+        'fdlwcats' => $query->value('fdlwcats'), //friendly with cats
+        'fdlywkidsless10' => $query->value('fdlywkidsless10'), //friendly with kids     < 10 years old
+        'fdlwkidsmore10' => $query->value('fdlwkidsmore10'), //friendly with kids > 10 years old
+        'microchipped' => $query->value('microchipped'),
+        'purbered' => $query->value('purbered')
+        ];
 
         if($query->count()>0){
             $status = 'Success';
@@ -91,6 +130,7 @@ class UserpetsController extends Controller
             'species' => $request->species,
             'breed' => $request->breed,
             'size' => $request->size,
+            'pets_picture' => $request->pets_picture,
             'gender' => $request->gender,
             'birthdate' => $request->birthdate,
             'neutered' => $request->neutered,
