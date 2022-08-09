@@ -74,6 +74,8 @@ Route::post('pet/updatepet', [UserpetsController::class, 'updatepet']);
 
 Route::post('pet/deletepet', [UserpetsController::class, 'deletepet']);
 
+Route::post('pet/uploadimage', [UserpetsController::class, 'uploadBase64']);
+
 Route::get('location/autocomplete', [ClinicController::class, 'autocomplete']);
 
 Route::get('location/getplace', [ClinicController::class, 'getplace']);

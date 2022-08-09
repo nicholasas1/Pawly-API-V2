@@ -53,7 +53,22 @@ class UserController extends Controller
         $user = User::where('id',$userid);
         $roles = role::where('userId',$userid)->select(['meta_role','meta_id'])->get();
         $pets = userpets::where('user_id',$userid)->select(['petsname','species','breed','gender','birthdate'])->get();
-        $arr = ['Id' => $userid,'Username' => $user->value('Username'),'Nickname' => $user->value('nickname'),'Full_Name' => $user->value('fullname'), 'Email' => $user->value('email'),'phone_number' => $user->value('phone_number'),'birthday' => $user->value('birthday'),'gender'=> $user->value('gender'),'profile_picture'=>$user->value('profile_picture'),'Roles' => $roles, 'Pets' => $pets]; 
+        $arr = [
+            'Id' => $userid,
+            'Username' => $user->value('Username'),
+            'Nickname' => $user->value('nickname'),
+            'Full_Name' => $user->value('fullname'), 
+            'Email' => $user->value('email'),
+            'phone_number' => $user->value('phone_number'),
+            'birthday' => $user->value('birthday'),
+            'gender'=> $user->value('gender'),
+            'profile_picture'=>$user->value('profile_picture'),
+            'is_clinic' => role::where('userId',$userid)->where('meta_role',"Clinic")->count(),
+            'is_doctor' => role::where('userId',$userid)->where('meta_role',"Doctor")->count(),
+            'Roles' => $roles, 
+            'Pet_count' => userpets::where('user_id',$userid)->count(), 
+            'Pets' => $pets
+        ]; 
             return response()->json([
                 'status'=>'success', 
                 'results'=> $arr
@@ -185,6 +200,7 @@ class UserController extends Controller
         
        
     }
+
     public function uploadBase64(request $request)
     {
 
@@ -221,6 +237,7 @@ class UserController extends Controller
         
 
     }
+
     public function update_query(request $request){
         
         $id = $request->query('id');
@@ -256,12 +273,25 @@ class UserController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         $current_date_time = date('Y-m-d H:i:s');
         if($result['status'] == 200){
+            if(filter_var($request->profile_picture, FILTER_VALIDATE_URL) === FALSE){
 
+                $image_parts = explode(";base64,", $request->profile_picture);
+                $image_type_aux = explode("image/", $image_parts[0]);
+                $image_type = $image_type_aux[1];
+                $image_base64 = base64_decode($image_parts[1]);
+                $file = uniqid() . '.'.$image_type;
+        
+                file_put_contents(env('Folder_APP').$file, $image_base64);
+                $picture = env('IMAGE_URL') . $file;
+                
+            }else{
+                $picture = $request->profile_picture;
+            }
             $user = $result['body']['user_id'];
             User::where('id', $user)->update(
                 [   
                     'username' => $request->username,
-                    'profile_picture' => $request->profile_picture,
+                    'profile_picture' => $picture,
                     'nickname' => $request->nick_name, 
                     'fullname' => $request->full_name, 
                     'birthday' => $request->tanggal_lahir, 
