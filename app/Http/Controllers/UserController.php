@@ -63,6 +63,8 @@ class UserController extends Controller
             'birthday' => $user->value('birthday'),
             'gender'=> $user->value('gender'),
             'profile_picture'=>$user->value('profile_picture'),
+            'is_clinic' => role::where('userId',$userid)->where('meta_role',"Clinic")->count(),
+            'is_doctor' => role::where('userId',$userid)->where('meta_role',"Doctor")->count(),
             'Roles' => $roles, 
             'Pet_count' => userpets::where('user_id',$userid)->count(), 
             'Pets' => $pets
@@ -198,6 +200,7 @@ class UserController extends Controller
         
        
     }
+
     public function uploadBase64(request $request)
     {
 
@@ -234,6 +237,7 @@ class UserController extends Controller
         
 
     }
+
     public function update_query(request $request){
         
         $id = $request->query('id');
