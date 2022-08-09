@@ -24,14 +24,27 @@ class UserpetsController extends Controller
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
         $userid = $result['body']['user_id'];
+        if(filter_var($request->pets_picture, FILTER_VALIDATE_URL) === FALSE){
 
+            $image_parts = explode(";base64,", $request->pets_picture);
+            $image_type_aux = explode("image/", $image_parts[0]);
+            $image_type = $image_type_aux[1];
+            $image_base64 = base64_decode($image_parts[1]);
+            $file = uniqid() . '.'.$image_type;
+    
+            file_put_contents(env('Folder_APP').$file, $image_base64);
+            $picture = env('IMAGE_URL') . $file;
+            
+        }else{
+            $picture = $request->pets_picture;
+        }
         $query = userpets::insert([
             'user_id' => $userid,
             'petsname' => $request->pets_name,
             'species' => $request->species,
             'breed' => $request->breed,
             'size' => $request->size,
-            'pets_picture' => $request->picture,
+            'pets_picture' => $picture,
             'gender' => $request->gender,
             'birthdate' => $request->birthdate,
             'neutered' => $request->neutered,
@@ -63,26 +76,26 @@ class UserpetsController extends Controller
     public function getuserpet(request $request){
 
         $token = $request->header("Authorization");
-        $result = $this->JWTValidator->validateToken($token);
-        $userid = $result['body']['user_id'];
-
+        if($token == null){
+            $userid = $request->user_id;
+        }else{
+            $result = $this->JWTValidator->validateToken($token);
+            $userid = $result['body']['user_id'];
+        }
         $query = userpets::where('user_id',$userid);
 
         if($query->count()>0){
-            $status = 'success';
-            foreach($query as $row){
-                $pets[] = ['pets_name' => 'petsname'];
-            }
+            $status = 'success';         
             return response()->JSON([
                 'status' => $status,
-                'results' => $pets,
+                'results' => $query->get(),
                 'total_result' => $query->count()
             ]);
         } else{
             $status = "no_pet_avaiable";
             return response()->JSON([
-                'status' => $status,
-                'results' => userpets::where('user_id',$request->user_id)->get()
+                'status' => "no_pet_avaiable",
+                'results' => null
             ]);
         }
     }
@@ -124,13 +137,28 @@ class UserpetsController extends Controller
     }
 
     public function updatepet(request $request){
+
+        if(filter_var($request->pets_picture, FILTER_VALIDATE_URL) === FALSE){
+
+            $image_parts = explode(";base64,", $request->pets_picture);
+            $image_type_aux = explode("image/", $image_parts[0]);
+            $image_type = $image_type_aux[1];
+            $image_base64 = base64_decode($image_parts[1]);
+            $file = uniqid() . '.'.$image_type;
+    
+            file_put_contents(env('Folder_APP').$file, $image_base64);
+            $picture = env('IMAGE_URL') . $file;
+            
+        }else{
+            $picture = $request->pets_picture;
+        }
         
         $query = userpets::where('id',$request->id)->update([
             'petsname' => $request->pets_name,
             'species' => $request->species,
             'breed' => $request->breed,
             'size' => $request->size,
-            'pets_picture' => $request->pets_picture,
+            'pets_picture' => $picture,
             'gender' => $request->gender,
             'birthdate' => $request->birthdate,
             'neutered' => $request->neutered,
@@ -172,42 +200,5 @@ class UserpetsController extends Controller
                 'status' => $status
             ]);
         }
-    }
-
-    public function uploadBase64(request $request)
-    {
-
-        $token = $request->header("Authorization");
-        $result = $this->JWTValidator->validateToken($token);
-
-        $image_parts = explode(";base64,", $request->img);
-        $image_type_aux = explode("image/", $image_parts[0]);
-        $image_type = $image_type_aux[1];
-        $image_base64 = base64_decode($image_parts[1]);
-        $file = uniqid() . '.'.$image_type;
-
-        file_put_contents(env('Folder_APP').$file, $image_base64);
-        $userid = $result['body']['user_id'];
-        $query = userpets::where('id',$request->id)->update(
-            [
-            'pets_picture' => env('IMAGE_URL') . $file
-            ]
-        );
-        if($query==1){
-            return response()->json([
-                'status'=>"success", 
-                'results'=> array(
-                    'file_path'  => $file,
-                    'file_url'   => env('IMAGE_URL') . $file,
-                )
-            ]);
-        } else{
-            return response()->JSON([
-                'status' => 'data_not_loaded',
-                'results' => array()
-            ]);
-        }
-        
-
     }
 }
