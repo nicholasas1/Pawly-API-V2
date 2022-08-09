@@ -24,14 +24,27 @@ class UserpetsController extends Controller
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
         $userid = $result['body']['user_id'];
+        if(filter_var($request->pets_picture, FILTER_VALIDATE_URL) === FALSE){
 
+            $image_parts = explode(";base64,", $request->pets_picture);
+            $image_type_aux = explode("image/", $image_parts[0]);
+            $image_type = $image_type_aux[1];
+            $image_base64 = base64_decode($image_parts[1]);
+            $file = uniqid() . '.'.$image_type;
+    
+            file_put_contents(env('Folder_APP').$file, $image_base64);
+            $picture = env('IMAGE_URL') . $file;
+            
+        }else{
+            $picture = $request->pets_picture;
+        }
         $query = userpets::insert([
             'user_id' => $userid,
             'petsname' => $request->pets_name,
             'species' => $request->species,
             'breed' => $request->breed,
             'size' => $request->size,
-            'pets_picture' => $request->picture,
+            'pets_picture' => $picture,
             'gender' => $request->gender,
             'birthdate' => $request->birthdate,
             'neutered' => $request->neutered,
