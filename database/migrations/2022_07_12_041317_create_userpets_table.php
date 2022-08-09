@@ -16,7 +16,6 @@ return new class extends Migration
         Schema::create('userpets', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->text('user_id',100);
-            $table->text('token',100);
             $table->text('petsname',100);
             $table->text('pets_picture',100)->nullable();
             $table->text('species',100);
