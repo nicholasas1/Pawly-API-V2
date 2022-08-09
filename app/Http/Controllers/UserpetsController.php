@@ -76,26 +76,26 @@ class UserpetsController extends Controller
     public function getuserpet(request $request){
 
         $token = $request->header("Authorization");
-        $result = $this->JWTValidator->validateToken($token);
-        $userid = $result['body']['user_id'];
-
+        if($token == null){
+            $userid = $request->user_id;
+        }else{
+            $result = $this->JWTValidator->validateToken($token);
+            $userid = $result['body']['user_id'];
+        }
         $query = userpets::where('user_id',$userid);
 
         if($query->count()>0){
-            $status = 'success';
-            foreach($query as $row){
-                $pets[] = ['pets_name' => 'petsname'];
-            }
+            $status = 'success';         
             return response()->JSON([
                 'status' => $status,
-                'results' => $pets,
+                'results' => $query->get(),
                 'total_result' => $query->count()
             ]);
         } else{
             $status = "no_pet_avaiable";
             return response()->JSON([
-                'status' => $status,
-                'results' => userpets::where('user_id',$request->user_id)->get()
+                'status' => "no_pet_avaiable",
+                'results' => null
             ]);
         }
     }
