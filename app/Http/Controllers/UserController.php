@@ -53,7 +53,20 @@ class UserController extends Controller
         $user = User::where('id',$userid);
         $roles = role::where('userId',$userid)->select(['meta_role','meta_id'])->get();
         $pets = userpets::where('user_id',$userid)->select(['petsname','species','breed','gender','birthdate'])->get();
-        $arr = ['Id' => $userid,'Username' => $user->value('Username'),'Nickname' => $user->value('nickname'),'Full_Name' => $user->value('fullname'), 'Email' => $user->value('email'),'phone_number' => $user->value('phone_number'),'birthday' => $user->value('birthday'),'gender'=> $user->value('gender'),'profile_picture'=>$user->value('profile_picture'),'Roles' => $roles, 'Pets' => $pets]; 
+        $arr = [
+            'Id' => $userid,
+            'Username' => $user->value('Username'),
+            'Nickname' => $user->value('nickname'),
+            'Full_Name' => $user->value('fullname'), 
+            'Email' => $user->value('email'),
+            'phone_number' => $user->value('phone_number'),
+            'birthday' => $user->value('birthday'),
+            'gender'=> $user->value('gender'),
+            'profile_picture'=>$user->value('profile_picture'),
+            'Roles' => $roles, 
+            'Pet_count' => userpets::where('user_id',$userid)->count(), 
+            'Pets' => $pets
+        ]; 
             return response()->json([
                 'status'=>'success', 
                 'results'=> $arr
