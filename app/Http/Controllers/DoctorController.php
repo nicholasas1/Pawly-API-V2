@@ -13,6 +13,7 @@ use ReallySimpleJWT\Jwt;
 use ReallySimpleJWT\Decode;
 use App\Http\Controllers\JWTValidator;
 use DeepCopy\Filter\Doctrine\DoctrineEmptyCollectionFilter;
+use Carbon;
 
 class DoctorController extends Controller
 {
@@ -144,6 +145,24 @@ class DoctorController extends Controller
     public function deletedoctorspeciality(request $request){
 
         doctor_speciality::where('id',$request->id)->delete();
+
+    }
+
+    public function lastonline(request $request){
+
+        $isonline = $request->status;
+        $doctorid = $request->id;
+
+        
+        if($isonline == 'offline'){
+            $time = date('H:i:s');
+            $query = doctor::where('id',$doctorid)->update('lastonline', $time);
+
+            return response()->JSON([
+                'status' => 'success',
+                'results' => $time
+            ]);
+        }
 
     }
 
