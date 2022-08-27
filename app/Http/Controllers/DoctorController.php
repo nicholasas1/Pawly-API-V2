@@ -156,11 +156,18 @@ class DoctorController extends Controller
         
         if($isonline == 'offline'){
             $time = date('H:i:s');
-            $query = doctor::where('id',$doctorid)->update('lastonline', $time);
+            $query = doctor::where('id',$doctorid)->update(['lastonline' => $time, 'isonline' => 'offline']);
 
             return response()->JSON([
                 'status' => 'success',
                 'results' => $time
+            ]);
+        } else if($isonline == 'online'){
+
+            $query = doctor::where('id',$doctorid)->update('isonline', 'online');
+
+            return response()->JSON([
+                'status' => 'success'
             ]);
         }
 
