@@ -30,6 +30,7 @@ class DoctorController extends Controller
             'description' => $request->description,
             'profile_picture' => $request->profile,
             'graduated_since' => $request->graduated,
+            'isonline' => 'online'
         ]);
             
         if($query==1){
