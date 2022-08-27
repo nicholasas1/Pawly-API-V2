@@ -13,7 +13,7 @@ use ReallySimpleJWT\Jwt;
 use ReallySimpleJWT\Decode;
 use App\Http\Controllers\JWTValidator;
 use DeepCopy\Filter\Doctrine\DoctrineEmptyCollectionFilter;
-use Carbon;
+use Carbon\Carbon;
 
 class DoctorController extends Controller
 {
@@ -156,7 +156,7 @@ class DoctorController extends Controller
 
         
         if($isonline == 'offline'){
-            $time = date('H:i:s');
+            $time = Carbon::now()->timestamp;
             $query = doctor::where('id',$doctorid)->update(['lastonline' => $time, 'isonline' => 'offline']);
 
             return response()->JSON([
@@ -171,6 +171,12 @@ class DoctorController extends Controller
                 'status' => 'success'
             ]);
         }
+
+    }
+
+    public function filtersearch(request $request){
+
+        
 
     }
 
