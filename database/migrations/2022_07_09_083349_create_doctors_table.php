@@ -20,7 +20,7 @@ return new class extends Migration
             $table->char("profile_picture",250)->nullable();
             $table->year("graduated_since")->nullable();
             $table->char('isonline')->nullable();
-            $table->time('lastonline')->nullable();
+            $table->char('lastonline')->nullable();
         });
     }
 
