@@ -19,6 +19,9 @@ return new class extends Migration
             $table->longText("description")->nullable();
             $table->char("profile_picture",250)->nullable();
             $table->year("graduated_since")->nullable();
+            $table->flaot('vidcall_price')->nullable();
+            $table->float('chat_price')->nullable();
+            $table->float('offline_price')->nullable();
             $table->char('isonline')->nullable();
             $table->char('lastonline')->nullable();
         });

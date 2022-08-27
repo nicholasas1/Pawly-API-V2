@@ -176,6 +176,7 @@ class DoctorController extends Controller
 
     public function filtersearch(request $request){
 
+        $doctorspeciality = $request->speciality;
         
 
     }
