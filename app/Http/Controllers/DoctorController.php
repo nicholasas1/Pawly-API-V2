@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\role;
 use App\Models\doctor_speciality;
 use App\Models\doctor;
+use App\Models\clinic_doctor;
 use Illuminate\Support\Facades\DB;
 use ReallySimpleJWT\Token;
 use ReallySimpleJWT\Parse;
@@ -177,9 +178,17 @@ class DoctorController extends Controller
     public function filtersearch(request $request){
 
         $doctorspeciality = $request->speciality;
-        
+        if($request->order=='z-a'){
+            $order = 'desc';
+        } else{
+            $order = 'asc';
+        }
         if($doctorspeciality==NULL){
-            $query = DB::table('doctors')->orderBy('isonline','desc')->get();
+            $query = DB::table('clinic_doctors')
+            ->join('clinics','clinic_doctors.clinic_id','=','clinics.id')
+            ->join('doctors','clinic_doctors.doctor_id','=','doctors.id')
+            ->select(['doctors.id','doctors.name','doctors.isonline','clinics.cname'])
+            ->orderBy('doctors.isonline','desc')->orderBy('doctors.name',$order)->get();
             return response()->JSON([
                 'results' => $query
             ]);
