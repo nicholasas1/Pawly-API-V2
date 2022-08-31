@@ -178,6 +178,14 @@ class DoctorController extends Controller
 
         $doctorspeciality = $request->speciality;
         
+        if($doctorspeciality==NULL){
+            $query = DB::table('doctors')->orderBy('isonline','desc')->get();
+            return response()->JSON([
+                'results' => $query
+            ]);
+        } else{
+            $query = DB::table('doctors')->orderBy('isonline','desc')->get();
+        }
 
     }
 
