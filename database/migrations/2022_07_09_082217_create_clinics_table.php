@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('clinics', function (Blueprint $table) {
             $table->bigIncrements("id");
-            $table->char("name",100);
+            $table->char("clinic_name",100);
             $table->longText("address");
             $table->float('long')->nullable();
             $table->float('lat')->nullable();

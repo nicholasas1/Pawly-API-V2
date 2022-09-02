@@ -28,6 +28,7 @@ return new class extends Migration
             $table->char('sosmed_login',50)->nullable();
             $table->timestamp('create_at')->nullable();
             $table->timestamp('update_at')->nullable();
+            $table->char('firebstoken')->nullable();
             $table->char('session_id',100)->nullable();
         });
     }
