@@ -224,13 +224,23 @@ class DoctorController extends Controller
         } else{
             $rating = 'asc';
         }
+        if($request->lat==NULL||$request->long==NULL){
+            $lat = "-6.171782389823256";
+            $long = "106.82628043498254";
+        } else{
+            $lat = $request->lat;
+            $long = $request->long;
+        }
+        
         if($doctorspeciality==NULL){
             $query = DB::table('clinic_doctors')
             ->join('clinics','clinic_doctors.clinic_id','=','clinics.id')
             ->join('doctors','clinic_doctors.doctor_id','=','doctors.id')
             ->join('doctor_specialities', 'clinic_doctors.doctor_id','=','doctor_specialities.doctor_id')
-            ->select(['clinic_doctors.doctor_id','clinic_doctors.clinic_id','doctors.doctor_name','clinics.clinic_name','clinics.lat','clinics.long','doctors.description','doctor_specialities.speciality','doctors.profile_picture','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline','doctors.ratings'])
+            ->select(['clinic_doctors.doctor_id','clinic_doctors.clinic_id','doctors.doctor_name','clinics.clinic_name','clinics.lat','clinics.long',DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"),'doctors.description','doctor_specialities.speciality','doctors.profile_picture','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline','doctors.ratings'])
+            ->having('distance','<','22')
             ->orderBy('doctors.isonline','desc')
+            ->orderBy('distance', 'asc')
             ->orderBy('doctors.ratings', $rating)
             ->orderBy('doctors.doctor_name',$order)
             // ->orderBy('doctors.vidcall_price',$vidcall)
@@ -245,7 +255,8 @@ class DoctorController extends Controller
             ->join('clinics','clinic_doctors.clinic_id','=','clinics.id')
             ->join('doctors','clinic_doctors.doctor_id','=','doctors.id')
             ->join('doctor_specialities', 'clinic_doctors.doctor_id','=','doctor_specialities.doctor_id')
-            ->select(['clinic_doctors.doctor_id','clinic_doctors.clinic_id','doctors.doctor_name','clinics.clinic_name','clinics.lat','clinics.long','doctors.description','doctor_specialities.speciality','doctors.profile_picture','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline','doctors.ratings'])
+            ->select(['clinic_doctors.doctor_id','clinic_doctors.clinic_id','doctors.doctor_name','clinics.clinic_name','clinics.lat','clinics.long',DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"),'doctors.description','doctor_specialities.speciality','doctors.profile_picture','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline','doctors.ratings'])
+            ->having('distance','<','22')
             ->where('doctor_specialities.speciality',$doctorspeciality)
             ->orderBy('doctors.isonline','desc')
             ->orderBy('doctors.ratings', $rating)
