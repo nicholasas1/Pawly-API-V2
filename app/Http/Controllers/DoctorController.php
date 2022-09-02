@@ -247,11 +247,12 @@ class DoctorController extends Controller
             ->join('doctor_specialities', 'clinic_doctors.doctor_id','=','doctor_specialities.doctor_id')
             ->select(['clinic_doctors.doctor_id','clinic_doctors.clinic_id','doctors.doctor_name','clinics.clinic_name','clinics.lat','clinics.long','doctors.description','doctor_specialities.speciality','doctors.profile_picture','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline','doctors.ratings'])
             ->where('doctor_specialities.speciality',$doctorspeciality)
-            ->orderBy('doctors.isonline','desc')->orderBy('doctors.doctor_name',$order)
+            ->orderBy('doctors.isonline','desc')
+            ->orderBy('doctors.ratings', $rating)
+            ->orderBy('doctors.doctor_name',$order)
             // ->orderBy('doctors.vidcall_price',$vidcall)
             ->orderBy('doctors.chat_price',$price)
             // ->orderBy('doctors.offline_price',$onsite)
-            ->orderBy('doctors.ratings', $rating)
             ->get();
             return response()->JSON([
                 'results' => $query
