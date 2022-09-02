@@ -109,6 +109,7 @@ class UserController extends Controller
         $current_date_time = date('Y-m-d H:i:s');
 
         $query = User::where($field,$request->username)->where("password",md5($request->password));
+        $userId = User::where($field,$request->username)->where("password",md5($request->password))->value('id');
         if($query->count()== 0){
                 $status = "Invalid Username or Password";
                 return response()->JSON([
@@ -127,6 +128,8 @@ class UserController extends Controller
                 'status'=>$status, 
                 'results'=> array(
                     'username'  => $query->value('username'),
+                    'is_clinic' => role::where('userId',$userId)->where('meta_role',"Clinic")->count(),
+                    'is_doctor' => role::where('userId',$userId)->where('meta_role',"Doctor")->count(),
                     'role'      => role::where('userId',$query->value('id'))->get(),
                     'token'     => $token,
                 )
