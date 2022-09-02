@@ -24,6 +24,7 @@ return new class extends Migration
             $table->float('vidcall_price')->nullable();
             $table->float('chat_price')->nullable();
             $table->float('offline_price')->nullable();
+            $table->float('ratings',10,1)->nullable();
             $table->char('isonline')->nullable();
             $table->char('lastonline')->nullable();
         });

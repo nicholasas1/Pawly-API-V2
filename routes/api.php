@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\RatingsController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SplashscreenMobileController;
 use App\Http\Controllers\UserController;
@@ -86,7 +87,7 @@ Route::post('doctor/lastonline', [DoctorController::class, 'lastonline']);
 
 Route::get('doctor/filtersearch', [DoctorController::class, 'filtersearch']);
 
-Route::get('menu/show', [UserController::class, 'showmenu']);
+Route::post('ratings/add', [RatingsController::class, 'addratings']);
 
 
 
