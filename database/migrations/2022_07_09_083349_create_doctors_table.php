@@ -15,10 +15,15 @@ return new class extends Migration
     {
         Schema::create('doctors', function (Blueprint $table) {
             $table->bigIncrements("id");
-            $table->char("name",100);
+            $table->char("doctor_name",100);
             $table->longText("description")->nullable();
             $table->char("profile_picture",250)->nullable();
             $table->year("graduated_since")->nullable();
+            $table->float('vidcall_price')->nullable();
+            $table->float('chat_price')->nullable();
+            $table->float('offline_price')->nullable();
+            $table->char('isonline')->nullable();
+            $table->char('lastonline')->nullable();
         });
     }
 
