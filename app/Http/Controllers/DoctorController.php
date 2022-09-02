@@ -27,7 +27,7 @@ class DoctorController extends Controller
     public function regisasdoctor(request $request){
 
      $query = doctor::insert([
-            'name' => $request->name,
+            'doctor_name' => $request->name,
             'description' => $request->description,
             'profile_picture' => $request->profile,
             'graduated_since' => $request->graduated,
@@ -49,6 +49,7 @@ class DoctorController extends Controller
 
         if($query->count()==1){
             return response()->JSON([
+                'status' => 'success',
                 'id' => $query->value("id"),
                 'nama' => $query->value("name"),
                 'deskripsi' => $query->value("description"),
@@ -61,7 +62,7 @@ class DoctorController extends Controller
     public function updatedoctor(request $request){
 
         $query = doctor::where('id',$request->id)->update([
-            'name' => $request->name,
+            'doctor_name' => $request->name,
             'description' => $request->description,
             'profile_picture' => $request->profile_picture,
             'graduated_since' => $request->graduated
@@ -75,7 +76,7 @@ class DoctorController extends Controller
                     'status' => $status,
                     'result' => array([
                         'id' => $doctor->value("id"),
-                        'nama' => $doctor->value("name"),
+                        'nama' => $doctor->value("doctor_name"),
                         'deskripsi' => $doctor->value("description"),
                         'lulus sejak' => $doctor->value("graduated_since"),
                         'speciality' => doctor_speciality::where('doctor_id',$doctor->value('id'))->get('speciality')
@@ -96,7 +97,7 @@ class DoctorController extends Controller
 
     public function adddoctorspeciality(request $request){
         
-        $doctorname = doctor::where('id',$request->doctor_id)->value('name');
+        $doctorname = doctor::where('id',$request->doctor_id)->value('doctor_name');
 
         $query = doctor_speciality::insert([
             'doctor_id' => $request->doctor_id,
@@ -122,7 +123,7 @@ class DoctorController extends Controller
 
         $doctorid = doctor_speciality::where('id',$request->id)->value('doctor_id');
 
-        $doctorname = doctor::where('id',$doctorid)->value('name');
+        $doctorname = doctor::where('id',$doctorid)->value('doctor_name');
 
         $query = doctor_speciality::where('id',$request->id)->update([
             'speciality' => $request->speciality
