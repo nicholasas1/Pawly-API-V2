@@ -377,6 +377,53 @@ class UserController extends Controller
         
     }
 
+    public function showmenu(request $request){
+
+        $userid = $request->id;
+        $is_clinic = role::where('userId',$userid)->where('meta_role',"Clinic")->count();
+        $is_doctor = role::where('userId',$userid)->where('meta_role',"Doctor")->count();
+        $is_admin = role::where('userId',$userid)->where('meta_role',"Super_Admin")->count();
+
+        $doctor_menu = "{title: 'Doctor', icon: 'airplay', type: 'sub', active: false, children: [{ path: '/widgets/general', title: 'Edit Doctor Profile', type: 'link' },{ path: '/widgets/chart', title: 'Service', type: 'link' },{ path: '/widgets/chart', title: 'Rating & Review', type: 'link' }]}";
+        $clinic_menu = "{title: 'Clinic', icon: 'airplay', type: 'sub', active: false, children: [{ path: '/widgets/general', title: 'Edit Clinic Profile', type: 'link' },{ path: '/widgets/chart', title: 'Service', type: 'link' },{ path: '/widgets/chart', title: 'Rating & Review', type: 'link' },{ path: '/widgets/chart', title: 'Doctor Schedule', type: 'link' }]}";
+        $order_menu = "{title: 'Order', icon: 'airplay', type: 'sub', active: false, children: [{ path: '/widgets/general', title: 'Order & Appointment', type: 'link' }, { path: /widgets/chart', title: 'Create New', type: 'link' }]}";
+
+        if($is_admin==1){
+            return response()->json([
+                'status' => 'success',
+                'result' => array([
+                    $doctor_menu,
+                    $clinic_menu,
+                    $order_menu
+                ])
+            ]);
+        } else if($is_doctor==1){
+            return response()->json([
+                'status' => 'success',
+                'result' => array([
+                    $doctor_menu,
+                    $order_menu
+                ])
+            ]);
+        } else if($is_clinic==1){
+            return response()->json([
+                'status' => 'success',
+                'result' => array([
+                    $clinic_menu,
+                    $order_menu
+                ])
+            ]);
+        } else{
+            return response()->json([
+                'status' => 'success',
+                'result' => array([
+                    $order_menu
+                ])
+            ]);
+        }
+
+    }
+
     public function ActivateEmail(Request $request){
         $id = base64_decode($request->query('id'));
 

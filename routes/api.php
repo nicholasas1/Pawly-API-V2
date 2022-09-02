@@ -86,6 +86,8 @@ Route::post('doctor/lastonline', [DoctorController::class, 'lastonline']);
 
 Route::get('doctor/filtersearch', [DoctorController::class, 'filtersearch']);
 
+Route::get('menu/show', [UserController::class, 'showmenu']);
+
 
 
 
