@@ -18,7 +18,7 @@ class RatingsController extends Controller
         ]);
         if($query==1){
             $status = 'success';
-            $average = ratings::where('doctors_ids',1)->avg('ratings');
+            $average = ratings::where('doctors_ids',$request->doctor_id)->avg('ratings');
             $avg = round($average,1);
             $addtodoctor = doctor::where('id',$request->doctor_id)->update(['ratings' => $average]);
             return response()->JSON([
