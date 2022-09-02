@@ -27,14 +27,22 @@ class DoctorController extends Controller
     public function regisasdoctor(request $request){
 
      $query = doctor::insert([
+            'users_ids' => $request->id,
             'doctor_name' => $request->name,
             'description' => $request->description,
             'profile_picture' => $request->profile,
             'graduated_since' => $request->graduated,
             'isonline' => 'online'
         ]);
+
+        $doctorid = doctor::where('users_ids',$request->id)->value('id');
             
         if($query==1){
+            $queries = role::insert([
+                'userId' => $request->id,
+                'meta_role' => 'Doctor',
+                'meta_id' => $doctorid
+            ]);
             $status = "Registration Success";
         } 
        
