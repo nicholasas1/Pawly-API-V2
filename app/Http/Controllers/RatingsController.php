@@ -3,83 +3,31 @@
 namespace App\Http\Controllers;
 
 use App\Models\ratings;
+use App\Models\doctor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RatingsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\ratings  $ratings
-     * @return \Illuminate\Http\Response
-     */
-    public function show(ratings $ratings)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\ratings  $ratings
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(ratings $ratings)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\ratings  $ratings
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, ratings $ratings)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\ratings  $ratings
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(ratings $ratings)
-    {
-        //
-    }
+   public function addratings(request $request){
+        $query = DB::table('ratings')->insert([
+            'doctors_ids' => $request->doctor_id,
+            'users_id' => $request->user_id,
+            'ratings' => $request->rating,
+            'reviews' => $request->reviews
+        ]);
+        if($query==1){
+            $status = 'success';
+            $average = ratings::where('doctors_ids',$request->doctor_id)->avg('ratings');
+            $avg = round($average,1);
+            $addtodoctor = doctor::where('id',$request->doctor_id)->update(['ratings' => $average]);
+            return response()->JSON([
+                'status' => $status,
+            ]);
+        } else{
+            return response()->JSON([
+                'status' => 'error'
+            ]);
+        }
+   }
 }

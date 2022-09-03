@@ -27,16 +27,26 @@ class DoctorController extends Controller
     public function regisasdoctor(request $request){
 
      $query = doctor::insert([
+            'users_ids' => $request->id,
             'doctor_name' => $request->name,
             'description' => $request->description,
             'profile_picture' => $request->profile,
             'graduated_since' => $request->graduated,
             'isonline' => 'online'
         ]);
+
+        $doctorid = doctor::where('users_ids',$request->id)->value('id');
             
         if($query==1){
+            $queries = role::insert([
+                'userId' => $request->id,
+                'meta_role' => 'Doctor',
+                'meta_id' => $doctorid
+            ]);
             $status = "Registration Success";
-        } 
+        } else{
+            $status = 'error';
+        }
        
         return response()->JSON([
             'status' => $status
@@ -47,14 +57,34 @@ class DoctorController extends Controller
 
         $query = doctor::where("id",$request->id);
 
-        if($query->count()==1){
+        if($query->count()==1||$query->value('isonline')=='online'){
             return response()->JSON([
                 'status' => 'success',
                 'id' => $query->value("id"),
-                'nama' => $query->value("name"),
-                'deskripsi' => $query->value("description"),
-                'lulus sejak' => $query->value("graduated_since"),
+                'doctor_name' => $query->value("doctor_name"),
+                'description' => $query->value("description"),
+                'graduated_since' => $query->value("graduated_since"),
+                'graduated_from' => $query->value("graduated_from"),
+                'chat_price' => $query->value("chat_price"),
+                'isonline' => $query->value("isonline"),
                 'speciality' => doctor_speciality::where('doctor_id',$query->value('id'))->get('speciality')
+            ]);
+        } else if($query->count()==1||$query->value('isonline')=='offline'){
+            return response()->JSON([
+                'status' => 'success',
+                'id' => $query->value("id"),
+                'doctor_name' => $query->value("doctor_name"),
+                'description' => $query->value("description"),
+                'graduated_since' => $query->value("graduated_since"),
+                'graduated_from' => $query->value("graduated_from"),
+                'chat_price' => $query->value("chat_price"),
+                'isonline' => $query->value("isonline"),
+                'lastonline' => $query->value("lastonline"),
+                'speciality' => doctor_speciality::where('doctor_id',$query->value('id'))->get('speciality')
+            ]);
+        } else{
+            return response()->JSON([
+                'status' => 'doctor not found'
             ]);
         }
     }
@@ -65,7 +95,8 @@ class DoctorController extends Controller
             'doctor_name' => $request->name,
             'description' => $request->description,
             'profile_picture' => $request->profile_picture,
-            'graduated_since' => $request->graduated
+            'graduated_since' => $request->graduatedsince,
+            'graduated_from' => $request->gradutedfrom
         ]);
 
         $doctor = doctor::where('id',$request->id);
@@ -74,30 +105,31 @@ class DoctorController extends Controller
             $status = "Update Success";
                 return response()->JSON([
                     'status' => $status,
-                    'result' => array([
-                        'id' => $doctor->value("id"),
-                        'nama' => $doctor->value("doctor_name"),
-                        'deskripsi' => $doctor->value("description"),
-                        'lulus sejak' => $doctor->value("graduated_since"),
-                        'speciality' => doctor_speciality::where('doctor_id',$doctor->value('id'))->get('speciality')
-                    ])
                 ]);
         } else{
-            $status = "Update Failed";
+            $status = "update failed";
             return $status;
         }
     }
 
     public function deletedoctorlist(request $request){
 
-        doctor_speciality::where('doctor_id',$request->doctor_id)->delete();
-        doctor::where('id',$request->doctor_id)->delete();
+        $delete_speciality = doctor_speciality::where('doctor_id',$request->doctor_id)->delete();
+        $delete_doctor = doctor::where('id',$request->doctor_id)->delete();
+
+        if($delete_speciality==1&&$delete_doctor==1){
+            return response()->JSON([
+                'status' => 'success'
+            ]);
+        } else {
+            return response()->JSON([
+                'status' => 'doctor not found'
+            ]);
+        }
 
     }
 
     public function adddoctorspeciality(request $request){
-        
-        $doctorname = doctor::where('id',$request->doctor_id)->value('doctor_name');
 
         $query = doctor_speciality::insert([
             'doctor_id' => $request->doctor_id,
@@ -105,17 +137,15 @@ class DoctorController extends Controller
         ]);
 
         if($query==1){
-            $status = "Speciality Added for dr. $doctorname";
+            $status = "success";
                 return response()->JSON([
-                    'status' => $status,
-                    'result' => array([
-                        'id' => doctor_speciality::where('doctor_id',$request->doctor_id)->where('speciality',$request->speciality)->value('id'),
-                        'speciality' => $request->speciality
-                    ])
+                    'status' => $status
                 ]);
         } else{
-            $status = "Failed to add";
-            return $status;
+            $status = "doctor not found";
+            return response()->JSON([
+                'status'=> $status
+            ]);
         }   
     }
 
@@ -130,7 +160,7 @@ class DoctorController extends Controller
         ]);
 
         if($query==1){
-            $status = "Speciality Updated for dr. $doctorname";
+            $status = "success";
                 return response()->JSON([
                     'status' => $status,
                     'result' => array([
@@ -139,7 +169,7 @@ class DoctorController extends Controller
                     ])
                 ]);
         } else{
-            $status = "Failed to Update";
+            $status = "update failed";
             return $status;
         } 
 
@@ -184,28 +214,35 @@ class DoctorController extends Controller
         } else{
             $order = 'asc';
         }
-        // if($request->vidcall=='expe'){
-        //     $vidcall = 'desc';
-        // } else{
-        //     $vidcall = 'asc';
-        // }
-        // if($request->onsite=='expe'){
-        //     $onsite = 'desc';
-        // } else{
-        //     $onsite = 'asc';
-        // }
         if($request->price=='expe'){
             $price = 'desc';
         } else{
             $price = 'asc';
         }
+        if($request->rating=='high'){
+            $rating = 'desc';
+        } else{
+            $rating = 'asc';
+        }
+        if($request->lat==NULL||$request->long==NULL){
+            $lat = "-6.171782389823256";
+            $long = "106.82628043498254";
+        } else{
+            $lat = $request->lat;
+            $long = $request->long;
+        }
+        
         if($doctorspeciality==NULL){
             $query = DB::table('clinic_doctors')
             ->join('clinics','clinic_doctors.clinic_id','=','clinics.id')
             ->join('doctors','clinic_doctors.doctor_id','=','doctors.id')
             ->join('doctor_specialities', 'clinic_doctors.doctor_id','=','doctor_specialities.doctor_id')
-            ->select(['clinic_doctors.doctor_id','clinic_doctors.clinic_id','doctors.doctor_name','clinics.clinic_name','clinics.lat','clinics.long','doctors.description','doctor_specialities.speciality','doctors.profile_picture','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline'])
-            ->orderBy('doctors.isonline','desc')->orderBy('doctors.doctor_name',$order)
+            ->select(['clinic_doctors.doctor_id','clinic_doctors.clinic_id','doctors.doctor_name','clinics.clinic_name','clinics.lat','clinics.long',DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"),'doctors.description','doctor_specialities.speciality','doctors.profile_picture','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline','doctors.ratings'])
+            ->having('distance','<','22')
+            ->orderBy('doctors.isonline','desc')
+            ->orderBy('distance', 'asc')
+            ->orderBy('doctors.ratings', $rating)
+            ->orderBy('doctors.doctor_name',$order)
             // ->orderBy('doctors.vidcall_price',$vidcall)
             ->orderBy('doctors.chat_price',$price)
             // ->orderBy('doctors.offline_price',$onsite)
@@ -218,9 +255,12 @@ class DoctorController extends Controller
             ->join('clinics','clinic_doctors.clinic_id','=','clinics.id')
             ->join('doctors','clinic_doctors.doctor_id','=','doctors.id')
             ->join('doctor_specialities', 'clinic_doctors.doctor_id','=','doctor_specialities.doctor_id')
-            ->select(['clinic_doctors.doctor_id','clinic_doctors.clinic_id','doctors.doctor_name','clinics.clinic_name','clinics.lat','clinics.long','doctors.description','doctor_specialities.speciality','doctors.profile_picture','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline'])
+            ->select(['clinic_doctors.doctor_id','clinic_doctors.clinic_id','doctors.doctor_name','clinics.clinic_name','clinics.lat','clinics.long',DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"),'doctors.description','doctor_specialities.speciality','doctors.profile_picture','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline','doctors.ratings'])
+            ->having('distance','<','22')
             ->where('doctor_specialities.speciality',$doctorspeciality)
-            ->orderBy('doctors.isonline','desc')->orderBy('doctors.doctor_name',$order)
+            ->orderBy('doctors.isonline','desc')
+            ->orderBy('doctors.ratings', $rating)
+            ->orderBy('doctors.doctor_name',$order)
             // ->orderBy('doctors.vidcall_price',$vidcall)
             ->orderBy('doctors.chat_price',$price)
             // ->orderBy('doctors.offline_price',$onsite)

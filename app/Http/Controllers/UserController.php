@@ -65,6 +65,7 @@ class UserController extends Controller
             'profile_picture'=>$user->value('profile_picture'),
             'is_clinic' => role::where('userId',$userid)->where('meta_role',"Clinic")->count(),
             'is_doctor' => role::where('userId',$userid)->where('meta_role',"Doctor")->count(),
+            'is_admin' => role::where('userId',$userid)->where('meta_role',"Super_Admin")->count(),
             'Roles' => $roles, 
             'Pet_count' => userpets::where('user_id',$userid)->count(), 
             'Pets' => $pets
@@ -130,6 +131,7 @@ class UserController extends Controller
                     'username'  => $query->value('username'),
                     'is_clinic' => role::where('userId',$userId)->where('meta_role',"Clinic")->count(),
                     'is_doctor' => role::where('userId',$userId)->where('meta_role',"Doctor")->count(),
+                    'is_admin' => role::where('userId',$userId)->where('meta_role',"Super_Admin")->count(),
                     'role'      => role::where('userId',$query->value('id'))->get(),
                     'token'     => $token,
                 )
