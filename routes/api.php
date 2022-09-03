@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\RatingsController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SplashscreenMobileController;
 use App\Http\Controllers\UserController;
@@ -85,6 +86,8 @@ Route::get('location/getlatlong', [ClinicController::class, 'getlatlong']);
 Route::post('doctor/lastonline', [DoctorController::class, 'lastonline']);
 
 Route::get('doctor/filtersearch', [DoctorController::class, 'filtersearch']);
+
+Route::post('ratings/add', [RatingsController::class, 'addratings']);
 
 
 
