@@ -104,16 +104,22 @@ class DoctorController extends Controller
             'description' => $request->description,
             'profile_picture' => $request->profile_picture,
             'graduated_since' => $request->graduatedsince,
-            'graduated_from' => $request->gradutedfrom
+            'graduated_from' => $request->graduatedfrom
         ]);
 
         $doctor = doctor::where('id',$request->id);
 
+        if(doctor::where('id',$request->id)->count()==1){
             $status = "Update Success";
                 return response()->JSON([
                     'status' => $status,
                 ]);
-        
+            } else{
+                $status = "Update Failed";
+                return response()->JSON([
+                    'status' => $status
+                ]);
+            }
     }
 
     public function deletedoctorlist(request $request){
