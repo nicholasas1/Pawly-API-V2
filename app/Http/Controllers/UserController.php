@@ -266,9 +266,9 @@ class UserController extends Controller
         );
 
         if($query == 1){
-            $status = 'sukses';
+            $status = 'success';
         } else{
-            $status = 'gagal';
+            $status = 'failed';
         }
 
         return response()->json([
