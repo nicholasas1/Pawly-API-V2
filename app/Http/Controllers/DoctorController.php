@@ -109,15 +109,11 @@ class DoctorController extends Controller
 
         $doctor = doctor::where('id',$request->id);
 
-        if($query==1){
             $status = "Update Success";
                 return response()->JSON([
                     'status' => $status,
                 ]);
-        } else{
-            $status = "update failed";
-            return $status;
-        }
+        
     }
 
     public function deletedoctorlist(request $request){
