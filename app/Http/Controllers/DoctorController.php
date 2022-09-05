@@ -31,7 +31,8 @@ class DoctorController extends Controller
             'doctor_name' => $request->name,
             'description' => $request->description,
             'profile_picture' => $request->profile,
-            'graduated_since' => $request->graduated,
+            'graduated_since' => $request->graduatedsince,
+            'graduated_from' => $request->graduatedfrom,
             'lat' => $request->lat,
             'long' => $request->long,
             'isonline' => 'online'
