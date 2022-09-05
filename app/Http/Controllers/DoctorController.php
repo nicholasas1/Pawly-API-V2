@@ -56,31 +56,37 @@ class DoctorController extends Controller
     public function getlistdoctor(request $request){
 
         $query = doctor::where("id",$request->id);
-
+        $isonline = [
+            'id' => $query->value("id"),
+            'doctor_name' => $query->value("doctor_name"),
+            'description' => $query->value("description"),
+            'graduated_since' => $query->value("graduated_since"),
+            'graduated_from' => $query->value("graduated_from"),
+            'chat_price' => $query->value("chat_price"),
+            'isonline' => $query->value("isonline"),
+            'speciality' => doctor_speciality::where('doctor_id',$query->value('id'))->get('speciality')
+        ];
+        $isoffline = [
+            'id' => $query->value("id"),
+            'doctor_name' => $query->value("doctor_name"),
+            'description' => $query->value("description"),
+            'graduated_since' => $query->value("graduated_since"),
+            'graduated_from' => $query->value("graduated_from"),
+            'chat_price' => $query->value("chat_price"),
+            'isonline' => $query->value("isonline"),
+            'lastonline' => $query->value("lastonline"),
+            'speciality' => doctor_speciality::where('doctor_id',$query->value('id'))->get('speciality')
+        ];
         if($query->count()==1||$query->value('isonline')=='online'){
             return response()->JSON([
                 'status' => 'success',
-                'id' => $query->value("id"),
-                'doctor_name' => $query->value("doctor_name"),
-                'description' => $query->value("description"),
-                'graduated_since' => $query->value("graduated_since"),
-                'graduated_from' => $query->value("graduated_from"),
-                'chat_price' => $query->value("chat_price"),
-                'isonline' => $query->value("isonline"),
-                'speciality' => doctor_speciality::where('doctor_id',$query->value('id'))->get('speciality')
+                'results' => $isonline
             ]);
         } else if($query->count()==1||$query->value('isonline')=='offline'){
             return response()->JSON([
                 'status' => 'success',
-                'id' => $query->value("id"),
-                'doctor_name' => $query->value("doctor_name"),
-                'description' => $query->value("description"),
-                'graduated_since' => $query->value("graduated_since"),
-                'graduated_from' => $query->value("graduated_from"),
-                'chat_price' => $query->value("chat_price"),
-                'isonline' => $query->value("isonline"),
-                'lastonline' => $query->value("lastonline"),
-                'speciality' => doctor_speciality::where('doctor_id',$query->value('id'))->get('speciality')
+                'results' => $isoffline
+                
             ]);
         } else{
             return response()->JSON([
