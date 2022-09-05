@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\role;
 use App\Models\doctor_speciality;
 use App\Models\doctor;
+use App\Models\ratings;
 use App\Models\clinic_doctor;
 use Illuminate\Support\Facades\DB;
 use ReallySimpleJWT\Token;
@@ -59,12 +60,18 @@ class DoctorController extends Controller
     public function getlistdoctor(request $request){
 
         $query = doctor::where("id",$request->id);
+        $totalratings = ratings::where('doctors_ids',$request->id);
+        
         $isonline = [
             'id' => $query->value("id"),
             'doctor_name' => $query->value("doctor_name"),
             'description' => $query->value("description"),
             'graduated_since' => $query->value("graduated_since"),
             'graduated_from' => $query->value("graduated_from"),
+            'latitude' => $query->value('lat'),
+            'longtitude' => $query->value('long'),
+            'ratings' => $query->value('ratings'),
+            'total_review' => $totalratings->count(),
             'chat_price' => $query->value("chat_price"),
             'isonline' => $query->value("isonline"),
             'speciality' => doctor_speciality::where('doctor_id',$query->value('id'))->get('speciality')
@@ -75,6 +82,10 @@ class DoctorController extends Controller
             'description' => $query->value("description"),
             'graduated_since' => $query->value("graduated_since"),
             'graduated_from' => $query->value("graduated_from"),
+            'latitude' => $query->value('lat'),
+            'longtitude' => $query->value('long'),
+            'ratings' => $query->value('ratings'),
+            'total_review' => $totalratings->count(),
             'chat_price' => $query->value("chat_price"),
             'isonline' => $query->value("isonline"),
             'lastonline' => $query->value("lastonline"),
@@ -134,7 +145,7 @@ class DoctorController extends Controller
             ]);
         } else {
             return response()->JSON([
-                'status' => 'doctor not found'
+                'status' => 'error | doctor not found'
             ]);
         }
 
