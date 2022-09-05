@@ -32,6 +32,8 @@ class DoctorController extends Controller
             'description' => $request->description,
             'profile_picture' => $request->profile,
             'graduated_since' => $request->graduated,
+            'lat' => $request->lat,
+            'long' => $request->long,
             'isonline' => 'online'
         ]);
 
@@ -239,11 +241,11 @@ class DoctorController extends Controller
         }
         
         if($doctorspeciality==NULL){
-            $query = DB::table('clinic_doctors')
-            ->join('clinics','clinic_doctors.clinic_id','=','clinics.id')
-            ->join('doctors','clinic_doctors.doctor_id','=','doctors.id')
-            ->join('doctor_specialities', 'clinic_doctors.doctor_id','=','doctor_specialities.doctor_id')
-            ->select(['clinic_doctors.doctor_id','clinic_doctors.clinic_id','doctors.doctor_name','clinics.clinic_name','clinics.lat','clinics.long',DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"),'doctors.description','doctor_specialities.speciality','doctors.profile_picture','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline','doctors.ratings'])
+            $query = DB::table('doctors')
+            // ->join('clinics','clinic_doctors.clinic_id','=','clinics.id')
+            // ->join('doctors','clinic_doctors.doctor_id','=','doctors.id')
+            ->join('doctor_specialities', 'doctors.id','=','doctor_specialities.doctor_id')
+            ->select(['doctors.id','doctors.doctor_name','doctors.lat','doctors.long',DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"),'doctors.description','doctor_specialities.speciality','doctors.profile_picture','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline','doctors.ratings'])
             ->having('distance','<','22')
             ->orderBy('doctors.isonline','desc')
             ->orderBy('distance', 'asc')
@@ -257,11 +259,11 @@ class DoctorController extends Controller
                 'results' => $query
             ]);
         } else{
-            $query = DB::table('clinic_doctors')
-            ->join('clinics','clinic_doctors.clinic_id','=','clinics.id')
-            ->join('doctors','clinic_doctors.doctor_id','=','doctors.id')
-            ->join('doctor_specialities', 'clinic_doctors.doctor_id','=','doctor_specialities.doctor_id')
-            ->select(['clinic_doctors.doctor_id','clinic_doctors.clinic_id','doctors.doctor_name','clinics.clinic_name','clinics.lat','clinics.long',DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"),'doctors.description','doctor_specialities.speciality','doctors.profile_picture','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline','doctors.ratings'])
+            $query = DB::table('doctors')
+            // ->join('clinics','clinic_doctors.clinic_id','=','clinics.id')
+            // ->join('doctors','clinic_doctors.doctor_id','=','doctors.id')
+            ->join('doctor_specialities', 'doctors.id','=','doctor_specialities.doctor_id')
+            ->select(['doctors.id','doctors.doctor_name','doctors.lat','doctors.long',DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"),'doctors.description','doctor_specialities.speciality','doctors.profile_picture','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline','doctors.ratings'])
             ->having('distance','<','22')
             ->where('doctor_specialities.speciality',$doctorspeciality)
             ->orderBy('doctors.isonline','desc')
