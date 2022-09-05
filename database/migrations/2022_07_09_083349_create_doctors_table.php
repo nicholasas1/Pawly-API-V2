@@ -21,6 +21,7 @@ return new class extends Migration
             $table->char("profile_picture",250)->nullable();
             $table->year("graduated_since")->nullable();
             $table->char("graduated_from",100)->nullable();
+            $table->year('worked_since')->nullable();
             $table->float('lat',12,7)->nullable();
             $table->float('long',12,7)->nullable();
             $table->float('vidcall_price')->nullable();

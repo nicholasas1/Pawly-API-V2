@@ -11,7 +11,7 @@ class RatingsController extends Controller
 {
    public function addratings(request $request){
 
-        $status = 'error | doctor not found';
+        $status = 'doctor not found';
         $doctortrue = doctor::where('id',$request->doctor_id);
 
         if($doctortrue->count()>0){

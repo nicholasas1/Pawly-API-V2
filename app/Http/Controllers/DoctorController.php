@@ -74,7 +74,7 @@ class DoctorController extends Controller
             'total_review' => $totalratings->count(),
             'chat_price' => $query->value("chat_price"),
             'isonline' => $query->value("isonline"),
-            'speciality' => doctor_speciality::where('doctor_id',$query->value('id'))->get('speciality')
+            'speciality' => doctor_speciality::where('doctor_id',$query->value('id'))->get(['id','speciality'])
         ];
         $isoffline = [
             'id' => $query->value("id"),
@@ -89,7 +89,7 @@ class DoctorController extends Controller
             'chat_price' => $query->value("chat_price"),
             'isonline' => $query->value("isonline"),
             'lastonline' => $query->value("lastonline"),
-            'speciality' => doctor_speciality::where('doctor_id',$query->value('id'))->get('speciality')
+            'speciality' => doctor_speciality::where('doctor_id',$query->value('id'))->get(['id','speciality'])
         ];
         if($query->count()==1||$query->value('isonline')=='online'){
             return response()->JSON([
@@ -145,7 +145,7 @@ class DoctorController extends Controller
             ]);
         } else {
             return response()->JSON([
-                'status' => 'error | doctor not found'
+                'status' => 'doctor not found'
             ]);
         }
 
