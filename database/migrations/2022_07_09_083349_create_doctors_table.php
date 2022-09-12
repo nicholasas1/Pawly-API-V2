@@ -25,6 +25,7 @@ return new class extends Migration
             $table->float('lat',12,7)->nullable();
             $table->float('long',12,7)->nullable();
             $table->float('vidcall_price')->nullable();
+            $table->text('vidcall_avaiable')->nullable();
             $table->float('chat_price')->nullable();
             $table->float('offline_price')->nullable();
             $table->float('ratings',10,1)->nullable();
