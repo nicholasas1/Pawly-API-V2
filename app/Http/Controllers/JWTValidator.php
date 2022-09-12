@@ -74,9 +74,27 @@ class JWTValidator extends Controller
         ];
         $token = Token::customPayload($payload, $secret);
         return array(
-            'status'   => 200,
-            'message'   =>'succes', 
-            'success'   => $token,
+            'status'   => "succes", 
+            'result'   => $token,
         );
+    }
+
+    public function logout(request $request)
+    {
+        $data = Token::getPayload($request->token);
+
+        $logout = user_secret::where(['user_id' => $data['user_id'],'session_id' => $data['session_id']])->delete();
+        
+        if($logout == 1){
+            return array(
+                'status'   => "success",
+                'message'   =>'Log Out Berhasil'
+            );
+        }else{
+            return array(
+                'status'   => "failed",
+                'message'   =>$logout            
+            );
+        }
     }
 }

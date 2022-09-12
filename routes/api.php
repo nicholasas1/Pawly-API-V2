@@ -92,6 +92,8 @@ Route::post('ratings/add', [RatingsController::class, 'addratings']);
 
 Route::get('refresh-token', [JWTValidator::class, 'refreshToken']);
 
+Route::post('logout', [JWTValidator::class, 'logout']);
+
 
 
 
