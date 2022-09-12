@@ -34,6 +34,7 @@ class RatingsController extends Controller
             return response()->JSON([
                 'status' => $status
             ]);
+            
         }
        
    }
