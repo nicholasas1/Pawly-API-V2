@@ -59,18 +59,24 @@ class JWTValidator extends Controller
         }
     }
     
-    public function refreshToken($token)
+    public function refreshToken(request $request)
     {
-        $secret = 'Hello&MikeFooBar123';
-        $data = Token::getPayload($token);
-        $username = User::where('id',$id['user_id'])->value('username');
+        $data = Token::getPayload($request->token);
+        $secret = user_secret::where(['user_id' => $data['user_id'],'session_id' => $data['session_id']])->value('user_secret');
+        $username = User::where('id',$data['user_id'])->value('username');
+
         $payload = [
-            'user_id' => $id['user_id'],
+            'user_id' => $data['user_id'],
             'username' => $username,
+            'session_id' => $data['session_id'],
             'iat' => time(),
             'exp' => time() + 60*60*24*7
         ];
         $token = Token::customPayload($payload, $secret);
-        return $token;
+        return array(
+            'status'   => 200,
+            'message'   =>'succes', 
+            'success'   => $token,
+        );
     }
 }

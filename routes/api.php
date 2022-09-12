@@ -90,7 +90,7 @@ Route::get('doctor/filtersearch', [DoctorController::class, 'filtersearch']);
 
 Route::post('ratings/add', [RatingsController::class, 'addratings']);
 
-Route::get('validateToken', [JWTValidator::class, 'validateToken']);
+Route::get('refresh-token', [JWTValidator::class, 'refreshToken']);
 
 
 
