@@ -205,11 +205,9 @@ class UserController extends Controller
                 
             }
             $emails = $request->email;
-            $token = $this->JWTValidator->createToken($userid,$emails);
 
             return response()->json([
                 'status'=>$status,
-                'token' => $token
             ]);
         } else {
             return response()->json([
