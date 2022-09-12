@@ -321,10 +321,10 @@ class DoctorController extends Controller
                     'total_review' => $totalratings,
                 ];
          }
-
             return response()->JSON([
                 'status' => 'success',
                 'total_data' => $query->count(),
+                'pages' => ceil($query->count()/$limit),
                 'results' => $arr
             ]);
 
@@ -374,7 +374,7 @@ class DoctorController extends Controller
             return response()->JSON([
                 'status' => 'success',
                 'total_data' => $query->count(),
-                'pages' => $query->count()/$limit,
+                'pages' => ceil($query->count()/$limit),
                 'results' => $arr
             ]);
         }
