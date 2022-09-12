@@ -10,23 +10,21 @@ use Illuminate\Http\Request;
 
 class JWTValidator extends Controller
 {
-    public function createToken($user_id, $username){
+    public function createToken($user_id, $username, $secret){
         $payload = [
             'user_id' => $user_id,
             'username' => $username,
             'iat' => time(),
             'exp' => time() + 60*60*24*7
         ];
-        
-        $secret = 'Hello&MikeFooBar123';
-        
+
         $token = Token::customPayload($payload, $secret);
-        return $token;
+        return $token.$secret;
     }
 
     public function validateToken($token){
        
-        $secret = 'Hello&MikeFooBar123';
+        
 
         if($token != null){
             $valid = Token::validate($token, $secret);

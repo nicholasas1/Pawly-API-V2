@@ -122,8 +122,18 @@ class UserController extends Controller
             if($query->value('status') == "Waiting Activation"){
                 $status="Your account is not active. Please check your email to activate your account";
             }
+            $secret = str_shuffle('abcdesfrtysjndncdj').str_shuffle('!@#$%*').rand(10,1000).str_shuffle('QWERTY');
+
+            User::find($query->value('id'))->update(
+                [
+                    'session_id' => $secret, 
+                ]
+            );
             
-            $token = $this->JWTValidator->createToken($query->value('id'), $query->value('username'));
+            $token = $this->JWTValidator->createToken($query->value('id'), $query->value('username'), $secret);
+           
+
+            
           
             return response()->json([
                 'status'=>$status, 
