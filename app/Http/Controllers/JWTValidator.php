@@ -30,7 +30,7 @@ class JWTValidator extends Controller
         $data = Token::getPayload($token);
 
         $secret = user_secret::where(['user_id' => $data['user_id'],'session_id' => $data['session_id']])->value('user_secret');
-        if($token != null){
+        if($token != null && $secret != NULL){
             $valid = Token::validate($token, $secret);
         }else{
             $valid = false;
@@ -72,11 +72,21 @@ class JWTValidator extends Controller
             'iat' => time(),
             'exp' => time() + 60*60*24*7
         ];
-        $token = Token::customPayload($payload, $secret);
-        return array(
-            'status'   => "succes", 
-            'result'   => $token,
-        );
+
+        if($request->token != null && $secret != NULL){
+            $token = Token::customPayload($payload, $secret);
+            return array(
+                'status'   => "succes", 
+                'result'   => $token,
+            );
+        }else{
+            return array(
+                'status'   => 401,
+                'success'   => 'Token Invalid',
+            );
+        }
+        
+        
     }
 
     public function logout(request $request)
