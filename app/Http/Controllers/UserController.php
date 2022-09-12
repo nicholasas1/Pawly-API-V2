@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\user_secret;
 use App\Models\role;
 use App\Models\userpets;
 use Illuminate\Support\Facades\DB;
@@ -122,8 +123,20 @@ class UserController extends Controller
             if($query->value('status') == "Waiting Activation"){
                 $status="Your account is not active. Please check your email to activate your account";
             }
+            $secret = str_shuffle('abcdesfrtysjndncdj').str_shuffle('!@#$%*').rand(10,1000).str_shuffle('QWERTY');
+            $session_id = str_shuffle('abcdesfrtysjndncdj').rand(10,1000);
+            user_secret::insert(
+                [
+                    'user_id' => $query->value('id'), 
+                    'user_secret' => $secret,
+                    'session_id' => $session_id,
+                ]
+            );
             
-            $token = $this->JWTValidator->createToken($query->value('id'), $query->value('username'));
+            $token = $this->JWTValidator->createToken($query->value('id'), $query->value('username'),$session_id, $secret);
+           
+
+            
           
             return response()->json([
                 'status'=>$status, 
@@ -195,11 +208,9 @@ class UserController extends Controller
                 
             }
             $emails = $request->email;
-            $token = $this->JWTValidator->createToken($userid,$emails);
 
             return response()->json([
                 'status'=>$status,
-                'token' => $token
             ]);
         } else {
             return response()->json([
@@ -311,13 +322,11 @@ class UserController extends Controller
                 ]);
             return response()->json([
                 'status'=>'success', 
-                'result'=> User::where('id',$user)->select('username','profile_picture','nickname','fullname','birthday','phone_number','gender')->get()
+                'result'=> User::where('id',$user)->select('username','profile_picture','nickname','fullname','birthday','phone_number','gender')->get(),
                 ]);
+                
         }else{
-            return response()->JSON([
-                'status' => 'fail',
-                'results' => ' '
-            ]);
+            return  $result;
             
         }
     }
@@ -329,19 +338,41 @@ class UserController extends Controller
         $current_date_time = date('Y-m-d H:i:s');
         if($query->count() == 1){
             $status = "Login Success";
-            $token = $this->JWTValidator->createToken($query->value('id'),$query->value('email'));
-                return response()->JSON([
-                    'status' => $status,
-                    'token' => $token
-                ]);
+            $secret = str_shuffle('abcdesfrtysjndncdj').str_shuffle('!@#$%*').rand(10,1000).str_shuffle('QWERTY');
+            $session_id = str_shuffle('abcdesfrtysjndncdj').rand(10,1000);
+            user_secret::insert(
+                [
+                    'user_id' => $query->value('id'), 
+                    'user_secret' => $secret,
+                    'session_id' => $session_id,
+                ]
+            );
+            
+            $token = $this->JWTValidator->createToken($query->value('id'), $query->value('username'),$session_id, $secret);
+                      
+            return response()->JSON([
+                'status' => $status,
+                'token' => $token
+            ]);
         } else if(isset($request->email)&&isset($request->sosmed_id)&&$query->count()==0&&$emailvalid->count()==1){
             $addsosmedid = User::where("email",$request->email)->update([
                 'sosmed_login' => $request->sosmed_id,
                 'status' => 'Active'
             ]);
                 $status = "Login Success";
-                $token = $this->JWTValidator->createToken($addsosmedid->value('id'),$addsosmedid->value('email'));
-                    return response()->JSON([
+                $secret = str_shuffle('abcdesfrtysjndncdj').str_shuffle('!@#$%*').rand(10,1000).str_shuffle('QWERTY');
+                $session_id = str_shuffle('abcdesfrtysjndncdj').rand(10,1000);
+                user_secret::insert(
+                    [
+                        'user_id' => $query->value('id'), 
+                        'user_secret' => $secret,
+                        'session_id' => $session_id,
+                    ]
+                );
+                
+                $token = $this->JWTValidator->createToken($addsosmedid->value('id'), $qaddsosmediduery->value('username'),$session_id, $secret);           
+               
+                return response()->JSON([
                     'status' => $status,
                     'token' => $token,
                 ]);
@@ -361,7 +392,19 @@ class UserController extends Controller
             ]);
 
                 $query = User::where('id',$insertnew)->where('email',$request->email);
-                $token = $this->JWTValidator->createToken($query->value('id'),$query->value('email'));
+
+                $secret = str_shuffle('abcdesfrtysjndncdj').str_shuffle('!@#$%*').rand(10,1000).str_shuffle('QWERTY');
+                $session_id = str_shuffle('abcdesfrtysjndncdj').rand(10,1000);
+                user_secret::insert(
+                    [
+                        'user_id' => $query->value('id'), 
+                        'user_secret' => $secret,
+                        'session_id' => $session_id,
+                    ]
+                );
+                
+                $token = $this->JWTValidator->createToken($insertnew,  $query->value('username'),$session_id, $secret);           
+            
                 Role::insert([
                     'userId' => $insertnew,
                     'meta_role'=> 'User'

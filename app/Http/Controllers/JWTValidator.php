@@ -5,38 +5,38 @@ use ReallySimpleJWT\Token;
 use ReallySimpleJWT\Jwt;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\user_secret;
+
 
 use Illuminate\Http\Request;
 
 class JWTValidator extends Controller
 {
-    public function createToken($user_id, $username){
+    public function createToken($user_id, $username,$session_id, $secret){
         $payload = [
             'user_id' => $user_id,
             'username' => $username,
+            'session_id' => $session_id,
             'iat' => time(),
             'exp' => time() + 60*60*24*7
         ];
-        
-        $secret = 'Hello&MikeFooBar123';
-        
+
         $token = Token::customPayload($payload, $secret);
         return $token;
     }
 
     public function validateToken($token){
        
-        $secret = 'Hello&MikeFooBar123';
+        $data = Token::getPayload($token);
 
-        if($token != null){
+        $secret = user_secret::where(['user_id' => $data['user_id'],'session_id' => $data['session_id']])->value('user_secret');
+        if($token != null && $secret != NULL){
             $valid = Token::validate($token, $secret);
         }else{
             $valid = false;
             $token = '123erf.12w3se.25rds';
         }
         
-        $data = Token::getPayload($token);
-
         $expired = Token::validateExpiration($token);
 
         if($valid == true and $expired == true ){
@@ -58,18 +58,53 @@ class JWTValidator extends Controller
             );
         }
     }
-    public function refreshToken($token)
+    
+    public function refreshToken(request $request)
     {
-        $secret = 'Hello&MikeFooBar123';
-        $data = Token::getPayload($token);
-        $username = User::where('id',$id['user_id'])->value('username');
+        $data = Token::getPayload($request->token);
+        $secret = user_secret::where(['user_id' => $data['user_id'],'session_id' => $data['session_id']])->value('user_secret');
+        $username = User::where('id',$data['user_id'])->value('username');
+
         $payload = [
-            'user_id' => $id['user_id'],
+            'user_id' => $data['user_id'],
             'username' => $username,
+            'session_id' => $data['session_id'],
             'iat' => time(),
             'exp' => time() + 60*60*24*7
         ];
-        $token = Token::customPayload($payload, $secret);
-        return $token;
+
+        if($request->token != null && $secret != NULL){
+            $token = Token::customPayload($payload, $secret);
+            return array(
+                'status'   => "succes", 
+                'result'   => $token,
+            );
+        }else{
+            return array(
+                'status'   => 401,
+                'success'   => 'Token Invalid',
+            );
+        }
+        
+        
+    }
+
+    public function logout(request $request)
+    {
+        $data = Token::getPayload($request->token);
+
+        $logout = user_secret::where(['user_id' => $data['user_id'],'session_id' => $data['session_id']])->delete();
+        
+        if($logout == 1){
+            return array(
+                'status'   => "success",
+                'message'   =>'Log Out Berhasil'
+            );
+        }else{
+            return array(
+                'status'   => "failed",
+                'message'   =>$logout            
+            );
+        }
     }
 }
