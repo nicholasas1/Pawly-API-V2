@@ -75,6 +75,7 @@ class DoctorController extends Controller
             'latitude' => $query->value('lat'),
             'longtitude' => $query->value('long'),
             'ratings' => $query->value('ratings'),
+            'round_rating' => round($query->value('ratings'),0,PHP_ROUND_HALF_UP),
             'total_review' => $totalratings->count(),
             'chat_price' => $query->value("chat_price"),
             'isonline' => $query->value("isonline"),
@@ -91,6 +92,7 @@ class DoctorController extends Controller
             'latitude' => $query->value('lat'),
             'longtitude' => $query->value('long'),
             'ratings' => $query->value('ratings'),
+            'round_rating' => round($query->value('ratings'),0,PHP_ROUND_HALF_UP),
             'total_review' => $totalratings->count(),
             'chat_price' => $query->value("chat_price"),
             'isonline' => $query->value("isonline"),
@@ -273,7 +275,7 @@ class DoctorController extends Controller
         } else{
             $page = $request->pages;
         }
-        $arr[] = ['null'];
+        $arr = NULL;
         if($doctorspeciality==NULL){
 
             
@@ -281,7 +283,7 @@ class DoctorController extends Controller
             // ->join('clinics','clinic_doctors.clinic_id','=','clinics.id')
             // ->join('doctors','clinic_doctors.doctor_id','=','doctors.id')
             // ->join('doctor_specialities', 'doctors.id','=','doctor_specialities.doctor_id')
-            ->select(['doctors.id','doctors.doctor_name','doctors.lat','doctors.long',DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"),'doctors.description','doctors.profile_picture','doctors.worked_since','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline','doctors.ratings'])
+            ->select(['doctors.id','doctors.doctor_name','doctors.lat','doctors.long',DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"),'doctors.description','doctors.profile_picture','doctors.vidcall_price','doctors.offline_price','doctors.worked_since','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline','doctors.ratings'])
             ->having('distance','<','22')
             ->orderBy('doctors.isonline','desc')
             ->orderBy('distance', 'asc')
@@ -294,6 +296,8 @@ class DoctorController extends Controller
             // ->orderBy('doctors.offline_price',$onsite)
             ->get();
             
+            $totaldata = $query->count();
+
             foreach($query as $queries){
                 $speciality = DB::table('doctor_specialities')->where('doctor_id',$queries->id)->select(['id','speciality'])->get();
                 $year = Carbon::now()->year;
@@ -310,6 +314,8 @@ class DoctorController extends Controller
                     'experience' => $year-$queries->worked_since,
                     'speciality' => $speciality,
                     'chat_price' => $queries->chat_price,
+                    'vidcall_price' => $queries->vidcall_price,
+                    'offline_price' => $queries->offline_price,
                     'isonline' => $queries->isonline,
                     'ratings' => $queries->ratings,
                     'total_review' => $totalratings,
@@ -327,7 +333,7 @@ class DoctorController extends Controller
             // ->join('clinics','clinic_doctors.clinic_id','=','clinics.id')
             // ->join('doctors','clinic_doctors.doctor_id','=','doctors.id')
             ->join('doctor_specialities', 'doctors.id','=','doctor_specialities.doctor_id')
-            ->select(['doctors.id','doctors.doctor_name','doctors.lat','doctors.long',DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"),'doctors.description','doctor_specialities.speciality','doctors.profile_picture','doctors.worked_since','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline','doctors.ratings'])
+            ->select(['doctors.id','doctors.doctor_name','doctors.lat','doctors.long',DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"),'doctors.description','doctor_specialities.speciality','doctors.profile_picture','doctors.vidcall_price','doctors.offline_price','doctors.worked_since','doctors.graduated_since','doctors.vidcall_price','doctors.chat_price','doctors.offline_price','doctors.isonline','doctors.ratings'])
             ->having('distance','<','22')
             ->where('doctor_specialities.speciality',$doctorspeciality)
             ->orderBy('doctors.isonline','desc')
@@ -355,15 +361,20 @@ class DoctorController extends Controller
                     'experience' => $year-$queries->worked_since,
                     'speciality' => $queries->speciality,
                     'chat_price' => $queries->chat_price,
+                    'vidcall_price' => $queries->vidcall_price,
+                    'offline_price' => $queries->offline_price,
                     'isonline' => $queries->isonline,
                     'ratings' => $queries->ratings,
                     'total_review' => $totalratings,
                 ];
          }
-
+         if($arr = NULL){
+            $arr[] = ['null'];
+         }
             return response()->JSON([
                 'status' => 'success',
                 'total_data' => $query->count(),
+                'pages' => $query->count()/$limit,
                 'results' => $arr
             ]);
         }
