@@ -37,8 +37,6 @@ class JWTValidator extends Controller
             $token = '123erf.12w3se.25rds';
         }
         
-        
-
         $expired = Token::validateExpiration($token);
 
         if($valid == true and $expired == true ){
