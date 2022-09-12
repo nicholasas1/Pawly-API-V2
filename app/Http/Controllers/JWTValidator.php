@@ -61,7 +61,12 @@ class JWTValidator extends Controller
     
     public function refreshToken(request $request)
     {
-        $data = Token::getPayload($request->token);
+        if($request->header('Authorization') == null){
+            $data = Token::getPayload($request->token);
+        }else{
+            $data = Token::getPayload($request->header('authorization'));
+        }
+       
         $secret = user_secret::where(['user_id' => $data['user_id'],'session_id' => $data['session_id']])->value('user_secret');
         $username = User::where('id',$data['user_id'])->value('username');
 
