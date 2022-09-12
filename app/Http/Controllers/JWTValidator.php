@@ -19,12 +19,14 @@ class JWTValidator extends Controller
         ];
 
         $token = Token::customPayload($payload, $secret);
-        return $token.$secret;
+        return $token;
     }
 
     public function validateToken($token){
        
-        
+        $data = Token::getPayload($token);
+
+        $secret = User::where('id', $data['user_id'])->value('session_id');
 
         if($token != null){
             $valid = Token::validate($token, $secret);
@@ -33,7 +35,7 @@ class JWTValidator extends Controller
             $token = '123erf.12w3se.25rds';
         }
         
-        $data = Token::getPayload($token);
+        
 
         $expired = Token::validateExpiration($token);
 
@@ -56,6 +58,7 @@ class JWTValidator extends Controller
             );
         }
     }
+    
     public function refreshToken($token)
     {
         $secret = 'Hello&MikeFooBar123';

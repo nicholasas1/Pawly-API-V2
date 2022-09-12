@@ -321,13 +321,11 @@ class UserController extends Controller
                 ]);
             return response()->json([
                 'status'=>'success', 
-                'result'=> User::where('id',$user)->select('username','profile_picture','nickname','fullname','birthday','phone_number','gender')->get()
+                'result'=> User::where('id',$user)->select('username','profile_picture','nickname','fullname','birthday','phone_number','gender')->get(),
                 ]);
+                
         }else{
-            return response()->JSON([
-                'status' => 'fail',
-                'results' => ' '
-            ]);
+            return  $result;
             
         }
     }
