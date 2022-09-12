@@ -5,15 +5,18 @@ use ReallySimpleJWT\Token;
 use ReallySimpleJWT\Jwt;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\user_secret;
+
 
 use Illuminate\Http\Request;
 
 class JWTValidator extends Controller
 {
-    public function createToken($user_id, $username, $secret){
+    public function createToken($user_id, $username,$session_id, $secret){
         $payload = [
             'user_id' => $user_id,
             'username' => $username,
+            'session_id' => $session_id,
             'iat' => time(),
             'exp' => time() + 60*60*24*7
         ];
@@ -26,8 +29,7 @@ class JWTValidator extends Controller
        
         $data = Token::getPayload($token);
 
-        $secret = User::where('id', $data['user_id'])->value('session_id');
-
+        $secret = user_secret::where(['user_id' => $data['user_id'],'session_id' => $data['session_id']])->value('user_secret');
         if($token != null){
             $valid = Token::validate($token, $secret);
         }else{

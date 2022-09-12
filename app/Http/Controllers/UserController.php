@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\user_secret;
 use App\Models\role;
 use App\Models\userpets;
 use Illuminate\Support\Facades\DB;
@@ -123,14 +124,16 @@ class UserController extends Controller
                 $status="Your account is not active. Please check your email to activate your account";
             }
             $secret = str_shuffle('abcdesfrtysjndncdj').str_shuffle('!@#$%*').rand(10,1000).str_shuffle('QWERTY');
-
-            User::find($query->value('id'))->update(
+            $session_id = str_shuffle('abcdesfrtysjndncdj').rand(10,1000);
+            user_secret::insert(
                 [
-                    'session_id' => $secret, 
+                    'user_id' => $query->value('id'), 
+                    'user_secret' => $secret,
+                    'session_id' => $session_id,
                 ]
             );
             
-            $token = $this->JWTValidator->createToken($query->value('id'), $query->value('username'), $secret);
+            $token = $this->JWTValidator->createToken($query->value('id'), $query->value('username'),$session_id, $secret);
            
 
             
