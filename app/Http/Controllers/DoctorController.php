@@ -37,6 +37,7 @@ class DoctorController extends Controller
             'worked_since' => $request->workedsince,
             'lat' => $request->lat,
             'long' => $request->long,
+            'ratings' => '0',
             'isonline' => 'online'
         ]);
 
