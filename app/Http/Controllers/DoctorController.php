@@ -272,6 +272,7 @@ class DoctorController extends Controller
         } else{
             $page = $request->pages;
         }
+        $arr[] = ['null'];
         if($doctorspeciality==NULL){
 
             
@@ -329,8 +330,8 @@ class DoctorController extends Controller
             ->having('distance','<','22')
             ->where('doctor_specialities.speciality',$doctorspeciality)
             ->orderBy('doctors.isonline','desc')
-            ->orderBy('doctors.ratings', $rating)
             ->orderBy('doctors.doctor_name',$order)
+            ->orderBy('doctors.ratings', $rating)
             // ->orderBy('doctors.vidcall_price',$vidcall)
             ->orderBy('doctors.chat_price',$price)
             ->limit($limit)
