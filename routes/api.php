@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\JWTValidator;
 use App\Http\Controllers\RatingsController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SplashscreenMobileController;
@@ -88,6 +89,10 @@ Route::post('doctor/lastonline', [DoctorController::class, 'lastonline']);
 Route::get('doctor/filtersearch', [DoctorController::class, 'filtersearch']);
 
 Route::post('ratings/add', [RatingsController::class, 'addratings']);
+
+Route::get('refresh-token', [JWTValidator::class, 'refreshToken']);
+
+Route::post('logout', [JWTValidator::class, 'logout']);
 
 
 
