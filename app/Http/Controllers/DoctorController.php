@@ -391,5 +391,51 @@ class DoctorController extends Controller
         }
 
     }
+    
+    public function doctorGetList(request $request){
+        if($request->lat==NULL||$request->long==NULL){
+            $lat = "-6.171782389823256";
+            $long = "106.82628043498254";
+        } else{
+            $lat = $request->lat;
+            $long = $request->long;
+        }
 
+        if($request->speciality != NULL){
+            $speciality = $request->speciality;
+        }else{
+            $speciality = NULL;
+        }
+
+        if($request->order == 'a-z'){
+            $order = "doctor_name";
+            $order_val = "ASC";
+        }else if($request->order == 'z-a'){
+            $order = "doctor_name";
+            $order_val = "DESC";
+        }else if($request->order == 'lowest_price'){
+            $order = "vidcall_price";
+            $order_val = "ASC";
+        }else if($request->order == 'highest_price'){
+            $order = "vidcall_price";
+            $order_val = "DESC";
+        }else if($request->order == 'lowest_rating'){
+            $order = "rating";
+            $order_val = "ASC";
+        }else if($request->order == 'highest_rating'){
+            $order = "rating";
+            $order_val = "DESC";
+        }else if($request->order == 'distance'){
+            $order = "distance";
+            $order_val = "ASC";
+        }else{
+            $order = "doctor_name";
+            $order_val = "ASC";
+        }
+
+        $query = DB::table('doctors')->leftJoin('doctor_specialities','doctors.id','=','doctor_specialities.doctor_id')->leftJoin('ratings','doctors.id','=','ratings.doctors_ids')->select('doctors.id', 'doctor_name','description' , 'profile_picture' , 'graduated_since' , 'worked_since' , 'lat', 'doctors.long','vidcall_price' , 'chat_price', 'offline_price', 'isonline' , 'lastonline', DB::raw('AVG(ratings.ratings) as rating'), DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))->where('speciality','LIKE','%'.$speciality.'%')->groupBy('doctors.id')->orderBy('isonline','DESC')->orderBy($order,$order_val)->get();
+        
+        return  $query;
+
+    }
 }

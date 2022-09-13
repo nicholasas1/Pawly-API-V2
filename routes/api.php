@@ -94,6 +94,9 @@ Route::post('refresh-token', [JWTValidator::class, 'refreshToken']);
 
 Route::post('logout', [JWTValidator::class, 'logout']);
 
+Route::get('testing', [DoctorController::class, 'doctorGetList']);
+
+
 
 
 
