@@ -311,13 +311,14 @@ class DoctorController extends Controller
                     'description' => $queries->description,
                     'profile_picture' => $queries->profile_picture,
                     'graduated_since' => $queries->graduated_since,
-                    'experience' => $year-$queries->worked_since,
+                    'experience' => $year - $queries->worked_since,
                     'speciality' => $speciality,
                     'chat_price' => $queries->chat_price,
                     'vidcall_price' => $queries->vidcall_price,
                     'offline_price' => $queries->offline_price,
                     'isonline' => $queries->isonline,
                     'ratings' => $queries->ratings,
+                    'floor_rating' => floor($queries->ratings),
                     'total_review' => $totalratings,
                 ];
          }
@@ -357,7 +358,7 @@ class DoctorController extends Controller
                     'distance' => $queries->distance,
                     'description' => $queries->description,
                     'profile_picture' => $queries->profile_picture,
-                    'graduated_since' => $queries->graduated_since,
+                    'graduated_since' => $year-$queries->graduated_since,
                     'experience' => $year-$queries->worked_since,
                     'speciality' => $queries->speciality,
                     'chat_price' => $queries->chat_price,
@@ -365,6 +366,7 @@ class DoctorController extends Controller
                     'offline_price' => $queries->offline_price,
                     'isonline' => $queries->isonline,
                     'ratings' => $queries->ratings,
+                    'floor_rating' => floor($queries->ratings),
                     'total_review' => $totalratings,
                 ];
          }
