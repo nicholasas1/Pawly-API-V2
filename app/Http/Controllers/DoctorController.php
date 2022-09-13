@@ -243,9 +243,12 @@ class DoctorController extends Controller
 
         if($request->order=='z-a'){
             $order = 'desc';
-        } else{
+        } else if ($request->order=='a-z'){
+            $order = 'asc';
+        }else{
             $order = 'asc';
         }
+        
         if($request->price=='expe'){
             $price = 'desc';
         } else{
