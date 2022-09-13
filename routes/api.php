@@ -86,7 +86,7 @@ Route::get('location/getlatlong', [ClinicController::class, 'getlatlong']);
 
 Route::post('doctor/lastonline', [DoctorController::class, 'lastonline']);
 
-Route::get('doctor/filtersearch', [DoctorController::class, 'filtersearch']);
+Route::get('doctor/filtersearch', [DoctorController::class, 'doctorGetList']);
 
 Route::post('ratings/add', [RatingsController::class, 'addratings']);
 

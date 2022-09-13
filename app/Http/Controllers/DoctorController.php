@@ -461,7 +461,7 @@ class DoctorController extends Controller
                 'profile_picture' => $queries->profile_picture,
                 'graduated_since' => $year-$queries->graduated_since,
                 'experience' => $year-$queries->worked_since,
-                'speciality' => doctor_speciality::where('doctor_idn',$queries->id)->get(),
+                'speciality' => doctor_speciality::where('doctor_id',$queries->id)->get(),
                 'chat_price' => $queries->chat_price,
                 'vidcall_price' => $queries->vidcall_price,
                 'offline_price' => $queries->offline_price,
