@@ -273,7 +273,7 @@ class DoctorController extends Controller
         if($request->pages==NULL){
             $page = 0;
         } else{
-            $page = $request->pages;
+            $page = $request->pages - 1 * $limit;
         }
         $arr = NULL;
         if($doctorspeciality==NULL){
