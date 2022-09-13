@@ -76,9 +76,7 @@ class UserController extends Controller
                 'results'=> $arr
             ]);
         }else{
-            return array(
-                $result
-            );
+            return $result;
         }
         
     }
