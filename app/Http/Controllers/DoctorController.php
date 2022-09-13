@@ -447,12 +447,37 @@ class DoctorController extends Controller
 
         $query = DB::table('doctors')->leftJoin('doctor_specialities','doctors.id','=','doctor_specialities.doctor_id')->leftJoin('ratings','doctors.id','=','ratings.doctors_ids')->select('doctors.id', 'doctor_name','description' , 'profile_picture' , 'graduated_since' , 'worked_since' , 'lat', 'doctors.long','vidcall_price' , 'chat_price', 'offline_price', 'isonline' , 'lastonline', DB::raw('AVG(ratings.ratings) as rating'), DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))->where('speciality','LIKE','%'.$speciality.'%')->groupBy('doctors.id')->orderBy('isonline','DESC')->orderBy($order,$order_val);
         
+
+        foreach($query->limit($limit)->offset($page)->get() as $queries){
+            $year = Carbon::now()->year;
+            $totalratings = ratings::where('doctors_ids',$queries->id)->count();
+            $arr[] = [
+                'id' => $queries->id,
+                'doctor_name' => $queries->doctor_name,
+                'latitude' => $queries->lat,
+                'longtitude' => $queries->long,
+                'distance' => $queries->distance,
+                'description' => $queries->description,
+                'profile_picture' => $queries->profile_picture,
+                'graduated_since' => $year-$queries->graduated_since,
+                'experience' => $year-$queries->worked_since,
+                'speciality' => doctor_speciality::where('doctor_idn',$queries->id)->get(),
+                'chat_price' => $queries->chat_price,
+                'vidcall_price' => $queries->vidcall_price,
+                'offline_price' => $queries->offline_price,
+                'isonline' => $queries->isonline,
+                'ratings' => $queries->rating,
+                'floor_rating' => floor($queries->rating),
+                'total_review' => $totalratings,
+            ];
+        }
+
         return response()->JSON([
             'status' => 'success',
             'total_data' => $query->get()->count(),
             'total_page' => ceil($query->get()->count()/$limit),
             'total_result' => $query->limit($limit)->offset($page)->get()->count(),
-            'results' => $query->limit($limit)->offset($page)->get()
+            'results' => $arr
         ]);
 
     }
