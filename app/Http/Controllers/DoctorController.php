@@ -249,16 +249,22 @@ class DoctorController extends Controller
             $order = 'asc';
         }
         
-        if($request->price=='expe'){
+        if($request->price=='high'){
             $price = 'desc';
-        } else{
+        } else if($request->price=='low'){
+            $price = 'asc';
+        }else{
             $price = 'asc';
         }
+
         if($request->rating=='high'){
             $rating = 'desc';
-        } else{
+        }else if($request->rating=='low'){
+            $rating = 'asc';
+        }else{
             $rating = 'asc';
         }
+
         if($request->lat==NULL||$request->long==NULL){
             $lat = "-6.171782389823256";
             $long = "106.82628043498254";
