@@ -477,9 +477,9 @@ class DoctorController extends Controller
 
         return response()->JSON([
             'status' => 'success',
-            'total_data' => $query->get()->count(),
-            'total_page' => ceil($query->get()->count()/$limit),
-            'total_result' => $query->limit($limit)->offset($page)->get()->count(),
+            'total_data' => $query->count(),
+            'total_page' => ceil($query->count()/$limit),
+            'total_result' => $query->limit($limit)->offset($page)->count(),
             'results' => $arr
         ]);
 
