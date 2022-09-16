@@ -445,7 +445,7 @@ class DoctorController extends Controller
         if($request->page==NULL){
             $page = 0;
         } else{
-            $page = $request->page - 1 * $limit;
+            $page = ($request->page - 1) * $limit;
         }
 
         $query = DB::table('doctors')->leftJoin('doctor_specialities','doctors.id','=','doctor_specialities.doctor_id')->leftJoin('ratings','doctors.id','=','ratings.doctors_ids')->select('doctors.id', 'doctor_name','description' , 'profile_picture' , 'graduated_since' , 'worked_since' , 'lat', 'doctors.long','vidcall_price' , 'chat_price', 'offline_price', 'isonline' , 'lastonline', DB::raw('AVG(ratings.ratings) as rating'), DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))->where('speciality','LIKE','%'.$speciality.'%')->groupBy('doctors.id')->orderBy('isonline','DESC')->orderBy($order,$order_val);
