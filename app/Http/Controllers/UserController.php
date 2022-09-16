@@ -55,6 +55,11 @@ class UserController extends Controller
         $user = User::where('id',$userid);
         $roles = role::where('userId',$userid)->select(['meta_role','meta_id'])->get();
         $pets = userpets::where('user_id',$userid)->select(['petsname','species','breed','gender','birthdate'])->get();
+        if($user->value('wallet_status') == "Not Active"){
+            $credit = "Activation";
+        }else{
+            $credit = wallet::where('users_ids',$userid)->sum('debit') - wallet::where('users_ids',$userid)->sum('credit');
+        }
         $arr = [
             'Id' => $userid,
             'Username' => $user->value('Username'),
@@ -71,7 +76,7 @@ class UserController extends Controller
             'Roles' => $roles, 
             'Pet_count' => userpets::where('user_id',$userid)->count(), 
             'Pets' => $pets,
-            'pawly_credit' => (wallet::where('users_ids',$userid)->sum('debit') - wallet::where('users_ids',$userid)->sum('credit')), 
+            'pawly_credit' => $credit
         ]; 
             return response()->json([
                 'status'=>'success', 
@@ -194,6 +199,7 @@ class UserController extends Controller
                     'phone_number' => $request->phone_number, 
                     'gender' => $request->gender,
                     'status' => 'Waiting Activation',
+                    'wallet_status' => 'Not Active',
                     'create_at' => $current_date_time
                 ]
             );
@@ -392,6 +398,7 @@ class UserController extends Controller
                     'gender' => $request->gender,
                     'status' => 'Active',
                     'sosmed_login' => $request->sosmed_id,
+                    'wallet_status' => 'Not Active',
                     'create_at' => $current_date_time
             ]);
 
