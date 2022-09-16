@@ -64,61 +64,48 @@ class DoctorController extends Controller
     }
 
     public function getlistdoctor(request $request){
-
-        $query = doctor::where("id",$request->id);
-        $totalratings = ratings::where('doctors_ids',$request->id);
-        $year = Carbon::now()->year;
-        $isonline = [
-            'id' => $query->value("id"),
-            'doctor_name' => $query->value("doctor_name"),
-            'description' => $query->value("description"),
-            'profile_picture' => $query->value("profile_picture"),
-            'graduated_since' => $query->value("graduated_since"),
-            'graduated_from' => $query->value("graduated_from"),
-            'experience' => $year-$query->value("worked_since"),
-            'latitude' => $query->value('lat'),
-            'longtitude' => $query->value('long'),
-            'ratings' => $query->value('ratings'),
-            'round_rating' => round($query->value('ratings'),0,PHP_ROUND_HALF_UP),
-            'total_review' => $totalratings->count(),
-            'chat_price' => $query->value("chat_price"),
-            'isonline' => $query->value("isonline"),
-            'speciality' => doctor_speciality::where('doctor_id',$query->value('id'))->get(['id','speciality'])
-        ];
-        $isoffline = [
-            'id' => $query->value("id"),
-            'doctor_name' => $query->value("doctor_name"),
-            'description' => $query->value("description"),
-            'profile_picture' => $query->value("profile_picture"),
-            'graduated_since' => $query->value("graduated_since"),
-            'graduated_from' => $query->value("graduated_from"),
-            'experience' => $year-$query->value("worked_since"),
-            'latitude' => $query->value('lat'),
-            'longtitude' => $query->value('long'),
-            'ratings' => $query->value('ratings'),
-            'round_rating' => round($query->value('ratings'),0,PHP_ROUND_HALF_UP),
-            'total_review' => $totalratings->count(),
-            'chat_price' => $query->value("chat_price"),
-            'isonline' => $query->value("isonline"),
-            'lastonline' => $query->value("lastonline"),
-            'speciality' => doctor_speciality::where('doctor_id',$query->value('id'))->get(['id','speciality'])
-        ];
-        if($query->count()==1||$query->value('isonline')=='online'){
-            return response()->JSON([
-                'status' => 'success',
-                'results' => $isonline
-            ]);
-        } else if($query->count()==1||$query->value('isonline')=='offline'){
-            return response()->JSON([
-                'status' => 'success',
-                'results' => $isoffline
-                
-            ]);
+        if($request->limit==NULL){
+            $limit = 10;
         } else{
-            return response()->JSON([
-                'status' => 'doctor not found'
-            ]);
+            $limit = $request->limit;
         }
+
+        if($request->page==NULL){
+            $page = 0;
+        } else{
+            $page = $request->page - 1 * $limit;
+        }
+
+        $query = doctor::leftJoin('ratings','doctors.id','=','ratings.doctors_ids')->select('users_ids','doctors.id', 'doctor_name','description' , 'profile_picture' , 'graduated_since' , 'worked_since' , 'lat', 'doctors.long','vidcall_price' , 'chat_price', 'offline_price', 'isonline' , 'lastonline','Biography','Education_experience','vidcall_available','chat_available','offline_available', DB::raw('AVG(ratings.ratings) as rating'))->groupBy('doctors.id');
+        
+        return response()->JSON([
+            'status' => 'success',
+            'results' => [
+                'account_id' => $query->value('users_ids'),
+                'doctor_id' => $query->value('doctors.id'),
+                'doctor_name' => $query->value('doctor_name'),
+                'description' => $query->value('description'),
+                'Biography' => $query->value('Biography'),
+                'Education_experience' => $query->value('Education_experience'),
+                'worked_since' => $query->value('worked_since'),
+                'lat' => $query->value('lat'),
+                'long' => $query->value('doctors.long'),
+                'vidcall_available' => $query->value('vidcall_available'),
+                'vidcall_price' => $query->value('vidcall_price'),
+                'chat_available' => $query->value('chat_available'),
+                'chat_price' => $query->value('chat_price'),
+                'offline_available' => $query->value('offline_available'),
+                'offline_price' => $query->value('offline_price'),
+                'isonline' => $query->value('isonline'),
+                'lastonline' => $query->value('lastonline'),
+                'avg_rating' => $query->value('rating'),
+                'floor_rating' => floor($query->value('rating')),
+                'total_review' => ratings::where('doctors_ids',$query->value('doctors.id'))->count(),
+                'review' => ratings::leftJoin('users','ratings.users_id','=','users.id')->where('doctors_ids',$query->value('doctors.id'))->select('ratings.id','doctors_ids','username','profile_picture','reviews','ratings')->limit($limit)->offset($page)->get(),
+                'work_at' => '',
+            ] 
+        ]);
+        
     }
 
     public function updatedoctor(request $request){
