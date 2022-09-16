@@ -31,13 +31,14 @@ class DoctorController extends Controller
             'users_ids' => $request->id,
             'doctor_name' => $request->name,
             'description' => $request->description,
-            'profile_picture' => $request->profile,
+            'Biography' => $request->biography,
+            'Education_experience' => $request->educational_experience,
+            'profile_picture' => $request->profile_picture,
             'graduated_since' => $request->graduatedsince,
             'graduated_from' => $request->graduatedfrom,
             'worked_since' => $request->workedsince,
             'lat' => $request->lat,
             'long' => $request->long,
-            'ratings' => '0',
             'isonline' => 'online'
         ]);
 
