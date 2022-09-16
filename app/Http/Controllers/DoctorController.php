@@ -43,7 +43,10 @@ class DoctorController extends Controller
         ]);
 
         $doctorid = doctor::where('users_ids',$request->id)->value('id');
-            
+        doctor_speciality::insert([
+            'doctor_id' => $doctorid ,
+            'speciality' => "umum"
+        ]);
         if($query==1){
             $queries = role::insert([
                 'userId' => $request->id,
@@ -123,10 +126,14 @@ class DoctorController extends Controller
         $query = doctor::where('id',$request->id)->update([
             'doctor_name' => $request->name,
             'description' => $request->description,
+            'Biography' => $request->biography,
+            'Education_experience' => $request->educational_experience,
             'profile_picture' => $request->profile_picture,
             'graduated_since' => $request->graduatedsince,
             'graduated_from' => $request->graduatedfrom,
-            'worked_since' => $request->workedsince
+            'worked_since' => $request->workedsince,
+            'lat' => $request->lat,
+            'long' => $request->long,
         ]);
 
         $doctor = doctor::where('id',$request->id);
