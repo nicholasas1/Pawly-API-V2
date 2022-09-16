@@ -101,3 +101,5 @@ Route::post('clinic/addClinic', [ClinicController::class, 'addNewClinic']);
 
 Route::post('wallet/addAmount', [WalletController::class, 'AddAmmount']);
 
+Route::get('wallet/transaction', [WalletController::class, 'WaletTransaction']);
+
