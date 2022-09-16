@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\clinic;
+use App\Models\role;
+use App\Models\clinic_doctor;
 
 class ClinicController extends Controller
 {
@@ -134,4 +137,34 @@ class ClinicController extends Controller
 		]);
 	}
   }
+
+  public function addNewClinic(request $request){
+
+	$query = clinic::insert([
+		   'user_id' => $request->user_id,
+		   'clinic_name' => $request->clinic_name,
+		   'description' => $request->description,
+		   'lat' => $request->lat,
+		   'long' => $request->long,
+		   'address' => $request->address,
+		   'clinic_photo' => $request->clinic_photo,
+		   'opening_hour' => $request->opening_hour,
+	   ]);
+
+	   $clinic_id = clinic::where('user_id',$request->user_id)->value('id');
+	   if($query==1){
+		   $queries = role::insert([
+			   'userId' => $request->user_id,
+			   'meta_role' => 'Clinic',
+			   'meta_id' => $clinic_id
+		   ]);
+		   $status = "Registration Success";
+	   } else{
+		   $status = 'error';
+	   }
+	  
+	   return response()->JSON([
+		   'status' => $status
+	   ]);
+   }
 }

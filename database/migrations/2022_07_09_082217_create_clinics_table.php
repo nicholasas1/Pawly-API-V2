@@ -15,14 +15,15 @@ return new class extends Migration
     {
         Schema::create('clinics', function (Blueprint $table) {
             $table->bigIncrements("id");
+            $table->char("user_id");
             $table->char("clinic_name",100);
             $table->longText("address");
             $table->float('long')->nullable();
             $table->float('lat')->nullable();
             $table->longText("description")->nullable();
             $table->char("clinic_photo",250)->nullable();
-            $table->timestamp("opening_hour")->nullable();
-            $table->timestamp("close_hour")->nullable();
+            $table->time("opening_hour")->nullable();
+            $table->time("close_hour")->nullable();
         });
     }
 

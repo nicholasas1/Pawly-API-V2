@@ -96,6 +96,8 @@ Route::post('logout', [JWTValidator::class, 'logout']);
 
 Route::get('testing', [DoctorController::class, 'doctorGetList']);
 
+Route::post('clinic/addClinic', [ClinicController::class, 'addNewClinic']);
+
 
 
 
