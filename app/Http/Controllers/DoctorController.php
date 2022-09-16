@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\role;
 use App\Models\doctor_speciality;
 use App\Models\doctor;
+use App\Models\clinic;
 use App\Models\ratings;
 use App\Models\clinic_doctor;
 use Illuminate\Support\Facades\DB;
@@ -102,7 +103,7 @@ class DoctorController extends Controller
                 'floor_rating' => floor($query->value('rating')),
                 'total_review' => ratings::where('doctors_ids',$query->value('doctors.id'))->count(),
                 'review' => ratings::leftJoin('users','ratings.users_id','=','users.id')->where('doctors_ids',$query->value('doctors.id'))->select('ratings.id','doctors_ids','username','profile_picture','reviews','ratings')->limit($limit)->offset($page)->get(),
-                'work_at' => '',
+                'working_at' => clinic_doctor::where('doctor_id',$query->value('doctors.id'))->leftJoin('clinics','clinics.id','=','clinic_id')->get(),
             ] 
         ]);
         
