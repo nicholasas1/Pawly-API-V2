@@ -66,7 +66,7 @@ class JWTValidator extends Controller
         }else{
             $data = Token::getPayload($request->header('authorization'));
         }
-       
+        $current_date_time = date('Y-m-d H:i:s');
         $secret = user_secret::where(['user_id' => $data['user_id'],'session_id' => $data['session_id']])->value('user_secret');
         $username = User::where('id',$data['user_id'])->value('username');
 
@@ -80,6 +80,11 @@ class JWTValidator extends Controller
 
         if($request->token != null && $secret != NULL){
             $token = Token::customPayload($payload, $secret);
+            user_secret::where(['user_id' => $data['user_id'],'session_id' => $data['session_id']])->update(
+                [   
+                    'firebase_token' => $request->firebase_token,
+                    'updated_at' => $current_date_time
+                ]);
             return array(
                 'status'   => "succes", 
                 'result'   => $token,

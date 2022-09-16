@@ -18,6 +18,8 @@ return new class extends Migration
             $table->char('user_id',100);
             $table->char('session_id',100);
             $table->char('user_secret',100);
+            $table->char('user_device',100);
+            $table->text('firebase_token')->nullable();
             $table->timestamps();
         });
     }

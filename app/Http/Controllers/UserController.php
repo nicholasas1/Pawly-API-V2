@@ -128,6 +128,9 @@ class UserController extends Controller
                     'user_id' => $query->value('id'), 
                     'user_secret' => $secret,
                     'session_id' => $session_id,
+                    'user_device' => $request->header('device'),
+                    'firebase_token' => $request->header('firebase_token'),
+                    'created_at' => $current_date_time
                 ]
             );
             
@@ -289,6 +292,7 @@ class UserController extends Controller
     public function update_token(request $request){
         
         $token = $request->header("Authorization");
+       
         $result = $this->JWTValidator->validateToken($token);
         $current_date_time = date('Y-m-d H:i:s');
         if($result['status'] == 200){
