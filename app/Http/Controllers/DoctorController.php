@@ -123,6 +123,12 @@ class DoctorController extends Controller
             'worked_since' => $request->workedsince,
             'lat' => $request->lat,
             'long' => $request->long,
+            'vidcall_available' => $request->vidcall_status,
+            'vidcall_price' => $request->vidcall_price,
+            'chat_available' => $request->chat_status,
+            'chat_price' => $request->chat_price,
+            'offline_available' => $request->offline_status,
+            'offline_price' => $request->offline_price
         ]);
 
         $doctor = doctor::where('id',$request->id);

@@ -104,4 +104,3 @@ Route::post('clinic/addClinic', [ClinicController::class, 'addNewClinic']);
 
 
 
-
