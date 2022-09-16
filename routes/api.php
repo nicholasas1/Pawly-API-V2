@@ -8,6 +8,7 @@ use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SplashscreenMobileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserpetsController;
+use App\Http\Controllers\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -98,9 +99,5 @@ Route::get('testing', [DoctorController::class, 'doctorGetList']);
 
 Route::post('clinic/addClinic', [ClinicController::class, 'addNewClinic']);
 
-
-
-
-
-
+Route::post('wallet/addAmount', [WalletController::class, 'AddAmmount']);
 

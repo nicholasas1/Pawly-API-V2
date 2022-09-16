@@ -14,6 +14,7 @@ use ReallySimpleJWT\Jwt;
 use ReallySimpleJWT\Decode;
 use App\Http\Controllers\JWTValidator;
 use App\Mail\activateEmail;
+use App\Models\wallet;
 use Illuminate\Support\Facades\Mail;
 use Carbon;
 
@@ -69,7 +70,8 @@ class UserController extends Controller
             'is_admin' => role::where('userId',$userid)->where('meta_role',"Super_Admin")->count(),
             'Roles' => $roles, 
             'Pet_count' => userpets::where('user_id',$userid)->count(), 
-            'Pets' => $pets
+            'Pets' => $pets,
+            'pawly_credit' => (wallet::where('users_ids',$userid)->sum('debit') - wallet::where('users_ids',$userid)->sum('credit')), 
         ]; 
             return response()->json([
                 'status'=>'success', 
