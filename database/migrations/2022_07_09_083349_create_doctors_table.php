@@ -18,6 +18,8 @@ return new class extends Migration
             $table->integer('users_ids');
             $table->char("doctor_name",100);
             $table->longText("description")->nullable();
+            $table->longText("Biography")->nullable();
+            $table->longText("Education_experience")->nullable();
             $table->char("profile_picture",250)->nullable();
             $table->year("graduated_since")->nullable();
             $table->char("graduated_from",100)->nullable();
@@ -25,10 +27,11 @@ return new class extends Migration
             $table->float('lat',12,7)->nullable();
             $table->float('long',12,7)->nullable();
             $table->float('vidcall_price')->nullable();
-            $table->text('vidcall_avaiable')->nullable();
+            $table->char('vidcall_available')->nullable();
             $table->float('chat_price')->nullable();
+            $table->char('chat_available')->nullable();
             $table->float('offline_price')->nullable();
-            $table->float('ratings',10,1)->nullable();
+            $table->char('offline_available')->nullable();
             $table->char('isonline')->nullable();
             $table->char('lastonline')->nullable();
         });
