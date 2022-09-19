@@ -78,7 +78,7 @@ class DoctorController extends Controller
         }
 
         $query = doctor::leftJoin('ratings','doctors.id','=','ratings.doctors_ids')->select('users_ids','doctors.id', 'doctor_name','description' , 'profile_picture' , 'graduated_since' , 'worked_since' , 'lat', 'doctors.long','vidcall_price' , 'chat_price', 'offline_price', 'isonline' , 'lastonline','Biography','Education_experience','vidcall_available','chat_available','offline_available', DB::raw('AVG(ratings.ratings) as rating'))->groupBy('doctors.id');
-        
+        $year = Carbon::now()->year;
         return response()->JSON([
             'status' => 'success',
             'results' => [
@@ -86,9 +86,11 @@ class DoctorController extends Controller
                 'doctor_id' => $query->value('doctors.id'),
                 'doctor_name' => $query->value('doctor_name'),
                 'description' => $query->value('description'),
+                'profile_picture' => $query->value('profile_picture'),
                 'Biography' => $query->value('Biography'),
                 'Education_experience' => $query->value('Education_experience'),
                 'worked_since' => $query->value('worked_since'),
+                'experience' => $year-$query->value('worked_since'),
                 'lat' => $query->value('lat'),
                 'long' => $query->value('doctors.long'),
                 'vidcall_available' => $query->value('vidcall_available'),
