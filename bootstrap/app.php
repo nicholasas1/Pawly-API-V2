@@ -41,6 +41,9 @@ $app->singleton(
     App\Exceptions\Handler::class
 );
 
+$app->register(Kawankoding\Fcm\FcmServiceProvider::class);
+
+
 /*
 |--------------------------------------------------------------------------
 | Return The Application
