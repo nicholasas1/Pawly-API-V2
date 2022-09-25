@@ -5,82 +5,78 @@ namespace App\Http\Controllers;
 use App\Models\servicefavourite;
 use App\Http\Requests\StoreservicefavouriteRequest;
 use App\Http\Requests\UpdateservicefavouriteRequest;
-
+use Illuminate\Http\Request;
+use App\Http\Controllers\JWTValidator;
 class ServicefavouriteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    protected $JWTValidator;
+    public function __construct(JWTValidator $JWTValidator)
     {
-        //
+        $this->JWTValidator = $JWTValidator;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+    public function addfav(request $request){
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+        $status = 'error';
+        if($result['status'] == 200){
+            $userid = $result['body']['user_id'];
+
+            $query = servicefavourite::insert([
+                'usersids' => $userid,
+                'service_meta' => $request->service_meta,
+                'service_id' => $request->service_id
+            ]);
+            
+            if($query==1){
+                $status = 'success';
+            } 
+        }
+        
+        return response()->JSON([
+            'status' => $status
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreservicefavouriteRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreservicefavouriteRequest $request)
-    {
-        //
+    public function deletefav(request $request){
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+        $status = 'error';
+        if($result['status'] == 200){
+            $userid = $result['body']['user_id'];
+
+            $query = servicefavourite::where('userids',$userid)->where('service_meta',$request->service_meta)->where('service_id',$request->service_id)->delete();
+            
+            if($query==1){
+                $status = 'success';
+            } 
+        }
+        
+        return response()->JSON([
+            'status' => $status
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\servicefavourite  $servicefavourite
-     * @return \Illuminate\Http\Response
-     */
-    public function show(servicefavourite $servicefavourite)
-    {
-        //
-    }
+    public function getuserfavlist(request $request){
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+        $status = 'error';
+        $arr = [];
+        if($result['status'] == 200){
+            $userid = $result['body']['user_id'];
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\servicefavourite  $servicefavourite
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(servicefavourite $servicefavourite)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateservicefavouriteRequest  $request
-     * @param  \App\Models\servicefavourite  $servicefavourite
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateservicefavouriteRequest $request, servicefavourite $servicefavourite)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\servicefavourite  $servicefavourite
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(servicefavourite $servicefavourite)
-    {
-        //
+            $query = servicefavourite::where('userids',$userid)->get();
+            foreach($query as $fav){
+                $arr = ['userid' => $fav->userid, 'service_meta' => $fav->service_meta, 'service_id' => $fav->service_id];
+            }
+            if($query==1){
+                $status = 'success';
+            } 
+        } 
+        return response()->JSON([
+            'status' => $status,
+            'results' => $arr
+        ]);
+       
     }
 }
