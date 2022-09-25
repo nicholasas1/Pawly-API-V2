@@ -96,11 +96,11 @@ class MobileBannerController extends Controller
     public function togglebanner(request $request){
         $toggle = $request->toggle;
 
-        if($toggle = 'true'){
+        if($toggle == 'true'){
             $query = mobile_banner::where('id',$request->id)->update([
                 'isactive' => 'true'
             ]);
-        } else if ($toggle = 'false'){
+        } else if ($toggle == 'false'){
             $query = mobile_banner::where('id',$request->id)->update([
                 'isactive' => 'false'
             ]);

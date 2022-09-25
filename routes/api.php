@@ -3,6 +3,7 @@
 use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\JWTValidator;
+use App\Http\Controllers\MobileBannerController;
 use App\Http\Controllers\RatingsController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SplashscreenMobileController;
@@ -103,3 +104,12 @@ Route::post('wallet/addAmount', [WalletController::class, 'AddAmmount']);
 
 Route::get('wallet/transaction', [WalletController::class, 'WaletTransaction']);
 
+Route::post('notification/send', [MobileBannerController::class, 'notificationdata']);
+
+Route::post('mobilebanner/create', [MobileBannerController::class, 'createbanner']);
+
+Route::post('mobilebanner/edit', [MobileBannerController::class, 'editbanner']);
+
+Route::post('mobilebanner/togglebanner', [MobileBannerController::class, 'togglebanner']);
+
+Route::post('mobilebanner/deletebanner', [MobileBannerController::class, 'deletebanner']);
