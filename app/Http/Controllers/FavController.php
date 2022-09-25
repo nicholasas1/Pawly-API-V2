@@ -63,16 +63,13 @@ class FavController extends Controller
         if($result['status'] == 200){
             $userid = $result['body']['user_id'];
 
-            $query = fav::where('userids',$userid)->get();
+            $query = fav::where('usersids',$userid)->get();
             foreach($query as $fav){
-                $arr = ['userid' => $fav->userid, 'service_meta' => $fav->service_meta, 'service_id' => $fav->service_id];
+                $arr = ['service_meta' => $fav->service_meta, 'service_id' => $fav->service_id];
             }
-            if($query==1){
-                $status = 'success';
-            } 
         } 
         return response()->JSON([
-            'status' => $status,
+            'status' => 'success',
             'results' => $arr
         ]);
        
