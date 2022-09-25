@@ -386,7 +386,7 @@ class UserController extends Controller
                     ]
                 );
                 
-                $token = $this->JWTValidator->createToken($addsosmedid->value('id'), $qaddsosmediduery->value('username'),$session_id, $secret);           
+                $token = $this->JWTValidator->createToken($addsosmedid->value('id'), $addsosmedid->value('username'),$session_id, $secret);           
                
                 return response()->JSON([
                     'status' => $status,
