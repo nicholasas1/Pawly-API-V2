@@ -13,13 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('mobile_banners', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->integer('index');
-            $table->text('image_url');
-            $table->char('isactive',10);
-            $table->text('url');
-            $table->text('text');
+        Schema::create('servicefavourites', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
         });
     }
 
@@ -30,6 +26,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('mobile_banners');
+        Schema::dropIfExists('servicefavourites');
     }
 };

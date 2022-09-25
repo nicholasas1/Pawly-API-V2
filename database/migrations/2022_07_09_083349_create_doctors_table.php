@@ -24,8 +24,8 @@ return new class extends Migration
             $table->year("graduated_since")->nullable();
             $table->char("graduated_from",100)->nullable();
             $table->year('worked_since')->nullable();
-            $table->float('lat',12,7)->nullable();
-            $table->float('long',12,7)->nullable();
+            $table->char('lat',20)->nullable();
+            $table->char('long',20)->nullable();
             $table->float('vidcall_price')->nullable();
             $table->char('vidcall_available')->nullable();
             $table->float('chat_price')->nullable();
