@@ -14,8 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::create('servicefavourites', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->bigIncrements('id');
+            $table->char('usersids',10);
+            $table->char('service_meta',100);
+            $table->char('service_id',100);
         });
     }
 
