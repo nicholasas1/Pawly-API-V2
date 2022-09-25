@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\FavController;
 use App\Http\Controllers\JWTValidator;
 use App\Http\Controllers\MobileBannerController;
 use App\Http\Controllers\RatingsController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\SplashscreenMobileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserpetsController;
 use App\Http\Controllers\WalletController;
+use App\Models\fav;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -113,3 +115,9 @@ Route::post('mobilebanner/edit', [MobileBannerController::class, 'editbanner']);
 Route::post('mobilebanner/togglebanner', [MobileBannerController::class, 'togglebanner']);
 
 Route::post('mobilebanner/deletebanner', [MobileBannerController::class, 'deletebanner']);
+
+Route::post('service/fav/add', [FavController::class, 'addfav']);
+
+Route::post('service/fav/delete', [FavController::class, 'deletefav']);
+
+Route::get('service/fav/userlist', [FavController::class, 'getuserfavlist']);

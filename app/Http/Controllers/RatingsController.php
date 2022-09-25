@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\JWTValidator;
 use App\Models\clinic;
+use Carbon\Carbon;
 
 class RatingsController extends Controller
 {
@@ -35,7 +36,8 @@ class RatingsController extends Controller
                 //'clinic_id' => $request->clinic_id,
                 'users_id' => $user,
                 'ratings' => $request->rating,
-                'reviews' => $request->reviews
+                'reviews' => $request->reviews,
+                'timereviewed' => Carbon::now()->timestamp
             ]);
             if($query==1){
                 return response()->JSON([

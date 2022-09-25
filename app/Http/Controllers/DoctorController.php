@@ -8,6 +8,7 @@ use App\Models\doctor_speciality;
 use App\Models\doctor;
 use App\Models\clinic;
 use App\Models\ratings;
+use App\Models\fav;
 use App\Models\clinic_doctor;
 use Illuminate\Support\Facades\DB;
 use ReallySimpleJWT\Token;
@@ -77,7 +78,24 @@ class DoctorController extends Controller
             $page = $request->page - 1 * $limit;
         }
 
+        $token = $request->header("Authorization");
+        $isfav = '0';
         $query = doctor::leftJoin('ratings','doctors.id','=','ratings.doctors_ids')->select('users_ids','doctors.id', 'doctor_name','description' , 'profile_picture' , 'graduated_since' , 'worked_since' , 'lat', 'doctors.long','vidcall_price' , 'chat_price', 'offline_price', 'isonline' , 'lastonline','Biography','Education_experience','vidcall_available','chat_available','offline_available', DB::raw('AVG(ratings.ratings) as rating'))->groupBy('doctors.id')->where('doctors.id','=',$request->id);
+
+        if($token!=NULL){
+            $result = $this->JWTValidator->validateToken($token);
+            if($result['status'] == 200){
+                $userid = $result['body']['user_id'];
+                $favourited = fav::where('usersids',$userid)->where('service_meta', 'doctor')->where('service_id',$query->value('doctors.id'));
+                if($favourited->count()>0){
+                    $isfav = '1';
+                }
+        }
+    }
+        
+        $status = 'error';
+
+
         $year = Carbon::now()->year;
         return response()->JSON([
             'status' => 'success',
@@ -101,6 +119,8 @@ class DoctorController extends Controller
                 'offline_price' => $query->value('offline_price'),
                 'isonline' => $query->value('isonline'),
                 'lastonline' => $query->value('lastonline'),
+                'favourited_by' => fav::where('service_id',$query->value('doctors.id'))->where('service_meta','doctor')->count(),
+                'favourited_by_user' => $isfav,
                 'avg_rating' => $query->value('rating'),
                 'floor_rating' => floor($query->value('rating')),
                 'total_review' => ratings::where('doctors_ids',$query->value('doctors.id'))->count(),
@@ -479,6 +499,7 @@ class DoctorController extends Controller
                 'vidcall_price' => $queries->vidcall_price,
                 'offline_price' => $queries->offline_price,
                 'isonline' => $queries->isonline,
+                'favourited_by' => fav::where('service_id',$query->value('doctors.id'))->where('service_meta','doctor')->count(),
                 'ratings' => $queries->rating,
                 'floor_rating' => floor($queries->rating),
                 'total_review' => $totalratings,
