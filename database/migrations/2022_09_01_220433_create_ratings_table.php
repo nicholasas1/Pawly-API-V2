@@ -17,9 +17,9 @@ return new class extends Migration
             $table->id();
             $table->integer('doctors_ids');
             $table->integer('users_id');
-            $table->float('ratings')->nullable();
+            $table->integer('ratings')->nullable();
             $table->text('reviews')->nullable();
-
+            $table->char('timereviewed',100)->nullable();
         });
     }
 

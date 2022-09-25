@@ -13,13 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('mobile_banners', function (Blueprint $table) {
+        Schema::create('favs', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('index');
-            $table->text('image_url');
-            $table->char('isactive',10);
-            $table->text('url');
-            $table->text('text');
+            $table->char('usersids',10);
+            $table->char('service_meta',100);
+            $table->char('service_id',100);
         });
     }
 
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('mobile_banners');
+        Schema::dropIfExists('favs');
     }
 };
