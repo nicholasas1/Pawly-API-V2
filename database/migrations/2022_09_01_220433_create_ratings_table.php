@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('users_id');
             $table->integer('ratings')->nullable();
             $table->text('reviews')->nullable();
-            $table->timestamp('timereviewed')->nullable();
+            $table->char('timereviewed',100)->nullable();
         });
     }
 
