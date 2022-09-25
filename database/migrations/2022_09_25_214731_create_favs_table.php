@@ -13,8 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('servicefavourites', function (Blueprint $table) {
-           $table->text('thistableunused');
+        Schema::create('favs', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->char('usersids',10);
+            $table->char('service_meta',100);
+            $table->char('service_id',100);
         });
     }
 
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('servicefavourites');
+        Schema::dropIfExists('favs');
     }
 };
