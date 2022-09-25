@@ -113,3 +113,9 @@ Route::post('mobilebanner/edit', [MobileBannerController::class, 'editbanner']);
 Route::post('mobilebanner/togglebanner', [MobileBannerController::class, 'togglebanner']);
 
 Route::post('mobilebanner/deletebanner', [MobileBannerController::class, 'deletebanner']);
+
+Route::post('service/fav/add', [servicefavouriteController::class, 'addfav']);
+
+Route::post('service/fav/delete', [servicefavouriteController::class, 'deletefav']);
+
+Route::get('service/fav/userlist', [servicefavouriteController::class, 'getuserfavlist']);

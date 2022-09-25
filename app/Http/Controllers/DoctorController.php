@@ -8,6 +8,7 @@ use App\Models\doctor_speciality;
 use App\Models\doctor;
 use App\Models\clinic;
 use App\Models\ratings;
+use App\Models\servicefavourite;
 use App\Models\clinic_doctor;
 use Illuminate\Support\Facades\DB;
 use ReallySimpleJWT\Token;
@@ -101,6 +102,7 @@ class DoctorController extends Controller
                 'offline_price' => $query->value('offline_price'),
                 'isonline' => $query->value('isonline'),
                 'lastonline' => $query->value('lastonline'),
+                'favourited_by' => servicefavourite::where('service_id',$query->value('doctors.id'))->where('service_meta','doctor')->count(),
                 'avg_rating' => $query->value('rating'),
                 'floor_rating' => floor($query->value('rating')),
                 'total_review' => ratings::where('doctors_ids',$query->value('doctors.id'))->count(),
@@ -472,6 +474,7 @@ class DoctorController extends Controller
                 'vidcall_price' => $queries->vidcall_price,
                 'offline_price' => $queries->offline_price,
                 'isonline' => $queries->isonline,
+                'favourited_by' => servicefavourite::where('service_id',$query->value('doctors.id'))->where('service_meta','doctor')->count(),
                 'ratings' => $queries->rating,
                 'floor_rating' => floor($queries->rating),
                 'total_review' => $totalratings,
