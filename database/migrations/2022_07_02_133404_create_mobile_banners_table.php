@@ -17,7 +17,7 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->integer('index');
             $table->text('image_url');
-            $table->boolean('isactive');
+            $table->char('isactive',10);
             $table->text('url');
             $table->text('text');
         });
