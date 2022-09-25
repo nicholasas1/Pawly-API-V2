@@ -45,12 +45,9 @@ class MobileBannerController extends Controller
     public function notificationdata(request $request){
         $notification = $this->send_notif($request->title,$request->body,$request->image,$request->url,$request->recipient);
 
-        if($notification['success']==1){
-            return response()->JSON([
-                'status' => 'success',
-                'results' => $notification['results'][0]['message_id']
-            ]);
-        }
+        return response()->JSON([
+            'status' => $notification
+        ]);
     }
 
     public function createbanner(request $request){
