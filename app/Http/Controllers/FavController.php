@@ -43,7 +43,7 @@ class FavController extends Controller
         if($result['status'] == 200){
             $userid = $result['body']['user_id'];
 
-            $query = fav::where('userids',$userid)->where('service_meta',$request->service_meta)->where('service_id',$request->service_id)->delete();
+            $query = fav::where('usersids',$userid)->where('service_meta',$request->service_meta)->where('service_id',$request->service_id)->delete();
             
             if($query==1){
                 $status = 'success';
