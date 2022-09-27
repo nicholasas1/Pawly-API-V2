@@ -102,6 +102,49 @@ class UserController extends Controller
         
     }
 
+    public function getuserdetailParam(request $request){
+
+        if($request->id != NULL){
+            $userid =$request->id;
+            $user = User::where('id',$userid);
+            $roles = role::where('userId',$userid)->select(['meta_role','meta_id'])->get();
+            $pets = userpets::where('user_id',$userid)->select(['petsname','species','breed','gender','birthdate'])->get();
+            if($user->value('wallet_status') == "Not Active"){
+                $credit = "Activation";
+            }else{
+                $credit = wallet::where('users_ids',$userid)->sum('debit') - wallet::where('users_ids',$userid)->sum('credit');
+            }
+            $arr = [
+                'Id' => $userid,
+                'Username' => $user->value('Username'),
+                'Nickname' => $user->value('nickname'),
+                'Full_Name' => $user->value('fullname'), 
+                'Email' => $user->value('email'),
+                'phone_number' => $user->value('phone_number'),
+                'birthday' => $user->value('birthday'),
+                'gender'=> $user->value('gender'),
+                'profile_picture'=>$user->value('profile_picture'),
+                'is_clinic' => role::where('userId',$userid)->where('meta_role',"Clinic")->count(),
+                'is_doctor' => role::where('userId',$userid)->where('meta_role',"Doctor")->count(),
+                'is_admin' => role::where('userId',$userid)->where('meta_role',"Super_Admin")->count(),
+                'Roles' => $roles, 
+                'Pet_count' => userpets::where('user_id',$userid)->count(), 
+                'Pets' => $pets,
+                'pawly_credit' => $credit
+            ]; 
+                return response()->json([
+                    'status'=>'success', 
+                    'results'=> $arr
+                ]);
+        }else{
+            return response()->json([
+                'status'=>'error', 
+                'results'=> ''
+            ]);
+        }
+        
+    }
+
     public function deleteuser(request $request){
 
         $query = User::where('id', $request->id);
