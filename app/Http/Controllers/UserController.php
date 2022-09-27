@@ -36,9 +36,16 @@ class UserController extends Controller
         $token = $request->header("Authorization");
         $name = $request->name;
         $email = $request->email;
+        if($request->sort == 'name_asc'){
+            $order = "fullname";
+            $order_val = "ASC";
+        }else if($request->sort == 'name_dsc'){
+            $order = "fullname";
+            $order_val = "DESC";
+        }
         $result = $this->JWTValidator->validateToken($token);
 
-        $data = User::where('fullname','like','%'.$name.'%')->where('email','like','%'.$email.'%')->get();
+        $data = User::where('fullname','like','%'.$name.'%')->where('email','like','%'.$email.'%')->orderBy($order,$order_val)->get();
         if($result['status'] == 200){
             return response()->json([
                 'status'=>'success', 
