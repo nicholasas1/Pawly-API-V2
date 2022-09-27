@@ -16,6 +16,9 @@ use App\Http\Controllers\JWTValidator;
 use App\Mail\activateEmail;
 use App\Models\wallet;
 use Illuminate\Support\Facades\Mail;
+use Kreait\Laravel\Firebase\Facades\Firebase;
+use Kreait\Firebase\Contract\Storage;
+use Kreait\Firebase\Factory;
 use Carbon;
 
 class UserController extends Controller
@@ -26,16 +29,20 @@ class UserController extends Controller
     {
         $this->JWTValidator = $JWTValidator;
     }
+    
 
     public function getlist(request $request)
     {
         $token = $request->header("Authorization");
+        $name = $request->name;
+        $email = $request->email;
         $result = $this->JWTValidator->validateToken($token);
 
+        $data = User::where('fullname','like','%'.$name.'%')->where('email','like','%'.$email.'%')->get();
         if($result['status'] == 200){
             return response()->json([
                 'status'=>'success', 
-                'results'=>User::all()
+                'results'=>$data
             ]);
         }else{
             return array(
@@ -457,4 +464,19 @@ class UserController extends Controller
             ]);
         }
     }
+
+    public function testFb(Request $request){
+    $storage = app('firebase.storage'); // This is an instance of Google\Cloud\Storage\StorageClient from kreait/firebase-php library
+     $defaultBucket = $storage->getBucket();
+     $image = $request->file('image');
+     $name = ".".$image->getClientOriginalExtension(); // use Illuminate\Support\Str;
+     $pathName = $image->getPathName();
+     $file = fopen($pathName, 'r');
+     $object = $defaultBucket->upload($file, [
+          'name' => $name,
+          'predefinedAcl' => 'publicRead'
+     ]);
+     $image_url = 'https://storage.googleapis.com/'.env('FIREBASE_PROJECT_ID').'.appspot.com/'.$name;
+    }
+
 }
