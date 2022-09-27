@@ -121,3 +121,5 @@ Route::post('service/fav/add', [FavController::class, 'addfav']);
 Route::post('service/fav/delete', [FavController::class, 'deletefav']);
 
 Route::get('service/fav/userlist', [FavController::class, 'getuserfavlist']);
+
+Route::get('testingFB', [UserController::class, 'testFb']);
