@@ -124,6 +124,7 @@ class UserController extends Controller
                 'birthday' => $user->value('birthday'),
                 'gender'=> $user->value('gender'),
                 'profile_picture'=>$user->value('profile_picture'),
+                'status'=>$user->value('status'),
                 'is_clinic' => role::where('userId',$userid)->where('meta_role',"Clinic")->count(),
                 'is_doctor' => role::where('userId',$userid)->where('meta_role',"Doctor")->count(),
                 'is_admin' => role::where('userId',$userid)->where('meta_role',"Super_Admin")->count(),
