@@ -6,6 +6,7 @@ use App\Http\Controllers\FavController;
 use App\Http\Controllers\JWTValidator;
 use App\Http\Controllers\MobileBannerController;
 use App\Http\Controllers\RatingsController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SplashscreenMobileController;
 use App\Http\Controllers\UserController;
@@ -123,3 +124,11 @@ Route::post('service/fav/delete', [FavController::class, 'deletefav']);
 Route::get('service/fav/userlist', [FavController::class, 'getuserfavlist']);
 
 Route::get('/cms/user-detail', [UserController::class, 'getuserdetailParam']);
+
+Route::post('/role/add-admin', [RoleController::class, 'adminRole']);
+
+Route::post('/role/delete-role', [RoleController::class, 'deleteRole']);
+
+Route::post('/role/add-role', [RoleController::class, 'addRole']);
+
+Route::get('/role/add-role', [RoleController::class, 'userRole']);
