@@ -28,6 +28,20 @@ class DoctorController extends Controller
     }
 
     public function regisasdoctor(request $request){
+        if(filter_var($request->profile_picture, FILTER_VALIDATE_URL) === FALSE){
+
+            $image_parts = explode(";base64,", $request->profile_picture);
+            $image_type_aux = explode("image/", $image_parts[0]);
+            $image_type = $image_type_aux[1];
+            $image_base64 = base64_decode($image_parts[1]);
+            $file = uniqid() . '.'.$image_type;
+    
+            file_put_contents(env('Folder_APP').$file, $image_base64);
+            $picture = env('IMAGE_URL') . $file;
+            
+        }else{
+            $picture = $request->profile_picture;
+        }
 
      $query = doctor::insert([
             'users_ids' => $request->id,
@@ -35,7 +49,7 @@ class DoctorController extends Controller
             'description' => $request->description,
             'Biography' => $request->biography,
             'Education_experience' => $request->educational_experience,
-            'profile_picture' => $request->profile_picture,
+            'profile_picture' => $picture,
             'graduated_since' => $request->graduatedsince,
             'graduated_from' => $request->graduatedfrom,
             'worked_since' => $request->workedsince,
@@ -137,13 +151,27 @@ class DoctorController extends Controller
     }
 
     public function updatedoctor(request $request){
+        if(filter_var($request->profile_picture, FILTER_VALIDATE_URL) === FALSE){
+
+            $image_parts = explode(";base64,", $request->profile_picture);
+            $image_type_aux = explode("image/", $image_parts[0]);
+            $image_type = $image_type_aux[1];
+            $image_base64 = base64_decode($image_parts[1]);
+            $file = uniqid() . '.'.$image_type;
+    
+            file_put_contents(env('Folder_APP').$file, $image_base64);
+            $picture = env('IMAGE_URL') . $file;
+            
+        }else{
+            $picture = $request->profile_picture;
+        }
 
         $query = doctor::where('id',$request->id)->update([
             'doctor_name' => $request->name,
             'description' => $request->description,
             'Biography' => $request->biography,
             'Education_experience' => $request->educational_experience,
-            'profile_picture' => $request->profile_picture,
+            'profile_picture' => $picture,
             'graduated_since' => $request->graduatedsince,
             'graduated_from' => $request->graduatedfrom,
             'worked_since' => $request->workedsince,

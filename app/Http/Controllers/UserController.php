@@ -326,13 +326,27 @@ class UserController extends Controller
     }
 
     public function update_query(request $request){
+        if(filter_var($request->profile_picture, FILTER_VALIDATE_URL) === FALSE){
+
+            $image_parts = explode(";base64,", $request->profile_picture);
+            $image_type_aux = explode("image/", $image_parts[0]);
+            $image_type = $image_type_aux[1];
+            $image_base64 = base64_decode($image_parts[1]);
+            $file = uniqid() . '.'.$image_type;
+    
+            file_put_contents(env('Folder_APP').$file, $image_base64);
+            $picture = env('IMAGE_URL') . $file;
+            
+        }else{
+            $picture = $request->profile_picture;
+        }
         
         $id = $request->query('id');
         $current_date_time = date('Y-m-d H:i:s');
         $query = User::find($id)->update(
             [
                 'username' => $request->username, 
-                'profile_picture' => $request->profile_picture,
+                'profile_picture' => $picture,
                 'nickname' => $request->nick_name, 
                 'fullname' => $request->full_name, 
                 'birthday' => $request->tanggal_lahir, 
