@@ -29,7 +29,7 @@ class RoleController extends Controller
         $query = role::insert([
             'userId' => $request->user_id,
             'meta_role' => $request->meta_role,
-            'meta_id' =>$request->meta_role
+            'meta_id' =>$request->meta_id
         ]);
 
         if($query==1){
@@ -58,9 +58,9 @@ class RoleController extends Controller
     }
 
     public function userRole(request $request){
-        $query = role::where('userId',$request->user_id)->select(['id','meta_role','meta_id'])->get();
+        $query = role::where('userId',$request->user_id)->select(['id','meta_role','meta_id']);
         
-        if($query==1){
+        if($query->count()>=1){
             $status = "success";
             
         } else{
@@ -69,7 +69,7 @@ class RoleController extends Controller
        
         return response()->JSON([
             'status' => $status,
-            'results' => $query
+            'results' => $query->get()
         ]);
     }
 }

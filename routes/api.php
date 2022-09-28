@@ -131,4 +131,4 @@ Route::post('/role/delete-role', [RoleController::class, 'deleteRole']);
 
 Route::post('/role/add-role', [RoleController::class, 'addRole']);
 
-Route::get('/role/add-role', [RoleController::class, 'userRole']);
+Route::get('/role/user-role', [RoleController::class, 'userRole']);
