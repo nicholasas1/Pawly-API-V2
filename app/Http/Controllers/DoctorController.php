@@ -126,6 +126,8 @@ class DoctorController extends Controller
                 'Biography' => $query->value('Biography'),
                 'Education_experience' => $query->value('Education_experience'),
                 'worked_since' => $query->value('worked_since'),
+                'graduated_from' => $query->value('graduated_from'),
+                'graduated_since' => $query->value('graduated_since'),
                 'experience' => $year-$query->value('worked_since'),
                 'lat' => $query->value('lat'),
                 'long' => $query->value('doctors.long'),
