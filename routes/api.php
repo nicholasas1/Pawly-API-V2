@@ -107,6 +107,10 @@ Route::post('wallet/addAmount', [WalletController::class, 'AddAmmount']);
 
 Route::get('wallet/transaction', [WalletController::class, 'WaletTransaction']);
 
+Route::post('cms/wallet/activation', [WalletController::class, 'wallet_activate_param']);
+
+Route::post('wallet/activation', [WalletController::class, 'wallet_activate_token']);
+
 Route::post('notification/send', [MobileBannerController::class, 'notificationdata']);
 
 Route::post('mobilebanner/create', [MobileBannerController::class, 'createbanner']);
@@ -123,12 +127,13 @@ Route::post('service/fav/delete', [FavController::class, 'deletefav']);
 
 Route::get('service/fav/userlist', [FavController::class, 'getuserfavlist']);
 
-Route::get('/cms/user-detail', [UserController::class, 'getuserdetailParam']);
+Route::get('cms/user-detail', [UserController::class, 'getuserdetailParam']);
 
-Route::post('/role/add-admin', [RoleController::class, 'adminRole']);
+Route::post('role/add-admin', [RoleController::class, 'adminRole']);
 
-Route::post('/role/delete-role', [RoleController::class, 'deleteRole']);
+Route::post('role/delete-role', [RoleController::class, 'deleteRole']);
 
-Route::post('/role/add-role', [RoleController::class, 'addRole']);
+Route::post('rrole/add-role', [RoleController::class, 'addRole']);
 
-Route::get('/role/user-role', [RoleController::class, 'userRole']);
+Route::get('role/user-role', [RoleController::class, 'userRole']);
+
