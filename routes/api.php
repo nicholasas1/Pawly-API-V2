@@ -137,4 +137,4 @@ Route::post('rrole/add-role', [RoleController::class, 'addRole']);
 
 Route::get('role/user-role', [RoleController::class, 'userRole']);
 
-Route::get('cms/user/activate', [UserController::class, 'activateAccount']);
+Route::post('cms/user/activate', [UserController::class, 'activateAccount']);
