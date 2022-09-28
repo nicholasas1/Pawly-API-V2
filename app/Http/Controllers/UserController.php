@@ -543,4 +543,25 @@ class UserController extends Controller
      $image_url = 'https://storage.googleapis.com/'.env('FIREBASE_PROJECT_ID').'.appspot.com/'.$name;
     }
 
+    public function activateAccount(Request $request){
+        $id = $request->query('id');
+        $current_date_time = date('Y-m-d H:i:s');
+        $query = User::find($id)->update(
+            [
+                'status' => 'Active',
+                'update_at' => $current_date_time
+            ]
+        );
+        if($query == 1){
+            $status = 'success';
+            $msg = '';
+        } else{
+            $status = 'error';
+            $msg = 'server error';
+        }   
+        return response()->json([
+            'status'=>$status,
+            'message'=> $msg
+        ]);
+    }
 }
