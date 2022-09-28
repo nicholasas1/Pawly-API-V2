@@ -267,7 +267,15 @@ class DoctorController extends Controller
 
     public function deletedoctorspeciality(request $request){
 
-        doctor_speciality::where('id',$request->id)->delete();
+        $query = doctor_speciality::where('id',$request->id)->delete();
+        if($query == 1){
+            $status = "success";
+        }else{
+            $status = "error";
+        }
+        return response()->json([
+            'status'=>$status,
+        ]); 
 
     }
 
