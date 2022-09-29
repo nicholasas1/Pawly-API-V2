@@ -67,9 +67,10 @@ class FavController extends Controller
             foreach($query as $fav){
                 $arr = ['service_meta' => $fav->service_meta, 'service_id' => $fav->service_id];
             }
+            $status = 'success';
         } 
         return response()->JSON([
-            'status' => 'success',
+            'status' => $status,
             'results' => $arr
         ]);
        
