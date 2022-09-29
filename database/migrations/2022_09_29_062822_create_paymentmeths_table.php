@@ -13,13 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('couponusages', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->char('coupon_name',20);
-            $table->integer('user_id')->nullable();
+        Schema::create('paymentmeths', function (Blueprint $table) {
+            $table->id();
             $table->char('service',20)->nullable();
-            $table->char('type',20)->nullable();
-            $table->date('date')->nullable();
+            $table->char('allowed_payment',20)->nullable();
+            $table->date('payment_at')->nullable();
+            $table->float('payment_amount',20,2)->nullable();
+            $table->char('payment_use',20)->nullable();
+            $table->char('payment_id',20)->nullable();
         });
     }
 
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('couponusages');
+        Schema::dropIfExists('paymentmeths');
     }
 };

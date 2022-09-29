@@ -14,8 +14,14 @@ return new class extends Migration
     public function up()
     {
         Schema::create('couponservices', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->char('coupon_name',20)->primary();
+            $table->char('coupon_type',10);
+            $table->float('min_price',20,2)->nullable();
+            $table->float('max_price',20,2)->nullable();
+            $table->char('allowed_payment',20)->nullable();
+            $table->char('coupon_rule',50)->nullable();
+            $table->float('coupon_value',20)->nullable();
+            $table->char('max_usage',10)->nullable();            
         });
     }
 
