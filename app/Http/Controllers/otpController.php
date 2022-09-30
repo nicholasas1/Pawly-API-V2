@@ -2,18 +2,23 @@
 
 namespace App\Http\Controllers;
 use App\Http\Controllers\JWTValidator;
+use App\Http\Controllers\whatsapp_notif;
 use App\Models\otp_table;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
 
 use Illuminate\Http\Request;
 
 class otpController extends Controller
 {
-    public function __construct(JWTValidator $JWTValidator)
+    public function __construct(JWTValidator $JWTValidator, whatsapp_notif $whatsapp)
     {
         $this->JWTValidator = $JWTValidator;
+        $this->whatsapp = $whatsapp;
     }
+
 
     public function makeOTP(request $request){
         if($request->header("Authorization") == null){
@@ -24,15 +29,19 @@ class otpController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         if($result['status'] == 200){
             $user = $result['body']['user_id'];
+            $timestamp = Carbon::now()->timestamp;
+            $otp = rand(100000, 999999);
             $query = otp_table::insert([
                 'user_id' => $user,
-                'otp' => rand(100000, 999999),
+                'otp' => $otp,
                 'phone_number' => $request->code_area.$request->phone_number,
-                'valid_until' => Carbon::now()->timestamp + (2*60),
+                'valid_until' =>  $timestamp + (2*60),
                 'created_at' => date("Y-m-d h:i:sa")
             ]);
-
-            if($query == 1){
+            $chat = "Kode OTP kamu adalah ".$otp.". Jaga kerahasiaan kode OTP kamu, Jangan berikan kode OTP kepada siapapun.";
+            
+            $wa = $this->whatsapp->sendWaText($request->code_area.$request->phone_number, $chat);
+            if($query == 1 && $wa['result'] == 'success'){
                 $status = "success";
                 $msg = "Check your whatsapp and verification before 2 minutes";
             }else{
@@ -119,13 +128,17 @@ class otpController extends Controller
             $query = otp_table::where('user_id',$user)->where('phone_number',$request->code_area.$request->phone_number)->where('valid_until','<',Carbon::now()->timestamp);
 
             if($query->count() == 1){
+                $otp = rand(100000, 999999);
                 $UpdateOTP = otp_table::find($query->value('id'))->update(
                     [
-                        'otp' => rand(100000, 999999),
+                        'otp' => $otp,
                         'valid_until' => Carbon::now()->timestamp + (2*60),
                     ]
                 );
-                if($UpdateOTP == 1){
+                $chat = "Kode OTP kamu adalah ".$otp.". Jaga kerahasiaan kode OTP kamu, Jangan berikan kode OTP kepada siapapun.";
+            
+                $wa = $this->whatsapp->sendWaText($request->code_area.$request->phone_number, $chat);
+                if($UpdateOTP == 1 && $wa['result'] == 'success'){
                     $status = "succes";
                     $msg = "We send new OTP, Check your whatsapp";
                 }else{
