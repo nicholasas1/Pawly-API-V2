@@ -16,6 +16,9 @@ use App\Http\Controllers\JWTValidator;
 use App\Mail\activateEmail;
 use App\Models\wallet;
 use Illuminate\Support\Facades\Mail;
+use Kreait\Laravel\Firebase\Facades\Firebase;
+use Kreait\Firebase\Contract\Storage;
+use Kreait\Firebase\Factory;
 use Carbon;
 
 class UserController extends Controller
@@ -26,16 +29,27 @@ class UserController extends Controller
     {
         $this->JWTValidator = $JWTValidator;
     }
+    
 
     public function getlist(request $request)
     {
         $token = $request->header("Authorization");
+        $name = $request->name;
+        $email = $request->email;
+        if($request->sort == 'name_asc'){
+            $order = "fullname";
+            $order_val = "ASC";
+        }else if($request->sort == 'name_dsc'){
+            $order = "fullname";
+            $order_val = "DESC";
+        }
         $result = $this->JWTValidator->validateToken($token);
 
+        $data = User::where('fullname','like','%'.$name.'%')->where('email','like','%'.$email.'%')->orderBy($order,$order_val)->get();
         if($result['status'] == 200){
             return response()->json([
                 'status'=>'success', 
-                'results'=>User::all()
+                'results'=>$data
             ]);
         }else{
             return array(
@@ -84,6 +98,50 @@ class UserController extends Controller
             ]);
         }else{
             return $result;
+        }
+        
+    }
+
+    public function getuserdetailParam(request $request){
+
+        if($request->id != NULL){
+            $userid =$request->id;
+            $user = User::where('id',$userid);
+            $roles = role::where('userId',$userid)->select(['meta_role','meta_id'])->get();
+            $pets = userpets::where('user_id',$userid)->select(['petsname','species','breed','gender','birthdate'])->get();
+            if($user->value('wallet_status') == "Not Active"){
+                $credit = "Activation";
+            }else{
+                $credit = wallet::where('users_ids',$userid)->sum('debit') - wallet::where('users_ids',$userid)->sum('credit');
+            }
+            $arr = [
+                'Id' => $userid,
+                'Username' => $user->value('Username'),
+                'Nickname' => $user->value('nickname'),
+                'Full_Name' => $user->value('fullname'), 
+                'Email' => $user->value('email'),
+                'phone_number' => $user->value('phone_number'),
+                'birthday' => $user->value('birthday'),
+                'gender'=> $user->value('gender'),
+                'profile_picture'=>$user->value('profile_picture'),
+                'status'=>$user->value('status'),
+                'is_clinic' => role::where('userId',$userid)->where('meta_role',"Clinic")->count(),
+                'is_doctor' => role::where('userId',$userid)->where('meta_role',"Doctor")->count(),
+                'is_admin' => role::where('userId',$userid)->where('meta_role',"Super_Admin")->count(),
+                'Roles' => $roles, 
+                'Pet_count' => userpets::where('user_id',$userid)->count(), 
+                'Pets' => $pets,
+                'pawly_credit' => $credit
+            ]; 
+                return response()->json([
+                    'status'=>'success', 
+                    'results'=> $arr
+                ]);
+        }else{
+            return response()->json([
+                'status'=>'error', 
+                'results'=> ''
+            ]);
         }
         
     }
@@ -269,13 +327,27 @@ class UserController extends Controller
     }
 
     public function update_query(request $request){
+        if(filter_var($request->profile_picture, FILTER_VALIDATE_URL) === FALSE){
+
+            $image_parts = explode(";base64,", $request->profile_picture);
+            $image_type_aux = explode("image/", $image_parts[0]);
+            $image_type = $image_type_aux[1];
+            $image_base64 = base64_decode($image_parts[1]);
+            $file = uniqid() . '.'.$image_type;
+    
+            file_put_contents(env('Folder_APP').$file, $image_base64);
+            $picture = env('IMAGE_URL') . $file;
+            
+        }else{
+            $picture = $request->profile_picture;
+        }
         
         $id = $request->query('id');
         $current_date_time = date('Y-m-d H:i:s');
         $query = User::find($id)->update(
             [
                 'username' => $request->username, 
-                'profile_picture' => $request->profile_picture,
+                'profile_picture' => $picture,
                 'nickname' => $request->nick_name, 
                 'fullname' => $request->full_name, 
                 'birthday' => $request->tanggal_lahir, 
@@ -456,5 +528,41 @@ class UserController extends Controller
                 'status'=>'failed'
             ]);
         }
+    }
+
+    public function testFb(Request $request){
+    $storage = app('firebase.storage'); // This is an instance of Google\Cloud\Storage\StorageClient from kreait/firebase-php library
+     $defaultBucket = $storage->getBucket();
+     $image = $request->file('image');
+     $name = ".".$image->getClientOriginalExtension(); // use Illuminate\Support\Str;
+     $pathName = $image->getPathName();
+     $file = fopen($pathName, 'r');
+     $object = $defaultBucket->upload($file, [
+          'name' => $name,
+          'predefinedAcl' => 'publicRead'
+     ]);
+     $image_url = 'https://storage.googleapis.com/'.env('FIREBASE_PROJECT_ID').'.appspot.com/'.$name;
+    }
+
+    public function activateAccount(Request $request){
+        $id = $request->query('id');
+        $current_date_time = date('Y-m-d H:i:s');
+        $query = User::find($id)->update(
+            [
+                'status' => 'Active',
+                'update_at' => $current_date_time
+            ]
+        );
+        if($query == 1){
+            $status = 'success';
+            $msg = '';
+        } else{
+            $status = 'error';
+            $msg = 'server error';
+        }   
+        return response()->json([
+            'status'=>$status,
+            'message'=> $msg
+        ]);
     }
 }

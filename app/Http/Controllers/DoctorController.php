@@ -28,6 +28,20 @@ class DoctorController extends Controller
     }
 
     public function regisasdoctor(request $request){
+        if(filter_var($request->profile_picture, FILTER_VALIDATE_URL) === FALSE){
+
+            $image_parts = explode(";base64,", $request->profile_picture);
+            $image_type_aux = explode("image/", $image_parts[0]);
+            $image_type = $image_type_aux[1];
+            $image_base64 = base64_decode($image_parts[1]);
+            $file = uniqid() . '.'.$image_type;
+    
+            file_put_contents(env('Folder_APP').$file, $image_base64);
+            $picture = env('IMAGE_URL') . $file;
+            
+        }else{
+            $picture = $request->profile_picture;
+        }
 
      $query = doctor::insert([
             'users_ids' => $request->id,
@@ -35,7 +49,7 @@ class DoctorController extends Controller
             'description' => $request->description,
             'Biography' => $request->biography,
             'Education_experience' => $request->educational_experience,
-            'profile_picture' => $request->profile_picture,
+            'profile_picture' => $picture,
             'graduated_since' => $request->graduatedsince,
             'graduated_from' => $request->graduatedfrom,
             'worked_since' => $request->workedsince,
@@ -80,7 +94,7 @@ class DoctorController extends Controller
 
         $token = $request->header("Authorization");
         $isfav = '0';
-        $query = doctor::leftJoin('ratings','doctors.id','=','ratings.doctors_ids')->select('users_ids','doctors.id', 'doctor_name','description' , 'profile_picture' , 'graduated_since' , 'worked_since' , 'lat', 'doctors.long','vidcall_price' , 'chat_price', 'offline_price', 'isonline' , 'lastonline','Biography','Education_experience','vidcall_available','chat_available','offline_available', DB::raw('AVG(ratings.ratings) as rating'))->groupBy('doctors.id')->where('doctors.id','=',$request->id);
+        $query = doctor::leftJoin('ratings','doctors.id','=','ratings.doctors_ids')->select('users_ids','doctors.id', 'doctor_name','description' , 'profile_picture' ,'graduated_from', 'graduated_since' , 'worked_since' , 'lat', 'doctors.long','vidcall_price' , 'chat_price', 'offline_price', 'isonline' , 'lastonline','Biography','Education_experience','vidcall_available','chat_available','offline_available', DB::raw('AVG(ratings.ratings) as rating'))->groupBy('doctors.id')->where('doctors.id','=',$request->id);
 
         if($token!=NULL){
             $result = $this->JWTValidator->validateToken($token);
@@ -112,6 +126,8 @@ class DoctorController extends Controller
                 'Biography' => $query->value('Biography'),
                 'Education_experience' => $query->value('Education_experience'),
                 'worked_since' => $query->value('worked_since'),
+                'graduated_from' => $query->value('graduated_from'),
+                'graduated_since' => $query->value('graduated_since'),
                 'experience' => $year-$query->value('worked_since'),
                 'lat' => $query->value('lat'),
                 'long' => $query->value('doctors.long'),
@@ -137,13 +153,27 @@ class DoctorController extends Controller
     }
 
     public function updatedoctor(request $request){
+        if(filter_var($request->profile_picture, FILTER_VALIDATE_URL) === FALSE){
+
+            $image_parts = explode(";base64,", $request->profile_picture);
+            $image_type_aux = explode("image/", $image_parts[0]);
+            $image_type = $image_type_aux[1];
+            $image_base64 = base64_decode($image_parts[1]);
+            $file = uniqid() . '.'.$image_type;
+    
+            file_put_contents(env('Folder_APP').$file, $image_base64);
+            $picture = env('IMAGE_URL') . $file;
+            
+        }else{
+            $picture = $request->profile_picture;
+        }
 
         $query = doctor::where('id',$request->id)->update([
             'doctor_name' => $request->name,
             'description' => $request->description,
             'Biography' => $request->biography,
             'Education_experience' => $request->educational_experience,
-            'profile_picture' => $request->profile_picture,
+            'profile_picture' => $picture,
             'graduated_since' => $request->graduatedsince,
             'graduated_from' => $request->graduatedfrom,
             'worked_since' => $request->workedsince,
@@ -237,7 +267,15 @@ class DoctorController extends Controller
 
     public function deletedoctorspeciality(request $request){
 
-        doctor_speciality::where('id',$request->id)->delete();
+        $query = doctor_speciality::where('id',$request->id)->delete();
+        if($query == 1){
+            $status = "success";
+        }else{
+            $status = "error";
+        }
+        return response()->json([
+            'status'=>$status,
+        ]); 
 
     }
 
@@ -473,8 +511,15 @@ class DoctorController extends Controller
         } else{
             $page = ($request->page - 1) * $limit;
         }
-
-        $query = DB::table('doctors')->leftJoin('doctor_specialities','doctors.id','=','doctor_specialities.doctor_id')->leftJoin('ratings','doctors.id','=','ratings.doctors_ids')->select('doctors.id', 'doctor_name','description' , 'profile_picture' , 'graduated_since' , 'worked_since' , 'lat', 'doctors.long','vidcall_price' , 'chat_price', 'offline_price', 'isonline' , 'lastonline', DB::raw('AVG(ratings.ratings) as rating'), DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))->where('speciality','LIKE','%'.$speciality.'%')->groupBy('doctors.id')->orderBy('isonline','DESC')->orderBy($order,$order_val);
+        
+        $query = DB::table('doctors')
+                ->leftJoin('doctor_specialities','doctors.id','=','doctor_specialities.doctor_id')
+                ->leftJoin('ratings','doctors.id','=','ratings.doctors_ids')
+                ->select('doctors.id', 'doctor_name','description' , 'profile_picture' , 'graduated_since' , 'worked_since' , 'lat', 'doctors.long','vidcall_price' , 'chat_price', 'offline_price', 'isonline' , 'lastonline', DB::raw('AVG(ratings.ratings) as rating'), DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))
+                ->where('speciality','LIKE','%'.$speciality.'%')
+                ->groupBy('doctors.id')
+                ->orderBy('isonline','DESC')
+                ->orderBy($order,$order_val);
         
         $count = DB::table('doctors')->leftJoin('doctor_specialities','doctors.id','=','doctor_specialities.doctor_id')->leftJoin('ratings','doctors.id','=','ratings.doctors_ids')->select('doctors.id', 'doctor_name','description' , 'profile_picture' , 'graduated_since' , 'worked_since' , 'lat', 'doctors.long','vidcall_price' , 'chat_price', 'offline_price', 'isonline' , 'lastonline', DB::raw('AVG(ratings.ratings) as rating'), DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))->where('speciality','LIKE','%'.$speciality.'%')->groupBy('doctors.id')->orderBy('isonline','DESC')->orderBy($order,$order_val)->get();
 

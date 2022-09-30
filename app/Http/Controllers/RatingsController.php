@@ -10,6 +10,7 @@ use App\Http\Controllers\JWTValidator;
 use App\Models\clinic;
 use Carbon\Carbon;
 
+
 class RatingsController extends Controller
 {
 

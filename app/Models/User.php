@@ -9,5 +9,5 @@ class User extends Model
 {
     use HasFactory;
     public $timestamps = false;
-    protected $fillable = ['id','username','profile_picture','nickname','fullname','birthday','phone_number','gender','status','update_at','firebstoken','session_id'];
+    protected $fillable = ['id','username','profile_picture','nickname','fullname','birthday','phone_number','gender','status','update_at','wallet_status','wallet_pin'];
 }
