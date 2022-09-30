@@ -5,6 +5,7 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\FavController;
 use App\Http\Controllers\JWTValidator;
 use App\Http\Controllers\MobileBannerController;
+use App\Http\Controllers\otpController;
 use App\Http\Controllers\RatingsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SiswaController;
@@ -138,3 +139,9 @@ Route::post('rrole/add-role', [RoleController::class, 'addRole']);
 Route::get('role/user-role', [RoleController::class, 'userRole']);
 
 Route::post('cms/user/activate', [UserController::class, 'activateAccount']);
+
+Route::post('otp/create', [otpController::class, 'makeOTP']);
+
+Route::post('otp/validate', [otpController::class, 'validateOTP']);
+
+Route::post('otp/resend', [otpController::class, 'resend']);
