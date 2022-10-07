@@ -20,8 +20,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('migrate', function () {
+Route::get('migrate-fresh', function () {
     $exitCode = Artisan::call('migrate:fresh --seed --force');
+});
+
+Route::get('migrate', function () {
+    $exitCode = Artisan::call('migrate --seed --force');
 });
 
 Route::get('/sendActivateMail', [MailServer::class, 'index']);
