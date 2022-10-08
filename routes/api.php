@@ -6,6 +6,7 @@ use App\Http\Controllers\FavController;
 use App\Http\Controllers\JWTValidator;
 use App\Http\Controllers\MobileBannerController;
 use App\Http\Controllers\otpController;
+use App\Http\Controllers\PaymentmethController;
 use App\Http\Controllers\RatingsController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SiswaController;
@@ -145,3 +146,5 @@ Route::post('otp/create', [otpController::class, 'makeOTP']);
 Route::post('otp/validate', [otpController::class, 'validateOTP']);
 
 Route::post('otp/resend', [otpController::class, 'resend']);
+
+Route::post('payment/methods', [PaymentmethController::class,'payment_method']);
