@@ -21,8 +21,11 @@ return new class extends Migration
             $table->char('status',20);
             $table->char('total',20);
             $table->float('diskon',5,2);
-            $table->char('coupon_name',25);
+            $table->char('coupon_name',25)->nullable();
             $table->float('subtotal',20,2);
+            $table->char('payment_method',50)->nullable();
+            $table->char('payment_id',20)->nullable();
+            $table->char('booking_date',50)->nullable();
             $table->char('payed_at')->nullable();
             $table->char('payed_untill')->nullable();
             $table->char('cancelled_at')->nullable();

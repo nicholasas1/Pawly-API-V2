@@ -10,11 +10,7 @@ use Carbon\Carbon;
 class CouponserviceController extends Controller
 {
 
-    public function coupon_service(request $request){
-        $coupon_name = $request->name;
-        $user_id = $request->id;
-        $service = $request->service;
-        $price = $request->price;
+    public function coupon_service($coupon_name,$user_id,$service,$price){
         $coupon = couponservice::where('coupon_name',$coupon_name)->where('coupon_service',$service);
 
         if($coupon->count()==0){
