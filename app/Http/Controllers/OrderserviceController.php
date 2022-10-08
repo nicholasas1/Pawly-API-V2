@@ -12,7 +12,6 @@ class OrderserviceController extends Controller
             $total_price = $price;
             $discount = 0;
             $subtotal = $total_price-$discount;
-
         }
     }
 }
