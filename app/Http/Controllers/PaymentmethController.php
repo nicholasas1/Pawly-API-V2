@@ -48,9 +48,9 @@ class PaymentmethController extends Controller
                             'active'=>false
                         );
                     }
-                    array_push($payment_allowed, $method);
+                   
                 }
-             
+                array_push($payment_allowed, $method);
             }
             return response()->JSON([
                 'status' => 'success',
