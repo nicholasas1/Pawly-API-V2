@@ -114,4 +114,80 @@ class CouponserviceController extends Controller
             }
         }
     }
+
+    public function create_coupon(request $request){
+        $query = couponservice::insert([
+            'coupon_name' => $request->coupon_name,
+            'coupon_type' => $request->coupon_type,
+            'min_price' => $request->min_price,
+            'max_price' => $request->max_price,
+            'coupon_service' => $request->coupon_service,
+            'allowed_payment' => $request->allowed_payment,
+            'coupon_rule' => $request->coupon_rule,
+            'coupon_value' => $request->coupon_value,
+            'max_usage' => $request->max_usage
+        ]);
+
+
+        if($query==1){
+            return response()->JSON([
+                'status' => 'success',
+                'msg' => ''
+            ]);
+        } 
+        else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'Failed Created Coupon'
+            ]);
+            
+        }
+    }
+
+    public function delete_coupon(request $request){
+        $query = couponservice::where('coupon_name',$request->query('coupon_name'))->delete();
+        
+        if($query==1){
+            return response()->JSON([
+                'status' => 'success',
+                'msg' => ''
+            ]);
+        } 
+        else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'Failed Delete Coupon'
+            ]);
+            
+        }
+    }
+
+    public function update_coupon(request $request){
+        $query = couponservice::where('coupon_name',$request->query('coupon_name'))->update(
+                    [
+                        'coupon_type' => $request->coupon_type,
+                        'min_price' => $request->min_price,
+                        'max_price' => $request->max_price,
+                        'coupon_service' => $request->coupon_service,
+                        'allowed_payment' => $request->allowed_payment,
+                        'coupon_rule' => $request->coupon_rule,
+                        'coupon_value' => $request->coupon_value,
+                        'max_usage' => $request->max_usage
+                    ]
+                );
+        
+        if($query==1){
+            return response()->JSON([
+                'status' => 'success',
+                'msg' => ''
+            ]);
+        } 
+        else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'Failed Delete Coupon'
+            ]);
+            
+        }
+    }
 }

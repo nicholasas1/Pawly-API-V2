@@ -152,3 +152,9 @@ Route::post('otp/resend', [otpController::class, 'resend']);
 Route::post('payment/methods', [PaymentmethController::class,'payment_method']);
 
 Route::post('coupons/check', [CouponserviceController::class,'coupon_service']);
+
+Route::post('coupons/create', [CouponserviceController::class,'create_coupon']);
+
+Route::delete('coupons/delete', [CouponserviceController::class,'delete_coupon']);
+
+Route::post('coupons/update', [CouponserviceController::class,'update_coupon']);
