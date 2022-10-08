@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClinicController;
+use App\Http\Controllers\CouponserviceController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\FavController;
 use App\Http\Controllers\JWTValidator;
@@ -14,6 +15,7 @@ use App\Http\Controllers\SplashscreenMobileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserpetsController;
 use App\Http\Controllers\WalletController;
+use App\Models\couponservice;
 use App\Models\fav;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -148,3 +150,5 @@ Route::post('otp/validate', [otpController::class, 'validateOTP']);
 Route::post('otp/resend', [otpController::class, 'resend']);
 
 Route::post('payment/methods', [PaymentmethController::class,'payment_method']);
+
+Route::post('coupons/check', [CouponserviceController::class,'coupon_service']);
