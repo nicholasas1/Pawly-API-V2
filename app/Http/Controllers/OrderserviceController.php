@@ -26,14 +26,16 @@ class OrderserviceController extends Controller
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
 
-        $service = $request->service;
-        $price = $request->price;
-        $coupon_name = $request->coupon;
-        $service_id = $request->servid;
-        $type = $request->type;
-        $userid = $result['body']['user_id'];
+        
 
-        $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        if($result['status'] == 200){
+            $service = $request->service;
+            $price = $request->price;
+            $coupon_name = $request->coupon;
+            $service_id = $request->servid;
+            $type = $request->type;
+            $userid = $result['body']['user_id'];
+            $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
         if($coupon_name==NULL){
             $total_price = $price;
@@ -104,5 +106,11 @@ class OrderserviceController extends Controller
             
             }
         }
+    } else{
+        return response()->JSON([
+            'status' => 'error'
+        ]);
     }
+    }
+        
 }
