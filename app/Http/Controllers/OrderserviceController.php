@@ -35,79 +35,78 @@ class OrderserviceController extends Controller
             $userid = $result['body']['user_id'];
             $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-        if($coupon_name==NULL){
-            $total_price = $price;
-            $discount = 0;
-            $subtotal = $total_price-$discount;
-            $query = orderservice::insertGetId([
-                'service' => $service,
-                'service_id' => $service_id,
-                'type' => $type,
-                'users_ids' => $userid,
-                'status' => 'pending',
-                'total' => $total_price,
-                'diskon' => $discount,
-                'subtotal' => $subtotal
-            ]);
-            $insertorderid = orderservice::where('id',$query)->update([
-                'order_id' => substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query
-            ]);
-
-            if($insertorderid==1){
-                return response()->JSON([
-                    'status' => 'success',
-                    'results' => orderservice::where('id',$query)->get()
-                ]);
-            } else{
-                return response()->JSON([
-                    'status' => 'error'
-                ]);
-            }
-            
-        } else{
-            $coupons_respond = $this->coupons->coupon_service($coupon_name,$userid,$service,$price);
-            if($coupons_respond['result']=='success'){
+            if($coupon_name==NULL){
                 $total_price = $price;
-                $discount = $coupons_respond['value'];
+                $discount = 0;
                 $subtotal = $total_price-$discount;
                 $query = orderservice::insertGetId([
-                'service' => $service,
-                'service_id' => $service_id,
-                'type' => $type,
-                'status' => 'pending',
-                'users_ids' => $userid,
-                'coupon_name' => $coupon_name,
-                'total' => $total_price,
-                'diskon' => $discount,
-                'subtotal' => $subtotal
-            ]);
-            $insertorderid = orderservice::where('id',$query)->update([
-                'order_id' => substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query
-            ]);
+                    'service' => $service,
+                    'service_id' => $service_id,
+                    'type' => $type,
+                    'users_ids' => $userid,
+                    'status' => 'pending',
+                    'total' => $total_price,
+                    'diskon' => $discount,
+                    'subtotal' => $subtotal
+                ]);
+                $insertorderid = orderservice::where('id',$query)->update([
+                    'order_id' => substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query
+                ]);
 
-            if($insertorderid==1){
-                return response()->JSON([
-                    'status' => 'success',
-                    'results' => orderservice::where('id',$query)->get()
-                ]);
-            } else{
-                return response()->JSON([
-                    'status' => 'error'
-                ]);
-            }
-            } else{
+                if($insertorderid==1){
+                    return response()->JSON([
+                        'status' => 'success',
+                        'results' => orderservice::where('id',$query)->get()
+                    ]);
+                } else{
+                    return response()->JSON([
+                        'status' => 'error'
+                    ]);
+                }
                 
-                return response()->JSON([
-                    'status' => 'error'
+            } else{
+                $coupons_respond = $this->coupons->coupon_service($coupon_name,$userid,$service,$price);
+
+                if($coupons_respond['status']=='success'){
+                    $total_price = $price;
+                    $discount = $coupons_respond['value'];
+                    $subtotal = $total_price-$discount;
+                    $query = orderservice::insertGetId([
+                    'service' => $service,
+                    'service_id' => $service_id,
+                    'type' => $type,
+                    'status' => 'pending',
+                    'users_ids' => $userid,
+                    'coupon_name' => $coupon_name,
+                    'total' => $total_price,
+                    'diskon' => $discount,
+                    'subtotal' => $subtotal
                 ]);
-            
+                $insertorderid = orderservice::where('id',$query)->update([
+                    'order_id' => substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query
+                ]);
+
+                if($insertorderid==1){
+                    return response()->JSON([
+                        'status' => 'success',
+                        'results' => orderservice::where('id',$query)->get()
+                    ]);
+                } else{
+                    return response()->JSON([
+                        'status' => 'error coupon'
+                    ]);
+                }
+                } else{
+                    
+                    return response()->JSON([
+                        'status' => 'error 3'
+                    ]);
+                
+                }
             }
+        } else{
+            return $result;
         }
-    } else{
-        return response()->JSON([
-            'status' => 'error'
-        ]);
-    }
     }
         
 }
