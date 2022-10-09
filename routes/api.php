@@ -161,3 +161,8 @@ Route::delete('coupons/delete', [CouponserviceController::class,'delete_coupon']
 Route::post('coupons/update', [CouponserviceController::class,'update_coupon']);
 
 Route::post('order/service', [OrderserviceController::class,'order_service']);
+
+Route::get('coupons/get-list', [CouponserviceController::class,'getlist']);
+
+Route::get('coupons/get-detail', [CouponserviceController::class,'getDetail']);
+

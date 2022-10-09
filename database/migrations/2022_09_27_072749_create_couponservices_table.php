@@ -22,7 +22,9 @@ return new class extends Migration
             $table->char('allowed_payment',100)->nullable();
             $table->char('coupon_rule',50)->nullable();
             $table->float('coupon_value',20)->nullable();
-            $table->char('max_usage',10)->nullable();            
+            $table->char('max_usage',10)->nullable();    
+            $table->char('start_date_time',40)->nullable();
+            $table->char('end_date_time',40)->nullable();            
         });
     }
 

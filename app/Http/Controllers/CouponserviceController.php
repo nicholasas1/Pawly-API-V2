@@ -125,7 +125,9 @@ class CouponserviceController extends Controller
             'allowed_payment' => $request->allowed_payment,
             'coupon_rule' => $request->coupon_rule,
             'coupon_value' => $request->coupon_value,
-            'max_usage' => $request->max_usage
+            'max_usage' => $request->max_usage,
+            'start_date_time' =>  $request->start_date_time,
+            'end_date_time' =>  $request->end_date_time
         ]);
 
 
@@ -172,7 +174,9 @@ class CouponserviceController extends Controller
                         'allowed_payment' => $request->allowed_payment,
                         'coupon_rule' => $request->coupon_rule,
                         'coupon_value' => $request->coupon_value,
-                        'max_usage' => $request->max_usage
+                        'max_usage' => $request->max_usage,
+                        'start_date_time' =>  $request->start_date_time,
+                        'end_date_time' =>  $request->end_date_time
                     ]
                 );
         
@@ -189,5 +193,58 @@ class CouponserviceController extends Controller
             ]);
             
         }
+    }
+
+    public function getlist(request $request)
+    {
+        $name = $request->name;
+        if($request->sort == 'name_asc'){
+            $order = "coupon_name";
+            $order_val = "ASC";
+        }else if($request->sort == 'name_dsc'){
+            $order = "coupon_name";
+            $order_val = "DESC";
+        }else{
+            $order = "coupon_name";
+            $order_val = "DESC";
+        }
+
+        $data = couponservice::where('coupon_name','like','%'.$name.'%')->orderBy($order,$order_val);
+
+        return response()->json([
+            'status'=>'success', 
+            'total_data'=>$data->count(), 
+            'results'=>$data->get()
+        ]);
+       
+        
+    }
+
+    public function getDetail(request $request)
+    {
+        $name = $request->name;
+        
+        $data = couponservice::where('coupon_name','like','%'.$name.'%');
+
+        $arr = [
+            'coupon_name' => $data->value('coupon_name'),
+            'coupon_type' => $data->value('coupon_type'),
+            'min_price' => $data->value('min_price'),
+            'max_price' => $data->value('max_price'),
+            'coupon_service' => $data->value('coupon_service'),
+            'allowed_payment' => $data->value('allowed_payment'),
+            'coupon_rule' => $data->value('coupon_rule'),
+            'coupon_value' => $data->value('coupon_value'),
+            'max_usage' => $data->value('max_usage'),
+            'start_date_time' => $data->value('start_date_time'),
+            'end_date_time' => $data->value('end_date_time'),
+        ]; 
+
+        return response()->json([
+            'status'=>'success',
+            'results'=>$arr
+        ]);
+       
+        
     }
 }
