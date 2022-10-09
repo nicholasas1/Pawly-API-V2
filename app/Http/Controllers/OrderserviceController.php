@@ -26,8 +26,6 @@ class OrderserviceController extends Controller
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
 
-        
-
         if($result['status'] == 200){
             $service = $request->service;
             $price = $request->price;
@@ -68,8 +66,7 @@ class OrderserviceController extends Controller
             
         } else{
             $coupons_respond = $this->coupons->coupon_service($coupon_name,$userid,$service,$price);
-
-            if($coupons_respond['status']=='success'){
+            if($coupons_respond['result']=='success'){
                 $total_price = $price;
                 $discount = $coupons_respond['value'];
                 $subtotal = $total_price-$discount;
