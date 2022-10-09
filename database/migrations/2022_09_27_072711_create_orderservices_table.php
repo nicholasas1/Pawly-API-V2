@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('orderservices', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->char('order_id',16);
             $table->char('service',20);
             $table->char('service_id',10);
             $table->char('type',20);

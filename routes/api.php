@@ -6,6 +6,7 @@ use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\FavController;
 use App\Http\Controllers\JWTValidator;
 use App\Http\Controllers\MobileBannerController;
+use App\Http\Controllers\OrderserviceController;
 use App\Http\Controllers\otpController;
 use App\Http\Controllers\PaymentmethController;
 use App\Http\Controllers\RatingsController;
@@ -158,3 +159,5 @@ Route::post('coupons/create', [CouponserviceController::class,'create_coupon']);
 Route::delete('coupons/delete', [CouponserviceController::class,'delete_coupon']);
 
 Route::post('coupons/update', [CouponserviceController::class,'update_coupon']);
+
+Route::post('order/service', [OrderserviceController::class,'order_service']);
