@@ -66,7 +66,10 @@ class OrderserviceController extends Controller
                 
             } else{
                 $coupons_respond = $this->coupons->coupon_service($coupon_name,$userid,$service,$price);
+               // $coupons_respond = $this->coupons->haha($coupon_name);
 
+
+                var_dump($coupons_respond);
                 if($coupons_respond['status']=='success'){
                     $total_price = $price;
                     $discount = $coupons_respond['value'];
@@ -99,7 +102,7 @@ class OrderserviceController extends Controller
                 } else{
                     
                     return response()->JSON([
-                        'status' => 'error 3'
+                        'status' => 'error'
                     ]);
                 
                 }
