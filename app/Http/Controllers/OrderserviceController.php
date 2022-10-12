@@ -43,9 +43,15 @@ class OrderserviceController extends Controller
             $userid = $result['body']['user_id'];
             $pool = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             if($service == 'vidcall' || 'chat'){
+                if($service=='chat'){
+                    $ordercode = 'CHOL';
+                } else{
+                    $ordercode = 'VCOL';
+                }
                 $paid_until = time()+ 3600;
                 $comission = 5000;
             }else if($service == 'onsite'){
+                $ordercode = 'OSM';
                 $dateformat = date($booking_time);
                 $paid_until = strtotime($dateformat)- 3600*2;
                 $comission = $price * 12/100;
@@ -75,7 +81,7 @@ class OrderserviceController extends Controller
                     'booking_date' => $booking_time
                 ]);
                 $insertorderid = orderservice::where('id',$query)->update([
-                    'order_id' => substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query
+                    'order_id' => $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query
                 ]);
 
                 if($insertorderid==1){
@@ -113,7 +119,7 @@ class OrderserviceController extends Controller
                     'payed_untill' => $paid_until,
                     'booking_date' => $booking_time
                 ]);
-               $orderId = substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query;
+               $orderId = $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query;
                 $insertorderid = orderservice::where('id',$query)->update([
                     'order_id' => $orderId
                 ]);
