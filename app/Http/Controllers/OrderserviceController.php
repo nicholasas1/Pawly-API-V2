@@ -42,7 +42,7 @@ class OrderserviceController extends Controller
             }
             $userid = $result['body']['user_id'];
             $pool = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            if($service == 'vidcall'){
+            if($service == 'vidcall' || 'chat'){
                 $paid_until = time()+ 3600;
                 $comission = 5000;
             }else if($service == 'onsite'){
