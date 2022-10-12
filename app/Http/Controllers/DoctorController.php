@@ -104,8 +104,8 @@ class DoctorController extends Controller
                 if($favourited->count()>0){
                     $isfav = '1';
                 }
+            }
         }
-    }
         
         $status = 'error';
         $ratings = ratings::where('doctors_ids',$query->value('doctors.id'));
