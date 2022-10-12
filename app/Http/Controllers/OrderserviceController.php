@@ -305,6 +305,7 @@ class OrderserviceController extends Controller
             'coupon_name'=>$data->value('coupon_name'),
             'subtotal'=>$data->value('subtotal'),
             'payment_id'=>$data->value('payment_id'),
+            'payment_method'=>$data->value('payment_method'),
             'booking_date'=>$data->value('booking_date'),
             'payed_at'=>$data->value('payed_at'),
             'payed_untill'=>$data->value('payed_untill'),
