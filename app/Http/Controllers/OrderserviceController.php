@@ -34,8 +34,15 @@ class OrderserviceController extends Controller
             $coupon_name = $request->coupon;
             $service_id = $request->servid;
             $type = $request->type;
+            $partner_user_id = $request->partner_user_id;
+            if($request->partner_commision_type == 'fixed'){
+                $comission = $request->comission;
+            }else{
+                $comission = $price * $request->comission/100;
+            }
             $userid = $result['body']['user_id'];
             $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            
 
             if($coupon_name==NULL){
                 $total_price = $price;
@@ -49,7 +56,9 @@ class OrderserviceController extends Controller
                     'status' => 'pending',
                     'total' => $total_price,
                     'diskon' => $discount,
-                    'subtotal' => $subtotal
+                    'subtotal' => $subtotal,
+                    'partner_user_id' => $partner_user_id,
+                    'comission' => $comission
                 ]);
                 $insertorderid = orderservice::where('id',$query)->update([
                     'order_id' => substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query
@@ -82,7 +91,9 @@ class OrderserviceController extends Controller
                     'coupon_name' => $coupon_name,
                     'total' => $total_price,
                     'diskon' => $discount,
-                    'subtotal' => $subtotal
+                    'subtotal' => $subtotal,
+                    'partner_user_id' => $partner_user_id,
+                    'comission' => $comission
                 ]);
                $orderId = substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query;
                 $insertorderid = orderservice::where('id',$query)->update([
