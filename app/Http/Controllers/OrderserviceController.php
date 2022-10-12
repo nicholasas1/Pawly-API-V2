@@ -44,11 +44,14 @@ class OrderserviceController extends Controller
             $pool = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             if($service == 'vidcall'){
                 $paid_until = time()+ 3600;
+                $comission = 5000;
             }else if($service == 'onsite'){
                 $dateformat = date($booking_time);
                 $paid_until = strtotime($dateformat)- 3600*2;
+                $comission = $price * 12/100;
             }else{
                 $paid_until = time()+ 3600*24;
+                $comission = $price * 12/100;
             }
 
         

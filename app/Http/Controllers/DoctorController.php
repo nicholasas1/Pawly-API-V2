@@ -146,9 +146,7 @@ class DoctorController extends Controller
                 'total_review' => $ratings->count(),
                 'review' => ratings::leftJoin('users','ratings.users_id','=','users.id')->where('doctors_ids',$query->value('doctors.id'))->select('ratings.id','doctors_ids','username','profile_picture','reviews','ratings','timereviewed')->limit($limit)->offset($page)->get(),
                 'working_at' => clinic_doctor::where('doctor_id',$query->value('doctors.id'))->leftJoin('clinics','clinics.id','=','clinic_id')->get(),
-                'speciality' => doctor_speciality::where('doctor_id',$query->value('doctors.id'))->get(),
-                'partner_commision_type' => 'fixed',
-                'partner_commision' => '5000',
+                'speciality' => doctor_speciality::where('doctor_id',$query->value('doctors.id'))->get()
             ] 
         ]);
         
