@@ -108,5 +108,121 @@ class OrderserviceController extends Controller
             return $result;
         }
     }
+
+    public function orderList(Request $request){
+        $orderId = $request->orderId;
+        $type = $request->type;
+        $service = $request->service;
+        $status = $request->status;
+        if($request->limit==NULL){
+            $limit = 10;
+        } else{
+            $limit = $request->limit;
+        }
+
+        if($request->page==NULL){
+            $page = 0;
+        } else{
+            $page = ($request->page - 1) * $limit;
+        }
+       
+
+        $data = orderservice::where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%');;
+        $result=[];
+        foreach($data->limit($limit)->offset($page)->get() as $arr){
+            $method = array(
+                'id' => $arr['id'],
+                'order_id'=>$arr['order_id'],
+                'service'=>$arr['service'],
+                'service_id'=>$arr['service_id'],
+                'type'=>$arr['type'],
+                'status'=>$arr['status'],
+                'total'=>$arr['total'],
+                'diskon'=>$arr['diskon'],
+                'coupon_name'=>$arr['coupon_name'],
+                'subtotal'=>$arr['subtotal'],
+                'payment_method'=>$arr['payment_method'],
+                'payment_id'=>$arr['payment_id'],
+                'booking_date'=>$arr['booking_date'],
+                'payed_at'=>$arr['payed_at'],
+                'payed_untill'=>$arr['payed_untill'],
+                'cancelled_at'=>$arr['cancelled_at'],
+                'cancelled_reason'=>$arr['cancelled_reason'],
+                'users_ids'=>$arr['users_ids'],
+                'created_at'=>$arr['created_at'],
+                'updated_at'=>$arr['updated_at']
+            );
+            array_push($result, $method);
+        }
+
+        return response()->json([
+            'status'=>'success',  
+            'total_data'=>$data->count(),  
+            'total_page'=> ceil($data->count() / $limit),
+            'results'=>$result
+        ]);
+    }
+
+    public function orderListToken(Request $request){
+        $orderId = $request->orderId;
+        $type = $request->type;
+        $service = $request->service;
+        $status = $request->status;
+        if($request->limit==NULL){
+            $limit = 10;
+        } else{
+            $limit = $request->limit;
+        }
+
+        if($request->page==NULL){
+            $page = 0;
+        } else{
+            $page = ($request->page - 1) * $limit;
+        }
+       
+        
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+
+        if($result['status'] == 200){
+            $data = orderservice::where('users_ids','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%');
+            $result=[];
+            foreach($data->limit($limit)->offset($page)->get() as $arr){
+                $method = array(
+                    'id' => $arr['id'],
+                    'order_id'=>$arr['order_id'],
+                    'service'=>$arr['service'],
+                    'service_id'=>$arr['service_id'],
+                    'type'=>$arr['type'],
+                    'status'=>$arr['status'],
+                    'total'=>$arr['total'],
+                    'diskon'=>$arr['diskon'],
+                    'coupon_name'=>$arr['coupon_name'],
+                    'subtotal'=>$arr['subtotal'],
+                    'payment_method'=>$arr['payment_method'],
+                    'payment_id'=>$arr['payment_id'],
+                    'booking_date'=>$arr['booking_date'],
+                    'payed_at'=>$arr['payed_at'],
+                    'payed_untill'=>$arr['payed_untill'],
+                    'cancelled_at'=>$arr['cancelled_at'],
+                    'cancelled_reason'=>$arr['cancelled_reason'],
+                    'users_ids'=>$arr['users_ids'],
+                    'created_at'=>$arr['created_at'],
+                    'updated_at'=>$arr['updated_at']
+                );
+                array_push($result, $method);
+            }
+            return response()->json([
+                'status'=>'success',  
+                'total_data'=>$data->count(),  
+                'total_page'=> ceil($data->count() / $limit),
+                'results'=>$result
+            ]);
+        }else{
+            return $result;
+        }     
+    }
+
+    
         
 }
