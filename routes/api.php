@@ -12,6 +12,7 @@ use App\Http\Controllers\otpController;
 use App\Http\Controllers\PaymentmethController;
 use App\Http\Controllers\RatingsController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\schedulersystemcontroller;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SplashscreenMobileController;
 use App\Http\Controllers\UserController;
@@ -176,3 +177,5 @@ Route::get('cms/get-list', [OrderserviceController::class,'orderList']);
 Route::get('order/get-list', [OrderserviceController::class,'orderListToken']);
 
 Route::get('order/get-detail', [OrderserviceController::class,'getDetail']);
+
+Route::get('ahah', [schedulersystemcontroller::class,'orderList']);

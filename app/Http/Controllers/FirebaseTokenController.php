@@ -19,10 +19,7 @@ class FirebaseTokenController extends Controller
             array_push($result, $method);
         }
 
-        return response()->json([
-            'status'=>'success',  
-            'results'=>$result
-        ]);
+        return $result;
     }
 
     public function userSecretList(Request $request){
