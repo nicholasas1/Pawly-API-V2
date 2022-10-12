@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\orderservice;
+use App\Models\couponusages;
 use Illuminate\Http\Request;
 use App\Http\Controllers\CouponserviceController;
 use ReallySimpleJWT\Token;
@@ -81,6 +82,13 @@ class OrderserviceController extends Controller
                     'total' => $total_price,
                     'diskon' => $discount,
                     'subtotal' => $subtotal
+                ]);
+                $query2 = couponusages::insert([
+                    'coupon_name' => $service,
+                    'user_id' => $service_id,
+                    'service' => $type,
+                    'type' => 'pending',
+                    'date' => $userid
                 ]);
                 $insertorderid = orderservice::where('id',$query)->update([
                     'order_id' => substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query

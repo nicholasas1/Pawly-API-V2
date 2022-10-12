@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('couponusages', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->char('coupon_name',20);
+            $table->char('order_id',20);
             $table->integer('user_id')->nullable();
             $table->char('service',20)->nullable();
             $table->char('type',20)->nullable();
