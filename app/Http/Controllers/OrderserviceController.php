@@ -34,6 +34,7 @@ class OrderserviceController extends Controller
             $service_id = $request->servid;
             $type = $request->type;
             $partner_user_id = $request->partner_user_id;
+            $booking_time = $request->booking_time;
             if($request->partner_commision_type == 'fixed'){
                 $comission = $request->comission;
             }else{
@@ -41,8 +42,16 @@ class OrderserviceController extends Controller
             }
             $userid = $result['body']['user_id'];
             $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            
+            if($service == 'vidcall'){
+                $paid_until = time()+ 3600;
+            }else if($service == 'onsite'){
+                $dateformat = date($booking_time);
+                $paid_until = strtotime($dateformat)- 3600*2;
+            }else{
+                $paid_until = time()+ 3600*24;
+            }
 
+        
             if($coupon_name==NULL){
                 $total_price = $price;
                 $discount = 0;
@@ -58,7 +67,9 @@ class OrderserviceController extends Controller
                     'subtotal' => $subtotal,
                     'created_at' => Carbon::now(),
                     'partner_user_id' => $partner_user_id,
-                    'comission' => $comission
+                    'comission' => $comission,
+                    'payed_untill' => $paid_until,
+                    'booking_date' => $booking_time
                 ]);
                 $insertorderid = orderservice::where('id',$query)->update([
                     'order_id' => substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query
@@ -95,7 +106,9 @@ class OrderserviceController extends Controller
                     'subtotal' => $subtotal,
                     'created_at' => Carbon::now(),
                     'partner_user_id' => $partner_user_id,
-                    'comission' => $comission
+                    'comission' => $comission,
+                    'payed_untill' => $paid_until,
+                    'booking_date' => $booking_time
                 ]);
                $orderId = substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query;
                 $insertorderid = orderservice::where('id',$query)->update([
