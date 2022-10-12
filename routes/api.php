@@ -4,6 +4,7 @@ use App\Http\Controllers\ClinicController;
 use App\Http\Controllers\CouponserviceController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\FavController;
+use App\Http\Controllers\FirebaseTokenController;
 use App\Http\Controllers\JWTValidator;
 use App\Http\Controllers\MobileBannerController;
 use App\Http\Controllers\OrderserviceController;
@@ -166,3 +167,12 @@ Route::get('coupons/get-list', [CouponserviceController::class,'getlist']);
 
 Route::get('coupons/get-detail', [CouponserviceController::class,'getDetail']);
 
+Route::get('user/get-list-secret', [FirebaseTokenController::class,'userSecretList']);
+
+Route::get('user/delete-secret', [FirebaseTokenController::class,'delete_user_secret']);
+
+Route::get('cms/get-list', [OrderserviceController::class,'orderList']);
+
+Route::get('order/get-list', [OrderserviceController::class,'orderListToken']);
+
+Route::get('order/get-detail', [OrderserviceController::class,'getDetail']);

@@ -34,6 +34,11 @@ return new class extends Migration
             $table->char('users_ids',20);
             $table->date('created_at')->nullable();
             $table->date('updated_at')->nullable();
+            $table->char('partner_user_id',20);
+            $table->char('comission',20);
+            $table->char('partner_paid_status',20);
+            $table->char('partner_paid_ammount',20);
+            $table->char('partner_paid_at',20);
         });
     }
 
