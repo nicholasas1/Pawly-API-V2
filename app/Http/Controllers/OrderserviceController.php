@@ -12,6 +12,9 @@ use ReallySimpleJWT\Jwt;
 use ReallySimpleJWT\Decode;
 use App\Http\Controllers\JWTValidator;
 use Carbon\Carbon;
+use App\Models\doctor;
+use App\Models\clinic;
+
 class OrderserviceController extends Controller
 {
     protected $coupons;
@@ -279,6 +282,15 @@ class OrderserviceController extends Controller
         $orderId = $request->id;
         
         $data = orderservice::where('order_id','like',$orderId);
+        if($data->value('type') == 'doctor'){
+            $detail = doctor::where('id','like',$data->value('service_id'));
+            $res = [
+                'account_id' => $detail->value('users_ids'),
+                'doctor_id'=>$detail->value('id'),
+                'doctor_name'=>$detail->value('doctor_name'),
+                'profile_picture'=>$detail->value('profile_picture'),
+            ];
+        }
 
 
         $arr = [
@@ -299,6 +311,13 @@ class OrderserviceController extends Controller
             'cancelled_at'=>$data->value('cancelled_at'),
             'cancelled_reason'=>$data->value('cancelled_reason'),
             'users_ids'=>$data->value('users_ids'),
+            'partner_user_id' => $data->value('partner_user_id'),
+            'partner_detail' => $res,
+            'comission' => $data->value('comission'),
+            'partner_paid_status' => $data->value('partner_paid_status'),
+            'partner_paid_ammount' => $data->value('partner_paid_ammount'),
+            'partner_paid_at' => $data->value('partner_paid_at'),
+            'refund_at' => $data->value('refund_at'),
             'created_at'=>$data->value('created_at'),
             'updated_at'=>$data->value('updated_at')
         ]; 

@@ -39,6 +39,7 @@ return new class extends Migration
             $table->char('partner_paid_status',20);
             $table->char('partner_paid_ammount',20);
             $table->char('partner_paid_at',20);
+            $table->char('refund_at',20);
         });
     }
 
