@@ -223,6 +223,41 @@ class OrderserviceController extends Controller
         }     
     }
 
-    
+    public function getDetail(request $request)
+    {
+        $orderId = $request->id;
+        
+        $data = orderservice::where('order_id','like',$orderId);
+
+
+        $arr = [
+            'id' => $data->value('id'),
+            'order_id'=>$data->value('order_id'),
+            'service'=>$data->value('service'),
+            'service_id'=>$data->value('service_id'),
+            'type'=>$data->value('type'),
+            'status'=>$data->value('status'),
+            'total'=>$data->value('total'),
+            'diskon'=>$data->value('diskon'),
+            'coupon_name'=>$data->value('coupon_name'),
+            'subtotal'=>$data->value('subtotal'),
+            'payment_id'=>$data->value('payment_id'),
+            'booking_date'=>$data->value('booking_date'),
+            'payed_at'=>$data->value('payed_at'),
+            'payed_untill'=>$data->value('payed_untill'),
+            'cancelled_at'=>$data->value('cancelled_at'),
+            'cancelled_reason'=>$data->value('cancelled_reason'),
+            'users_ids'=>$data->value('users_ids'),
+            'created_at'=>$data->value('created_at'),
+            'updated_at'=>$data->value('updated_at')
+        ]; 
+
+        return response()->json([
+            'status'=>'success',
+            'results'=>$arr
+        ]);
+       
+        
+    }
         
 }

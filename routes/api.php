@@ -174,3 +174,5 @@ Route::get('user/delete-secret', [FirebaseTokenController::class,'delete_user_se
 Route::get('cms/get-list', [OrderserviceController::class,'orderList']);
 
 Route::get('order/get-list', [OrderserviceController::class,'orderListToken']);
+
+Route::get('order/get-detail', [OrderserviceController::class,'getDetail']);
