@@ -32,8 +32,8 @@ return new class extends Migration
             $table->char('cancelled_at')->nullable();
             $table->text('cancelled_reason')->nullable();
             $table->char('users_ids',20);
-            $table->date('created_at')->nullable();
-            $table->date('updated_at')->nullable();
+            $table->char('created_at',50)->nullable();
+            $table->char('updated_at',50)->nullable();
             $table->char('partner_user_id',20);
             $table->char('comission',20);
             $table->char('partner_paid_status',20);
