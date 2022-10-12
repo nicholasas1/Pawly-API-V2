@@ -41,7 +41,7 @@ class OrderserviceController extends Controller
                 $comission = $price * $request->comission/100;
             }
             $userid = $result['body']['user_id'];
-            $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $pool = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             if($service == 'vidcall'){
                 $paid_until = time()+ 3600;
             }else if($service == 'onsite'){
