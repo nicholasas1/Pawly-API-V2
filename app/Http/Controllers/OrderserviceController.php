@@ -11,6 +11,7 @@ use ReallySimpleJWT\Parse;
 use ReallySimpleJWT\Jwt;
 use ReallySimpleJWT\Decode;
 use App\Http\Controllers\JWTValidator;
+use Carbon\Carbon;
 
 class OrderserviceController extends Controller
 {
@@ -83,15 +84,17 @@ class OrderserviceController extends Controller
                     'diskon' => $discount,
                     'subtotal' => $subtotal
                 ]);
-                $query2 = couponusages::insert([
-                    'coupon_name' => $service,
-                    'user_id' => $service_id,
-                    'service' => $type,
-                    'type' => 'pending',
-                    'date' => $userid
-                ]);
+               $orderId = substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query;
                 $insertorderid = orderservice::where('id',$query)->update([
-                    'order_id' => substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query
+                    'order_id' => $orderId
+                ]);
+                $query2 = couponusages::insert([
+                    'coupon_name' => $coupon_name,
+                    'user_id' => $userid,
+                    'service' => $service,
+                    'type' => $type,
+                    'date' => Carbon::today()->toDateString(),
+                    'order_id' => $orderId
                 ]);
 
                 if($insertorderid==1){
