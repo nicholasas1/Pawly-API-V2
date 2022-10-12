@@ -166,3 +166,6 @@ Route::get('coupons/get-list', [CouponserviceController::class,'getlist']);
 
 Route::get('coupons/get-detail', [CouponserviceController::class,'getDetail']);
 
+Route::get('user/get-list-secret', [UserController::class,'userSecretList']);
+
+Route::get('user/delete-secret', [UserController::class,'delete_user_secret']);
