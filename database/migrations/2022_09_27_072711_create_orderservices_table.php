@@ -32,7 +32,8 @@ return new class extends Migration
             $table->char('cancelled_at')->nullable();
             $table->text('cancelled_reason')->nullable();
             $table->char('users_ids',20);
-            $table->timestamps();
+            $table->date('created_at')->nullable();
+            $table->date('updated_at')->nullable();
         });
     }
 

@@ -10,7 +10,7 @@ use ReallySimpleJWT\Parse;
 use ReallySimpleJWT\Jwt;
 use ReallySimpleJWT\Decode;
 use App\Http\Controllers\JWTValidator;
-
+use Carbon\Carbon;
 class OrderserviceController extends Controller
 {
     protected $coupons;
@@ -44,10 +44,11 @@ class OrderserviceController extends Controller
                     'service_id' => $service_id,
                     'type' => $type,
                     'users_ids' => $userid,
-                    'status' => 'pending',
+                    'status' => 'PENDING_PAYMENT',
                     'total' => $total_price,
                     'diskon' => $discount,
-                    'subtotal' => $subtotal
+                    'subtotal' => $subtotal,
+                    'created_at' => Carbon::now()
                 ]);
                 $insertorderid = orderservice::where('id',$query)->update([
                     'order_id' => substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query
@@ -60,7 +61,8 @@ class OrderserviceController extends Controller
                     ]);
                 } else{
                     return response()->JSON([
-                        'status' => 'error'
+                        'status' => 'error',
+                        'status' => ''
                     ]);
                 }
                 
@@ -80,7 +82,8 @@ class OrderserviceController extends Controller
                     'coupon_name' => $coupon_name,
                     'total' => $total_price,
                     'diskon' => $discount,
-                    'subtotal' => $subtotal
+                    'subtotal' => $subtotal,
+                    'created_at' => Carbon::now()
                 ]);
                 $insertorderid = orderservice::where('id',$query)->update([
                     'order_id' => substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query
@@ -93,19 +96,24 @@ class OrderserviceController extends Controller
                     ]);
                 } else{
                     return response()->JSON([
-                        'status' => 'error coupon'
+                        'status' => 'error',
+                        'msg' => ''
                     ]);
                 }
                 } else{
                     
                     return response()->JSON([
-                        'status' => 'error'
+                        'status' => 'error',
+                        'msg' => 'coupon_can_not_be_used'
                     ]);
                 
                 }
             }
         } else{
-            return $result;
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'no_user_found'
+            ]);
         }
     }
         

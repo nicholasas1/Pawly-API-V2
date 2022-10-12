@@ -16,7 +16,7 @@ class CouponserviceController extends Controller
         if($coupon->count()==0){
             $response = array(
                 'status' => 'error',
-                'validate' => 'no_coupon',
+                'msg' => 'no_coupon',
                 'value' => '0'
             );
         } else {
@@ -28,14 +28,14 @@ class CouponserviceController extends Controller
                 if($totalusage->count()>$coupon->value('max_usage')||$usages->count()>0){
                     $response = array(
                         'status' => 'error',
-                        'validate' => 'max_usage_passed',
+                        'msg' => 'max_usage_passed',
                         'value' => '0'
                     );
                 } else {
                     if($price<$coupon->value('min_price')||$price>$coupon->value('max_price')){
                         $response = array(
                             'status' => 'error',
-                            'validate' => 'price_invalid',
+                            'msg' => 'price_invalid',
                             'value' => '0'
                         );
                     } else{
@@ -46,7 +46,7 @@ class CouponserviceController extends Controller
                         }
                         $response = array(
                             'status' => 'success',
-                            'validate' => 'coupon_avaiable',
+                            'msg' => 'coupon_avaiable',
                             'value' => $totaldiscount,
                             'allowed_payment' => $coupon->value('allowed_payment')
                         );
@@ -59,14 +59,14 @@ class CouponserviceController extends Controller
                 if($totalusage->count()>$coupon->value('max_usage')||$usages->count()>0){
                     $response = array(
                         'status' => 'error',
-                        'validate' => 'max_usage_passed',
+                        'msg' => 'max_usage_passed',
                         'value' => '0'
                     );
                 } else {
                     if($price<$coupon->value('min_price')||$price>$coupon->value('max_price')){
                         $response = array(
                             'status' => 'error',
-                            'validate' => 'price_invalid',
+                            'msg' => 'price_invalid',
                             'value' => '0'
                         );
                     } else{
@@ -77,7 +77,7 @@ class CouponserviceController extends Controller
                         }
                         $response = array(
                             'status' => 'success',
-                            'validate' => 'coupon_avaiable',
+                            'msg' => 'coupon_avaiable',
                             'value' => $totaldiscount,
                             'allowed_payment' => $coupon->value('allowed_payment')
                         );
@@ -87,14 +87,14 @@ class CouponserviceController extends Controller
                 if($totalusage->count()>$coupon->value('max_usage')){
                     $response = array(
                         'status' => 'error',
-                        'validate' => 'max_usage_passed',
+                        'msg' => 'max_usage_passed',
                         'value' => '0'
                     );
                 } else{
                     if($price<$coupon->value('min_price')||$price>$coupon->value('max_price')){
                         $response = array(
                             'status' => 'error',
-                            'validate' => 'price_invalid',
+                            'msg' => 'price_invalid',
                             'value' => '0'
                         );
                     } else{
@@ -105,7 +105,7 @@ class CouponserviceController extends Controller
                         }
                         $response = array(
                             'status' => 'success',
-                            'validate' => 'coupon_avaiable',
+                            'msg' => 'coupon_avaiable',
                             'value' => $totaldiscount,
                             'allowed_payment' => $coupon->value('allowed_payment')
                         );
