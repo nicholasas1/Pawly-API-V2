@@ -107,7 +107,7 @@ class OrderserviceController extends Controller
                     'service' => $service,
                     'service_id' => $service_id,
                     'type' => $type,
-                    'status' => 'pending',
+                    'status' => 'PENDING_PAYMENT',
                     'users_ids' => $userid,
                     'coupon_name' => $coupon_name,
                     'total' => $total_price,
