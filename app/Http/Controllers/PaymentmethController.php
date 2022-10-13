@@ -30,26 +30,32 @@ class PaymentmethController extends Controller
             array('payment_method' => 'Wallet',
             'total_ammount'=>$ammount,
             'image_url'=>'http://',
+            'payment_id'=>'1KwjmN2BWrl',
             'description'=>'make your life more simple'),
 
             array('payment_method' => 'BCA Transfer',
             'total_ammount'=>null,
-            'image_url'=>'http://',
+            'image_url'=>'https://app.moota.co/images/icon-bank-bca.png',
+            'payment_id'=>'1KwjmN2BWrl',
             'description'=>'make your life more simple'),
+            
 
             array('payment_method' => 'Dana',
             'total_ammount'=>null,
             'image_url'=>'http://',
+            'payment_id'=>'',
             'description'=>'make your life more simple'),
 
             array('payment_method' => 'Ovo',
             'total_ammount'=>null,
             'image_url'=>'http://',
+            'payment_id'=>'',
             'description'=>'make your life more simple'),
            
             array('payment_method' => 'GoPay',
             'total_ammount'=>null,
             'image_url'=>'http://',
+            'payment_id'=>'',
             'description'=>'make your life more simple'),
 
         );
@@ -110,6 +116,7 @@ class PaymentmethController extends Controller
                             'payment_method' => $arr['payment_method'],
                             'total_ammount'=>$arr['total_ammount'],
                             'image_url'=>$arr['image_url'],
+                            'payment_id'=>$arr['payment_id'],
                             'description'=> $desc,
                             'active'=>$active
                         );
@@ -120,6 +127,7 @@ class PaymentmethController extends Controller
                             'payment_method' => $arr['payment_method'],
                             'total_ammount'=>$arr['total_ammount'],
                             'image_url'=>$arr['image_url'],
+                            'payment_id'=>$arr['payment_id'],
                             'description'=>$arr['description'],
                             'active'=>false
                         );
