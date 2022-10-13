@@ -435,7 +435,7 @@ class OrderserviceController extends Controller
         
                 $response = Http::withHeaders([
                     'Location' => '/api/v2/contract',
-                    'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJucWllNHN3OGxsdyIsImp0aSI6ImQ3ODEyNDk1ZjI4YTU2OGIwMTcyNGU5MmEwZGI1NGFlYzE3NTE2YmE5YmUyMWZkOWYzZjY5OGZlMDNmMjcxZmU5NmU3OGZhM2U5MjdmMWU4IiwiaWF0IjoxNjY1NjU0MDIxLjk4OTk5MiwibmJmIjoxNjY1NjU0MDIxLjk4OTk5NSwiZXhwIjoxNjk3MTkwMDIxLjk4NzAyMywic3ViIjoiMjIzNjkiLCJzY29wZXMiOlsiYXBpIl19.pfLbznUT_n-hcSBCMu7LIpdzQwrPlXPuTUaYExYL5-spmMksjg77b_6_rdtGA3sgqH_HFxTENxbwBTJ5KKCPM_8J5k2bQa4TN2zVPeCOBwDGyh8Pn_eTxWXlcM-U0xnrz2kleDExty0iQaQkQ97TyuSSHo-2m6fpMREFqSPnrjF_bBWLwow5EDMYRqeugwWL2c2hXuiR5MlWePwS79vrYsydEt36n5PyQzMDv6AjK9L4O8DC54fLPtgE4POc7pcdJiViy5ktg9Y2xHGjUv7T4okbyA1dn2F_lePQnqP228RkerAEx0TqL12FnTPytMEqQGpPM1JObwduqIV7IHRXNqH71M6ONUL4qPvFhAdmTodTevgXcmVqbOp51qAnH25gayy8W_9Qe73Qq3dIkvy5vglsAHJGEl23zA6wOJ2APSLhiQDDf3mHsKBTNzocYUDByENc1HbEsa3zw0Sh05PwFYN4PoJ60MGFhzqx0c5Z-m0jZ3_PhziQefyKt_g8fYJC3L8VQuBGA6EFDkF2oberWQ7_4quqyXO-mQ7ufCsa5ji_54MuL1CPfz-Iz-xdeGOT1Lh2zn8fzZ22k3b_gF409hxSynryfGvMT8UQb_2fjnUApWF88ODKDon4qAUP28LzBNKsjo3jr0UAAzJy8aenmNfOrVBiTXN3GwHFs2osBWg',
+                    'Authorization' => env('payment_bearer'),
                     'Accept' => 'application/json'
                 ])->post($url, $data);
                 $saveddata = $response->json();
