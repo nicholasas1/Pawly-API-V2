@@ -183,3 +183,5 @@ Route::get('cms/statistic', [statisticcontroller::class,'statistic']);
 
 Route::post('order/pay', [OrderserviceController::class,'create_payment']);
 
+Route::post('order/changestatus', [OrderserviceController::class,'changestatus']);
+

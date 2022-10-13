@@ -466,5 +466,39 @@ class OrderserviceController extends Controller
         }
         
     }
+
+    public function changestatus(request $request){
+
+        $status = $request->status;
+        $trx_id = $request->trx_id;
+        $payment_at = $request->payment_at;
+        $invoice = $request->invoice_number;
+
+        if($status=='success'){
+            $query = orderservice::where('order_id','like',$invoice)->update([
+                'status' => 'BOOKING RESERVED',
+                'payed_at' => $payment_at,
+                'payment_id' => $trx_id,
+                'updated_at' => Carbon::now()
+            ]);
+
+            if($query==1){
+                return response()->JSON([
+                    'status' => 'success',
+                ]);
+            } else{
+                return response()->JSON([
+                    'status' => 'error',
+                    'msg' => ''
+                ]);
+            }
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => ''
+            ]);
+        }
+        
+    }
         
 }
