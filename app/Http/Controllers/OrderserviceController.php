@@ -413,8 +413,8 @@ class OrderserviceController extends Controller
                     'Accept' => 'application/json'
                 ])->post($url, $data);
         
-                //return $response->json();
-                return $data;
+                return $response->json();
+                //return $data;
             }
         }else{
             return $result;
