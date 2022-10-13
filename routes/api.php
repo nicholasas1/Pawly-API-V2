@@ -180,3 +180,6 @@ Route::get('order/get-list', [OrderserviceController::class,'orderListToken']);
 Route::get('order/get-detail', [OrderserviceController::class,'getDetail']);
 
 Route::get('cms/statistic', [statisticcontroller::class,'statistic']);
+
+Route::post('order/pay', [OrderserviceController::class,'create_payment']);
+
