@@ -15,6 +15,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\schedulersystemcontroller;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SplashscreenMobileController;
+use App\Http\Controllers\statisticcontroller;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserpetsController;
 use App\Http\Controllers\WalletController;
@@ -178,4 +179,4 @@ Route::get('order/get-list', [OrderserviceController::class,'orderListToken']);
 
 Route::get('order/get-detail', [OrderserviceController::class,'getDetail']);
 
-Route::get('ahah', [schedulersystemcontroller::class,'orderList']);
+Route::get('cms/statistic', [statisticcontroller::class,'statisti']);
