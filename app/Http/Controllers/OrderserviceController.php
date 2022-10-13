@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\orderservice;
 use App\Models\couponusages;
+use App\Models\couponservice;
 use Illuminate\Http\Request;
 use App\Http\Controllers\CouponserviceController;
 use ReallySimpleJWT\Token;
@@ -179,11 +180,16 @@ class OrderserviceController extends Controller
         } else{
             $page = ($request->page - 1) * $limit;
         }
-       
+        
 
         $data = orderservice::where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%');;
         $result=[];
         foreach($data->limit($limit)->offset($page)->get() as $arr){
+            if($data->value('coupon_name')==NULL){
+                $payment_allowed = 'a:2:{i:0;s:4:"dana";i:1;s:3:"ovo";}';
+            } else{
+                $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
+            }
             $method = array(
                 'id' => $arr['id'],
                 'order_id'=>$arr['order_id'],
@@ -195,6 +201,7 @@ class OrderserviceController extends Controller
                 'diskon'=>$arr['diskon'],
                 'coupon_name'=>$arr['coupon_name'],
                 'subtotal'=>$arr['subtotal'],
+                'allowed_payment'=>$payment_allowed,
                 'payment_method'=>$arr['payment_method'],
                 'payment_id'=>$arr['payment_id'],
                 'booking_date'=>$arr['booking_date'],
@@ -241,7 +248,13 @@ class OrderserviceController extends Controller
         if($result['status'] == 200){
             $data = orderservice::where('users_ids','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%');
             $result=[];
+            
             foreach($data->limit($limit)->offset($page)->get() as $arr){
+                if($arr['coupon_name']==NULL){
+                    $payment_allowed = 'a:2:{i:0;s:4:"dana";i:1;s:3:"ovo";}';
+                } else{
+                    $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
+                }
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
@@ -253,6 +266,7 @@ class OrderserviceController extends Controller
                     'diskon'=>$arr['diskon'],
                     'coupon_name'=>$arr['coupon_name'],
                     'subtotal'=>$arr['subtotal'],
+                    'allowed_payment'=>$payment_allowed,
                     'payment_method'=>$arr['payment_method'],
                     'payment_id'=>$arr['payment_id'],
                     'booking_date'=>$arr['booking_date'],
@@ -282,6 +296,7 @@ class OrderserviceController extends Controller
         $orderId = $request->id;
         
         $data = orderservice::where('order_id','like',$orderId);
+        
         if($data->value('type') == 'doctor'){
             $detail = doctor::where('id','like',$data->value('service_id'));
             $res = [
@@ -292,6 +307,11 @@ class OrderserviceController extends Controller
             ];
         }
 
+        if($data->value('coupon_name')==NULL){
+            $payment_allowed = 'a:2:{i:0;s:4:"dana";i:1;s:3:"ovo";}';
+        } else{
+            $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
+        }
 
         $arr = [
             'id' => $data->value('id'),
@@ -305,6 +325,7 @@ class OrderserviceController extends Controller
             'coupon_name'=>$data->value('coupon_name'),
             'subtotal'=>$data->value('subtotal'),
             'payment_id'=>$data->value('payment_id'),
+            'allowed_payment'=>$payment_allowed,
             'payment_method'=>$data->value('payment_method'),
             'booking_date'=>$data->value('booking_date'),
             'payed_at'=>$data->value('payed_at'),
