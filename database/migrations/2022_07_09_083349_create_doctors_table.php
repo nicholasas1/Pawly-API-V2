@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('users_ids');
             $table->char("doctor_name",100);
             $table->longText("description")->nullable();
+            $table->longText('address')->nullable();
             $table->longText("Biography")->nullable();
             $table->longText("Education_experience")->nullable();
             $table->char("profile_picture",250)->nullable();

@@ -48,6 +48,7 @@ class DoctorController extends Controller
             'doctor_name' => $request->name,
             'description' => $request->description,
             'Biography' => $request->biography,
+            'address' => $request->address,
             'Education_experience' => $request->educational_experience,
             'profile_picture' => $picture,
             'graduated_since' => $request->graduatedsince,
@@ -104,8 +105,8 @@ class DoctorController extends Controller
                 if($favourited->count()>0){
                     $isfav = '1';
                 }
+            }
         }
-    }
         
         $status = 'error';
         $ratings = ratings::where('doctors_ids',$query->value('doctors.id'));
@@ -124,6 +125,7 @@ class DoctorController extends Controller
                 'description' => $query->value('description'),
                 'profile_picture' => $query->value('profile_picture'),
                 'Biography' => $query->value('Biography'),
+                'address' => $query->value('address'),
                 'Education_experience' => $query->value('Education_experience'),
                 'worked_since' => $query->value('worked_since'),
                 'graduated_from' => $query->value('graduated_from'),
@@ -146,7 +148,7 @@ class DoctorController extends Controller
                 'total_review' => $ratings->count(),
                 'review' => ratings::leftJoin('users','ratings.users_id','=','users.id')->where('doctors_ids',$query->value('doctors.id'))->select('ratings.id','doctors_ids','username','profile_picture','reviews','ratings','timereviewed')->limit($limit)->offset($page)->get(),
                 'working_at' => clinic_doctor::where('doctor_id',$query->value('doctors.id'))->leftJoin('clinics','clinics.id','=','clinic_id')->get(),
-                'speciality' => doctor_speciality::where('doctor_id',$query->value('doctors.id'))->get(),
+                'speciality' => doctor_speciality::where('doctor_id',$query->value('doctors.id'))->get()
             ] 
         ]);
         
@@ -172,6 +174,7 @@ class DoctorController extends Controller
             'doctor_name' => $request->name,
             'description' => $request->description,
             'Biography' => $request->biography,
+            'address' => $request->address,
             'Education_experience' => $request->educational_experience,
             'profile_picture' => $picture,
             'graduated_since' => $request->graduatedsince,

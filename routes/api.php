@@ -1,18 +1,25 @@
 <?php
 
 use App\Http\Controllers\ClinicController;
+use App\Http\Controllers\CouponserviceController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\FavController;
+use App\Http\Controllers\FirebaseTokenController;
 use App\Http\Controllers\JWTValidator;
 use App\Http\Controllers\MobileBannerController;
+use App\Http\Controllers\OrderserviceController;
 use App\Http\Controllers\otpController;
+use App\Http\Controllers\PaymentmethController;
 use App\Http\Controllers\RatingsController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\schedulersystemcontroller;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SplashscreenMobileController;
+use App\Http\Controllers\statisticcontroller;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserpetsController;
 use App\Http\Controllers\WalletController;
+use App\Models\couponservice;
 use App\Models\fav;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -145,3 +152,36 @@ Route::post('otp/create', [otpController::class, 'makeOTP']);
 Route::post('otp/validate', [otpController::class, 'validateOTP']);
 
 Route::post('otp/resend', [otpController::class, 'resend']);
+
+Route::post('payment/methods', [PaymentmethController::class,'payment_method']);
+
+Route::post('coupons/check', [CouponserviceController::class,'coupon_service']);
+
+Route::post('coupons/create', [CouponserviceController::class,'create_coupon']);
+
+Route::delete('coupons/delete', [CouponserviceController::class,'delete_coupon']);
+
+Route::post('coupons/update', [CouponserviceController::class,'update_coupon']);
+
+Route::post('order/service', [OrderserviceController::class,'order_service']);
+
+Route::get('coupons/get-list', [CouponserviceController::class,'getlist']);
+
+Route::get('coupons/get-detail', [CouponserviceController::class,'getDetail']);
+
+Route::get('user/get-list-secret', [FirebaseTokenController::class,'userSecretList']);
+
+Route::get('user/delete-secret', [FirebaseTokenController::class,'delete_user_secret']);
+
+Route::get('cms/get-list', [OrderserviceController::class,'orderList']);
+
+Route::get('order/get-list', [OrderserviceController::class,'orderListToken']);
+
+Route::get('order/get-detail', [OrderserviceController::class,'getDetail']);
+
+Route::get('cms/statistic', [statisticcontroller::class,'statistic']);
+
+Route::post('order/pay', [OrderserviceController::class,'create_payment']);
+
+Route::post('order/changestatus', [OrderserviceController::class,'changestatus']);
+
