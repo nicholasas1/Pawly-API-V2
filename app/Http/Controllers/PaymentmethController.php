@@ -128,6 +128,7 @@ class PaymentmethController extends Controller
                 array_push($payment_allowed, $method);
                 }
 
+                
                 return response()->JSON([
                     'status' => 'success',
                     'results' => $payment_allowed
