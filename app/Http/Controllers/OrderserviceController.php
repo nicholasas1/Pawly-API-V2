@@ -382,10 +382,10 @@ class OrderserviceController extends Controller
                 $data = array(
                         'invoice_number' => $orderId,
                         'amount' => $data->value('subtotal'),
-                        'payment_method_id' => '1KwjmN2BWrl',
+                        'payment_method_id' => $payment_method_id,
                         'type' => 'payment',
                         'callback_url' => 'https://app.moota.co/debug/webhook',
-                        'expired_date' => '2022-10-15 15:10:02',
+                        'expired_date' => date('Y-m-d H:i:s', $data->value('payed_untill')),
                         'description' => 'pawly-order',
                         'increase_total_from_unique_code' => 1,
                         'customer' => [
