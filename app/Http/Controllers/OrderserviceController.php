@@ -450,7 +450,7 @@ class OrderserviceController extends Controller
                         'payment_url' => $saveddata['data']['payment_link'],
                         'success_url' => ''
                     ]);
-                } else if($saveddata['message']!=NULL){
+                } else {
                     return response()->JSON([
                         'status' => 'error',
                         'msg' => $saveddata,
