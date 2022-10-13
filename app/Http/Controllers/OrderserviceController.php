@@ -365,7 +365,7 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         $wallet = wallet::where('users_ids', $result['body']['user_id']);
         $ammount = $wallet->sum('debit') - $wallet->sum('credit');
-        $total_transaction = orderservice::where('order_id','like',$request->order_id)->value('subtotal');
+        $total_transaction = orderservice::where('order_id','like', $orderId)->value('subtotal');
         
         $data = orderservice::where('order_id','like',$orderId);
         $user = User::where('id','like', $result['body']['user_id']);
