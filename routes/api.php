@@ -179,4 +179,4 @@ Route::get('order/get-list', [OrderserviceController::class,'orderListToken']);
 
 Route::get('order/get-detail', [OrderserviceController::class,'getDetail']);
 
-Route::get('cms/statistic', [statisticcontroller::class,'statisti']);
+Route::get('cms/statistic', [statisticcontroller::class,'statistic']);
