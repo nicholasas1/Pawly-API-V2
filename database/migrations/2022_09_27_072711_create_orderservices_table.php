@@ -25,6 +25,7 @@ return new class extends Migration
             $table->char('coupon_name',25)->nullable();
             $table->float('subtotal',20,2);
             $table->char('payment_method',50)->nullable();
+            $table->char('payment_url',100)->nullable();
             $table->char('payment_id',20)->nullable();
             $table->char('booking_date',50)->nullable();
             $table->char('payed_at')->nullable();
