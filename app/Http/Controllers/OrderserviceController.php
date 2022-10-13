@@ -439,7 +439,7 @@ class OrderserviceController extends Controller
                     'Accept' => 'application/json'
                 ])->post($url, $data);
                 $saveddata = $response->json();
-                if($saveddata['success']==1){
+                if(array_key_exists("success", $saveddata)){
                     $updatelink = orderservice::where('order_id',$orderId)->update([
                         'payment_method' => $payment_method,
                         'payment_url' => $saveddata['data']['payment_link'],
