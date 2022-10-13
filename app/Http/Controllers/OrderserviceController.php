@@ -439,18 +439,18 @@ class OrderserviceController extends Controller
                     'Accept' => 'application/json'
                 ])->post($url, $data);
                 $saveddata = $response->json();
-                if($saveddata['success']=='true'){
+                if($saveddata['success']==1){
                     $updatelink = orderservice::where('order_id',$orderId)->update([
                         'payment_method' => $payment_method,
-                        'payment_url' => $saveddata['payment_link'],
+                        'payment_url' => $saveddata['data']['payment_link'],
                         'updated_at' => Carbon::now()
                     ]);
                     return response()->JSON([
                         'status' => 'success',
-                        'payment_url' => $saveddata['payment_link'],
+                        'payment_url' => $saveddata['data']['payment_link'],
                         'success_url' => ''
                     ]);
-                } else{
+                } else if($saveddata['message']!=NULL){
                     return response()->JSON([
                         'status' => 'error',
                         'msg' => $saveddata,
