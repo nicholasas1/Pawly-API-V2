@@ -9,7 +9,7 @@ class FirebaseTokenController extends Controller
 {
     public function userFirebaseToken($userId, $device ){      
         $result=[];
-        $data = user_secret::where('user_id','like',$userId)->where('user_device','like','%'.$device.'%');
+        $data = user_secret::where('user_id','like',$userId)->where('user_device','like','%'.$device.'%')->groupBy('firebase_token');
         foreach($data->get() as $arr){
             $method = array(
                 'id' => $arr['id'],
