@@ -308,9 +308,9 @@ class OrderserviceController extends Controller
         }
 
         if($data->value('coupon_name')==NULL){
-            $payment_allowed = 'a:2:{i:0;s:4:"dana";i:1;s:3:"ovo";}';
+            $payment_allowed = '';
         } else{
-            $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
+            $payment_allowed =  couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
         }
 
         $arr = [
