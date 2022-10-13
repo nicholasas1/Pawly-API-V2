@@ -363,19 +363,44 @@ class OrderserviceController extends Controller
         $payment_method_id = $request->payment_method_id;
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
+        $wallet = wallet::where('users_ids', $result['body']['user_id']);
+        $ammount = $wallet->sum('debit') - $wallet->sum('credit');
+        $total_transaction = orderservice::where('order_id','like',$request->order_id)->value('subtotal');
         
         $data = orderservice::where('order_id','like',$orderId);
         $user = User::where('id','like', $result['body']['user_id']);
         if($result['status'] == 200){
             if($payment_method == 'Wallet'){
-                $current_date_time = date('Y-m-d H:i:s');
-                $query = wallet::insert([
+                if($total_transaction > $ammount){
+                    $current_date_time = date('Y-m-d H:i:s');
+                $query = wallet::insertGetId([
                     'users_ids' => $result['body']['user_id'], 
                     'debit' => '',
                     'credit' => $data->value('subtotal'),
                     'created_at' => $current_date_time
                 ]);
-                var_dump(date('Y-m-d H:i:s', $data->value('payed_untill'))); 
+                $wallet = wallet::where('id',$query)->get();
+                if($wallet->count()==1){
+                    $statuschange = orderservice::where('order_id',$orderId)->update([
+                        'status' => 'BOOKING RESERVE',
+                        'payment_method' => 'Wallet',
+                        'payment_id' => $query,
+                        'payed_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ]);
+                }
+                return response()->JSON([
+                    'status' => 'success',
+                    'payment_url' => '',
+                    'success_url' => ''
+                ]);
+                } else{
+                    return response()->JSON([
+                        'status' => 'error',
+                        'msg' => 'Sorry, your balance is less than the total transaction'
+                    ]);
+                }
+                
             }else{
                 $url = 'https://private-anon-8fe5e9742d-mootaapiv2.apiary-proxy.com/api/v2/contract';
                 //$timestamp = Carbon::now()->timestamp;
