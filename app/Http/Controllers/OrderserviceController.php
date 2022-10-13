@@ -402,7 +402,7 @@ class OrderserviceController extends Controller
                 }
                 
             }else{
-                $url = 'https://private-anon-8fe5e9742d-mootaapiv2.apiary-proxy.com/api/v2/contract';
+                $url = '';
                 //$timestamp = Carbon::now()->timestamp;
                 $data = array(
                         'invoice_number' => $orderId,
