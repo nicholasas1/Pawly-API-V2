@@ -422,7 +422,7 @@ class OrderserviceController extends Controller
                             [
                                 'name'=>$data->value('type'),
                                 'qty'=>1,
-                                'price'=>$data->value('subtotal'),
+                                'price'=>intval($data->value('subtotal')),
                                 'sku'=>$data->value('service_id'), 
                                 'image_url'=>''
                             ]
