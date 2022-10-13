@@ -385,7 +385,7 @@ class OrderserviceController extends Controller
                         'type' => 'payment',
                         'callback_url' => 'https://app.moota.co/debug/webhook',
                         'expired_date' => '2022-10-15 15:10:02',
-                        'description' => $data->value('subtotal'),
+                        'description' => 'pawly-order',
                         'increase_total_from_unique_code' => 1,
                         'customer' => [
                             'name'=> $user->value('nickname'),
