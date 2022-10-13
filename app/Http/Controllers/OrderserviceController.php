@@ -50,20 +50,21 @@ class OrderserviceController extends Controller
             }
             $userid = $result['body']['user_id'];
             $pool = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            if($service == 'vidcall' || 'chat'){
-                if($service=='chat'){
-                    $ordercode = 'CHOL';
-                } else{
-                    $ordercode = 'VCOL';
-                }
+
+            if($service=='chat'){
+                $ordercode = 'CHOL';
                 $paid_until = time()+ 3600;
                 $comission = 5000;
-            }else if($service == 'onsite'){
+            } else if($service=='vidcall'){
+                $ordercode = 'VCOL';
+                $paid_until = time()+ 3600;
+                $comission = 5000;
+            } else if($service=='onsite'){
                 $ordercode = 'OSM';
                 $dateformat = date($booking_time);
-                $paid_until = strtotime($dateformat)- 3600*2;
+                $paid_until = strtotime($dateformat) - 3600*2;
                 $comission = $price * 12/100;
-            }else{
+            } else{
                 $paid_until = time()+ 3600*24;
                 $comission = $price * 12/100;
             }
@@ -374,7 +375,7 @@ class OrderserviceController extends Controller
                     'credit' => $data->value('subtotal'),
                     'created_at' => $current_date_time
                 ]);
-                var_dump(date('Y-m-d H:m:s', $data->value('payed_untill'))); 
+                var_dump(date('Y-m-d H:i:s', $data->value('payed_untill'))); 
             }else{
                 $url = 'https://private-anon-8fe5e9742d-mootaapiv2.apiary-proxy.com/api/v2/contract';
                 //$timestamp = Carbon::now()->timestamp;
