@@ -402,7 +402,7 @@ class OrderserviceController extends Controller
                 }
                 
             }else{
-                $url = '';
+                $url = env('MOOTA_URL');
                 //$timestamp = Carbon::now()->timestamp;
                 $data = array(
                         'invoice_number' => $orderId,
