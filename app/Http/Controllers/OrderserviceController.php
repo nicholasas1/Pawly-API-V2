@@ -90,7 +90,7 @@ class OrderserviceController extends Controller
                     'booking_date' => $booking_time
                 ]);
                 $insertorderid = orderservice::where('id',$query)->update([
-                    'order_id' => $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query
+                    'order_id' => $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 3).$query
                 ]);
 
                 if($insertorderid==1){
@@ -383,7 +383,7 @@ class OrderserviceController extends Controller
                 $wallet = wallet::where('id',$query)->get();
                 if($wallet->count()==1){
                     $statuschange = orderservice::where('order_id',$orderId)->update([
-                        'status' => 'BOOKING RESERVE',
+                        'status' => 'BOOKING RESERVED',
                         'payment_method' => 'Wallet',
                         'payment_id' => $query,
                         'payed_at' => Carbon::now(),
