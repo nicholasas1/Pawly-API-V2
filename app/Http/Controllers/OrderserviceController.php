@@ -208,6 +208,7 @@ class OrderserviceController extends Controller
                 'subtotal'=>$arr['subtotal'],
                 'allowed_payment'=>$payment_allowed,
                 'payment_method'=>$arr['payment_method'],
+                'payment_url'=>$arr['payment_url'],
                 'payment_id'=>$arr['payment_id'],
                 'booking_date'=>$arr['booking_date'],
                 'payed_at'=>$arr['payed_at'],
