@@ -422,7 +422,7 @@ class OrderserviceController extends Controller
                             [
                                 'name'=>$data->value('type'),
                                 'qty'=>1,
-                                'price'=>$data->value('subtotal'),
+                                'price'=>intval($data->value('subtotal')),
                                 'sku'=>$data->value('service_id'), 
                                 'image_url'=>''
                             ]
@@ -450,7 +450,7 @@ class OrderserviceController extends Controller
                         'payment_url' => $saveddata['data']['payment_link'],
                         'success_url' => ''
                     ]);
-                } else if($saveddata['message']!=NULL){
+                } else {
                     return response()->JSON([
                         'status' => 'error',
                         'msg' => $saveddata,
