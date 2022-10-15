@@ -63,35 +63,63 @@ class PaymentmethController extends Controller
         $payment_allowed = new stdClass;
         if($result['status'] == 200){
             if($request->payment==NULL){
-                $allowed_payment = unserialize(paymentmeth::where('service',$request->service)->value('allowed_payment'));
+                $allowed_payment = paymentmeth::where('service',$request->service)->value('allowed_payment');
                 $payment_allowed = array();
+                if($allowed_payment == NULL){
                     foreach($arr as $arr){ //statis
-                        foreach($allowed_payment as $allow){ // dari db
-                  
-    
-                        if($arr['payment_method'] == $allow){
-                           
-                            $method = array(
-                                'payment_method' => $arr['payment_method'],
-                                'total_ammount'=>$arr['total_ammount'],
-                                'image_url'=>$arr['image_url'],
-                                'description'=>$arr['description'],
-                                'active'=>true
-                            );
-                            break;
+                        if($arr['payment_method'] == "Wallet" && $total_transaction > $ammount){
+                            $active = false;
+                            $desc = "Sorry, your balance is less than the total transaction";
                         }else{
-                          
-                            $method = array(
-                                'payment_method' => $arr['payment_method'],
-                                'total_ammount'=>$arr['total_ammount'],
-                                'image_url'=>$arr['image_url'],
-                                'description'=>$arr['description'],
-                                'active'=>false
-                            );
+                            $active = true;
+                            $desc = $arr['description'];
                         }
+                        $method = array(
+                            'payment_method' => $arr['payment_method'],
+                            'total_ammount'=>$arr['total_ammount'],
+                            'image_url'=>$arr['image_url'],
+                            'payment_id'=>$arr['payment_id'],
+                            'description'=> $desc,
+                            'active'=>$active
+                        );
+                        array_push($payment_allowed, $method);
                     }
-                    array_push($payment_allowed, $method);
+                }else{
+                    $payment_allowed = array();
+                    foreach($arr as $arr){ //statis
+                        foreach(unserialize($allowed_payment) as $allow){ // dari db      
+                            if($arr['payment_method'] == $allow){
+                                if($arr['payment_method'] == "Wallet" && $total_transaction > $ammount){
+                                    $active = false;
+                                    $desc = "Sorry, your balance is less than the total transaction";
+                                }else{
+                                    $active = true;
+                                    $desc = $arr['description'];
+                                }
+                                $method = array(
+                                    'payment_method' => $arr['payment_method'],
+                                    'total_ammount'=>$arr['total_ammount'],
+                                    'image_url'=>$arr['image_url'],
+                                    'payment_id'=>$arr['payment_id'],
+                                    'description'=> $desc,
+                                    'active'=>$active
+                                );
+                                break;
+                            }else{
+                                $method = array(
+                                    'payment_method' => $arr['payment_method'],
+                                    'total_ammount'=>$arr['total_ammount'],
+                                    'image_url'=>$arr['image_url'],
+                                    'description'=>$arr['description'],
+                                    'active'=>false
+                                );
+                            }
+                        }
+                        array_push($payment_allowed, $method);
+                    }
                 }
+               
+                
                 return response()->JSON([
                     'status' => 'success',
                     'results' => $payment_allowed
