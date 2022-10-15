@@ -392,7 +392,7 @@ class OrderserviceController extends Controller
                 }
                 return response()->JSON([
                     'status' => 'success',
-                    'payment_url' => '',
+                    'payment_url' => 'https://web.pawly.my.id/',
                     'success_url' => ''
                 ]);
                 } else{
