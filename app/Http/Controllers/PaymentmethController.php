@@ -29,9 +29,9 @@ class PaymentmethController extends Controller
         $arr = array(
             array('payment_method' => 'Wallet',
             'total_ammount'=>$ammount,
-            'image_url'=>'http://',
-            'payment_id'=>'1KwjmN2BWrl',
-            'description'=>'make your life more simple'),
+            'image_url'=>'https://www.pngrepo.com/png/287670/512/wallet.png',
+            'payment_id'=>'',
+            'description'=>'Make your life more simple'),
 
             array('payment_method' => 'BCA Transfer',
             'total_ammount'=>null,
