@@ -525,7 +525,7 @@ class DoctorController extends Controller
                 ->orderBy($order,$order_val);
         
         $count = DB::table('doctors')->leftJoin('doctor_specialities','doctors.id','=','doctor_specialities.doctor_id')->leftJoin('ratings','doctors.id','=','ratings.doctors_ids')->select('doctors.id', 'doctor_name','description' , 'profile_picture' , 'graduated_since' , 'worked_since' , 'lat', 'doctors.long','vidcall_price' , 'chat_price', 'offline_price', 'isonline' , 'lastonline', DB::raw('AVG(ratings.ratings) as rating'), DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))->where('speciality','LIKE','%'.$speciality.'%')->groupBy('doctors.id')->orderBy('isonline','DESC')->orderBy($order,$order_val)->get();
-
+        $arr = array();
         foreach($query->limit($limit)->offset($page)->get() as $queries){
             $year = Carbon::now()->year;
             $totalratings = ratings::where('doctors_ids',$queries->id)->count();
@@ -550,9 +550,15 @@ class DoctorController extends Controller
                 'total_review' => $totalratings,
             ];
         }
+        if($arr == NULL){
+            $msg = "Data not found";
+        }else{
+            $msg = "";
+        }
 
         return response()->JSON([
             'status' => 'success',
+            'msg' => $msg,
             'total_data' => count($count),
             'total_page' => ceil(count($count) / $limit),
             'total_result' => count($arr),
