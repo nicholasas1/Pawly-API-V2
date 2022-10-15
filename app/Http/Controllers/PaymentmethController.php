@@ -42,19 +42,19 @@ class PaymentmethController extends Controller
 
             array('payment_method' => 'Dana',
             'total_ammount'=>null,
-            'image_url'=>'http://',
+            'image_url'=>'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Logo_dana_blue.svg/2560px-Logo_dana_blue.svg.png',
             'payment_id'=>'',
             'description'=>'make your life more simple'),
 
             array('payment_method' => 'Ovo',
             'total_ammount'=>null,
-            'image_url'=>'http://',
+            'image_url'=>'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Logo_ovo_purple.svg/2560px-Logo_ovo_purple.svg.png',
             'payment_id'=>'',
             'description'=>'make your life more simple'),
            
             array('payment_method' => 'GoPay',
             'total_ammount'=>null,
-            'image_url'=>'http://',
+            'image_url'=>'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Gopay_logo.svg/2560px-Gopay_logo.svg.png',
             'payment_id'=>'',
             'description'=>'make your life more simple'),
 
@@ -110,7 +110,7 @@ class PaymentmethController extends Controller
                                     'payment_method' => $arr['payment_method'],
                                     'total_ammount'=>$arr['total_ammount'],
                                     'image_url'=>$arr['image_url'],
-                                    'description'=>$arr['description'],
+                                    'description'=>"This payment cannot be used for this transaction",
                                     'active'=>false
                                 );
                             }
