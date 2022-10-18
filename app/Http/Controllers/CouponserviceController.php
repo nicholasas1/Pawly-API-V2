@@ -75,6 +75,7 @@ class CouponserviceController extends Controller
                             'status' => 'success',
                             'msg' => 'coupon_avaiable',
                             'value' => $totaldiscount,
+                            'validate_until' => $coupon_end_timestamp-$date,
                             'allowed_payment' => $coupon->value('allowed_payment')
                         );
                     }
@@ -117,6 +118,7 @@ class CouponserviceController extends Controller
                                 'status' => 'success',
                                 'msg' => 'coupon_avaiable',
                                 'value' => $totaldiscount,
+                                'validate_until' => $coupon_end_timestamp-$date,
                                 'allowed_payment' => $coupon->value('allowed_payment')
                             );
                         }
@@ -157,6 +159,7 @@ class CouponserviceController extends Controller
                                 'status' => 'success',
                                 'msg' => 'coupon_avaiable',
                                 'value' => $totaldiscount,
+                                'validate_until' => $coupon_end_timestamp-$date,
                                 'allowed_payment' => $coupon->value('allowed_payment')
                             );
                         }
