@@ -41,6 +41,7 @@ class CouponserviceController extends Controller
             $totalusage = $usages = couponusages::where('coupon_name',$coupon_name);
             if($coupon->value('coupon_rule')=='once_per_day'){
                 $date = Carbon::today()->toDateString();
+                $timestamp = Carbon::parse($date)->timestamp;
                 $coupon_end_timestamp = Carbon::parse($coupon->value('end_date_time'))->timestamp;
                 $coupon_start_timestamp = Carbon::parse($coupon->value('start_date_time'))->timestamp;
                 if($date>$coupon_end_timestamp||$date<$coupon_start_timestamp){
@@ -75,7 +76,6 @@ class CouponserviceController extends Controller
                             'status' => 'success',
                             'msg' => 'coupon_avaiable',
                             'value' => $totaldiscount,
-                            'validate_until' => $coupon_end_timestamp-$date,
                             'allowed_payment' => $coupon->value('allowed_payment')
                         );
                     }
@@ -84,9 +84,10 @@ class CouponserviceController extends Controller
                 
             } else if($coupon->value('coupon_rule')=='once_per_account'){
                 $date = Carbon::today()->toDateString();
+                $timestamp = Carbon::parse($date)->timestamp;
                 $coupon_end_timestamp = Carbon::parse($coupon->value('end_date_time'))->timestamp;
                 $coupon_start_timestamp = Carbon::parse($coupon->value('start_date_time'))->timestamp;
-                if($date>$coupon_end_timestamp||$date<$coupon_start_timestamp){
+                if($timestamp>$coupon_end_timestamp||$timestamp<$coupon_start_timestamp){
                     return response()->JSON([
                         'status' => 'error',
                         'msg' => 'exceed the following day',
@@ -118,7 +119,6 @@ class CouponserviceController extends Controller
                                 'status' => 'success',
                                 'msg' => 'coupon_avaiable',
                                 'value' => $totaldiscount,
-                                'validate_until' => $coupon_end_timestamp-$date,
                                 'allowed_payment' => $coupon->value('allowed_payment')
                             );
                         }
@@ -127,6 +127,7 @@ class CouponserviceController extends Controller
                 
             } else if($coupon->value('coupon_rule')=='anytime'){
                 $date = $date = Carbon::today()->toDateString();
+                $timestamp = Carbon::parse($date)->timestamp;
                 $coupon_end_timestamp = Carbon::parse($coupon->value('end_date_time'))->timestamp;
                 $coupon_start_timestamp = Carbon::parse($coupon->value('start_date_time'))->timestamp;
                 if($date>$coupon_end_timestamp||$date<$coupon_start_timestamp){
@@ -159,7 +160,6 @@ class CouponserviceController extends Controller
                                 'status' => 'success',
                                 'msg' => 'coupon_avaiable',
                                 'value' => $totaldiscount,
-                                'validate_until' => $coupon_end_timestamp-$date,
                                 'allowed_payment' => $coupon->value('allowed_payment')
                             );
                         }
