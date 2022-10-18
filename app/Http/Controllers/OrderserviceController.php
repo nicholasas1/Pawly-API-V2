@@ -429,7 +429,7 @@ class OrderserviceController extends Controller
                             ]
                         ],
                         'with_unique_code' => 1,
-                        'start_unique_code' => 10,
+                        'start_unique_code' => 500,
                         'end_unique_code' =>999,
                         'unique_code' => 0                       
                  );

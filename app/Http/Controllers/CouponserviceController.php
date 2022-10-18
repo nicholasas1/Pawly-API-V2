@@ -5,10 +5,28 @@ namespace App\Http\Controllers;
 use App\Models\couponservice;
 use Illuminate\Http\Request;
 use App\Models\couponusages;
+use App\Http\Controllers\JWTValidator;
 use Carbon\Carbon;
 
 class CouponserviceController extends Controller
 {
+    protected $JWTValidator;
+    public function __construct(JWTValidator $jWTValidator)
+    {
+        $this->JWTValidator = $jWTValidator;
+    }
+
+    public function validate_coupon(request $request){
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+        $response =  $this->coupon_service($request->coupon_name, $result['body']['user_id'],$request->service,$request->price);
+
+        if($result['status'] == 200){
+            return $response;
+        }else{
+            return $result;
+        }
+    }
 
     public function coupon_service($coupon_name,$user_id,$service,$price){
         $coupon = couponservice::where('coupon_name',$coupon_name)->where('coupon_service',$service);
