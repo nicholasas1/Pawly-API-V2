@@ -257,7 +257,7 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
 
         if($result['status'] == 200){
-            $data = orderservice::where('users_ids','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%');
+            $data = orderservice::where('users_ids','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%') ->orderBy('created_at','DESC');
             $result=[];
             
             foreach($data->limit($limit)->offset($page)->get() as $arr){
