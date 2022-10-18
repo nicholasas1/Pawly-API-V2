@@ -19,15 +19,21 @@ use App\Models\wallet;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\VarDumper\VarDumper;
 use App\Models\User;
+use App\Http\Controllers\FirebaseTokenController;
+use App\Http\Controllers\MobileBannerController;
+
+
 
 class OrderserviceController extends Controller
 {
     protected $coupons;
     protected $JWTValidator;
-    public function __construct(CouponserviceController $coupons, JWTValidator $jWTValidator)
+    public function __construct(CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
     {
         $this->coupons = $coupons;
         $this->JWTValidator = $jWTValidator;
+        $this->fb_token = $fb_token;
+        $this->mobile_banner = $mobile_banner;
     }
 
     public function order_service(request $request){
@@ -484,6 +490,12 @@ class OrderserviceController extends Controller
             ]);
 
             if($query==1){
+                $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$invoice)->value('users_ids'),'Consumer App');
+                foreach( $token_fb as $token){
+                    if($token['firebase_token'] != NULL){
+                        $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$invoice,'','',$token['firebase_token']);
+                    }
+                }
                 return response()->JSON([
                     'status' => 'success',
                 ]);
