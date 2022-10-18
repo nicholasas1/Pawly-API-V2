@@ -145,6 +145,8 @@ class CouponserviceController extends Controller
             'coupon_rule' => $request->coupon_rule,
             'coupon_value' => $request->coupon_value,
             'max_usage' => $request->max_usage,
+            'description' => $request->description,
+            'term_link' => $request->link,
             'start_date_time' =>  $request->start_date_time,
             'end_date_time' =>  $request->end_date_time
         ]);
@@ -194,6 +196,8 @@ class CouponserviceController extends Controller
                         'coupon_rule' => $request->coupon_rule,
                         'coupon_value' => $request->coupon_value,
                         'max_usage' => $request->max_usage,
+                        'description' => $request->description,
+                        'term_link' => $request->link,
                         'start_date_time' =>  $request->start_date_time,
                         'end_date_time' =>  $request->end_date_time
                     ]
@@ -255,6 +259,8 @@ class CouponserviceController extends Controller
             'coupon_rule' => $data->value('coupon_rule'),
             'coupon_value' => $data->value('coupon_value'),
             'max_usage' => $data->value('max_usage'),
+            'description' => $data->value('description'),
+            'term_link' => $data->value('term_link'),
             'start_date_time' => $data->value('start_date_time'),
             'end_date_time' => $data->value('end_date_time'),
         ]; 
