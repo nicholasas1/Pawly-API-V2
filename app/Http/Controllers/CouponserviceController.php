@@ -41,6 +41,15 @@ class CouponserviceController extends Controller
             $totalusage = $usages = couponusages::where('coupon_name',$coupon_name);
             if($coupon->value('coupon_rule')=='once_per_day'){
                 $date = Carbon::today()->toDateString();
+                $coupon_end_timestamp = Carbon::parse($coupon->value('end_date_time'))->timestamp;
+                $coupon_start_timestamp = Carbon::parse($coupon->value('start_date_time'))->timestamp;
+                if($date>$coupon_end_timestamp||$date<$coupon_start_timestamp){
+                    return response()->JSON([
+                        'status' => 'error',
+                        'msg' => 'exceed the following day',
+                        'value' => '0'
+                    ]);
+                } else{
                 $usages = couponusages::where('coupon_name',$coupon_name)->where('user_id',$user_id)->where('date',$date);
 
                 if($totalusage->count()>$coupon->value('max_usage')||$usages->count()>0){
@@ -70,65 +79,90 @@ class CouponserviceController extends Controller
                         );
                     }
                 }
+                }
+                
             } else if($coupon->value('coupon_rule')=='once_per_account'){
                 $date = Carbon::today()->toDateString();
-                $usages = couponusages::where('coupon_name',$coupon_name)->where('user_id',$user_id);
-
-                if($totalusage->count()>$coupon->value('max_usage')||$usages->count()>0){
-                    $response = array(
+                $coupon_end_timestamp = Carbon::parse($coupon->value('end_date_time'))->timestamp;
+                $coupon_start_timestamp = Carbon::parse($coupon->value('start_date_time'))->timestamp;
+                if($date>$coupon_end_timestamp||$date<$coupon_start_timestamp){
+                    return response()->JSON([
                         'status' => 'error',
-                        'msg' => 'max_usage_passed',
+                        'msg' => 'exceed the following day',
                         'value' => '0'
-                    );
-                } else {
-                    if($price<$coupon->value('min_price')||$price>$coupon->value('max_price')){
-                        $response = array(
-                            'status' => 'error',
-                            'msg' => 'price_invalid',
-                            'value' => '0'
-                        );
-                    } else{
-                        if($coupon->value('coupon_type')=='percent'){
-                            $totaldiscount = $price*$coupon->value('coupon_value')/100;
-                        } else{
-                            $totaldiscount = $coupon->value('coupon_value');
-                        }
-                        $response = array(
-                            'status' => 'success',
-                            'msg' => 'coupon_avaiable',
-                            'value' => $totaldiscount,
-                            'allowed_payment' => $coupon->value('allowed_payment')
-                        );
-                    }
-                }
-            } else if($coupon->value('coupon_rule')=='anytime'){
-                if($totalusage->count()>$coupon->value('max_usage')){
-                    $response = array(
-                        'status' => 'error',
-                        'msg' => 'max_usage_passed',
-                        'value' => '0'
-                    );
+                    ]);
                 } else{
-                    if($price<$coupon->value('min_price')||$price>$coupon->value('max_price')){
+                    $usages = couponusages::where('coupon_name',$coupon_name)->where('user_id',$user_id);
+
+                    if($totalusage->count()>$coupon->value('max_usage')||$usages->count()>0){
                         $response = array(
                             'status' => 'error',
-                            'msg' => 'price_invalid',
+                            'msg' => 'max_usage_passed',
+                            'value' => '0'
+                        );
+                    } else {
+                        if($price<$coupon->value('min_price')||$price>$coupon->value('max_price')){
+                            $response = array(
+                                'status' => 'error',
+                                'msg' => 'price_invalid',
+                                'value' => '0'
+                            );
+                        } else{
+                            if($coupon->value('coupon_type')=='percent'){
+                                $totaldiscount = $price*$coupon->value('coupon_value')/100;
+                            } else{
+                                $totaldiscount = $coupon->value('coupon_value');
+                            }
+                            $response = array(
+                                'status' => 'success',
+                                'msg' => 'coupon_avaiable',
+                                'value' => $totaldiscount,
+                                'allowed_payment' => $coupon->value('allowed_payment')
+                            );
+                        }
+                    }
+                }
+                
+            } else if($coupon->value('coupon_rule')=='anytime'){
+                $date = $date = Carbon::today()->toDateString();
+                $coupon_end_timestamp = Carbon::parse($coupon->value('end_date_time'))->timestamp;
+                $coupon_start_timestamp = Carbon::parse($coupon->value('start_date_time'))->timestamp;
+                if($date>$coupon_end_timestamp||$date<$coupon_start_timestamp){
+                    return response()->JSON([
+                        'status' => 'error',
+                        'msg' => 'exceed the following day',
+                        'value' => '0'
+                    ]);
+                } else{
+                    if($totalusage->count()>$coupon->value('max_usage')){
+                        $response = array(
+                            'status' => 'error',
+                            'msg' => 'max_usage_passed',
                             'value' => '0'
                         );
                     } else{
-                        if($coupon->value('coupon_type')=='percent'){
-                            $totaldiscount = $price*$coupon->value('coupon_value')/100;
+                        if($price<$coupon->value('min_price')||$price>$coupon->value('max_price')){
+                            $response = array(
+                                'status' => 'error',
+                                'msg' => 'price_invalid',
+                                'value' => '0'
+                            );
                         } else{
-                            $totaldiscount = $coupon->value('coupon_value');
+                            if($coupon->value('coupon_type')=='percent'){
+                                $totaldiscount = $price*$coupon->value('coupon_value')/100;
+                            } else{
+                                $totaldiscount = $coupon->value('coupon_value');
+                            }
+                            $response = array(
+                                'status' => 'success',
+                                'msg' => 'coupon_avaiable',
+                                'value' => $totaldiscount,
+                                'allowed_payment' => $coupon->value('allowed_payment')
+                            );
                         }
-                        $response = array(
-                            'status' => 'success',
-                            'msg' => 'coupon_avaiable',
-                            'value' => $totaldiscount,
-                            'allowed_payment' => $coupon->value('allowed_payment')
-                        );
                     }
                 }
+                
             }
         }
         return $response;
