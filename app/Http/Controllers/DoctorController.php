@@ -115,6 +115,17 @@ class DoctorController extends Controller
         } else{
             $avgratings = round($ratings->avg('ratings'),1);
         }
+        if($request->service == 'chat'){
+            $comision = 6000;
+            $comision_type = 'fixed';
+        }else if($request->service == 'vidcall'){
+            $comision = 6000;
+            $comision_type = 'percent';
+        }else if($request->service == 'onsite'){
+            $comision = 6000;
+            $comision_type = 'percent';
+        }
+
         $year = Carbon::now()->year;
         return response()->JSON([
             'status' => 'success',
@@ -148,7 +159,9 @@ class DoctorController extends Controller
                 'total_review' => $ratings->count(),
                 'review' => ratings::leftJoin('users','ratings.users_id','=','users.id')->where('doctors_ids',$query->value('doctors.id'))->select('ratings.id','doctors_ids','username','profile_picture','reviews','ratings','timereviewed')->limit($limit)->offset($page)->get(),
                 'working_at' => clinic_doctor::where('doctor_id',$query->value('doctors.id'))->leftJoin('clinics','clinics.id','=','clinic_id')->get(),
-                'speciality' => doctor_speciality::where('doctor_id',$query->value('doctors.id'))->get()
+                'speciality' => doctor_speciality::where('doctor_id',$query->value('doctors.id'))->get(),
+                'commision_type' => $comision,
+                'commision_ammount' => $comision_type
             ] 
         ]);
         

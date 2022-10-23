@@ -61,19 +61,15 @@ class OrderserviceController extends Controller
             if($service=='chat'){
                 $ordercode = 'CHOL';
                 $paid_until = time()+ 3600;
-                $comission = 5000;
             } else if($service=='vidcall'){
                 $ordercode = 'VCOL';
                 $paid_until = time()+ 3600;
-                $comission = 5000;
             } else if($service=='onsite'){
                 $ordercode = 'OSM';
                 $dateformat = date($booking_time);
                 $paid_until = strtotime($dateformat) - 3600*2;
-                $comission = $price * 12/100;
             } else{
                 $paid_until = time()+ 3600*24;
-                $comission = $price * 12/100;
             }
 
         
