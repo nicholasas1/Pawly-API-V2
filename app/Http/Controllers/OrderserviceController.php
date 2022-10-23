@@ -46,6 +46,7 @@ class OrderserviceController extends Controller
             $price = $request->price;
             $coupon_name = $request->coupon;
             $service_id = $request->servid;
+            $pet_id = $request->pet_id;
             $type = $request->type;
             $partner_user_id = $request->partner_user_id;
             $booking_time = $request->booking_time;
@@ -84,6 +85,7 @@ class OrderserviceController extends Controller
                     'service' => $service,
                     'service_id' => $service_id,
                     'type' => $type,
+                    'pet_id' => $pet_id,
                     'users_ids' => $userid,
                     'status' => 'PENDING_PAYMENT',
                     'total' => $total_price,
@@ -122,6 +124,7 @@ class OrderserviceController extends Controller
                     'service' => $service,
                     'service_id' => $service_id,
                     'type' => $type,
+                    'pet_id' => $pet_id,
                     'status' => 'PENDING_PAYMENT',
                     'users_ids' => $userid,
                     'coupon_name' => $coupon_name,
@@ -206,6 +209,7 @@ class OrderserviceController extends Controller
                 'order_id'=>$arr['order_id'],
                 'service'=>$arr['service'],
                 'service_id'=>$arr['service_id'],
+                'pet_id'=>$arr['pet_id'],
                 'type'=>$arr['type'],
                 'status'=>$arr['status'],
                 'total'=>$arr['total'],
@@ -221,6 +225,12 @@ class OrderserviceController extends Controller
                 'cancelled_at'=>$arr['cancelled_at'],
                 'cancelled_reason'=>$arr['cancelled_reason'],
                 'users_ids'=>$arr['users_ids'],
+                'partner_user_id'=>$arr['partner_user_id'],
+                'comission'=>$arr['comission'],
+                'partner_paid_status'=>$arr['partner_paid_status'],
+                'partner_paid_ammount'=>$arr['partner_paid_ammount'],
+                'partner_paid_at'=>$arr['partner_paid_at'],
+                'refund_at'=>$arr['refund_at'],
                 'created_at'=>$arr['created_at'],
                 'updated_at'=>$arr['updated_at']
             );
@@ -257,7 +267,7 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
 
         if($result['status'] == 200){
-            $data = orderservice::where('users_ids','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%');
+            $data = orderservice::where('users_ids','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%') ->orderBy('created_at','DESC');
             $result=[];
             
             foreach($data->limit($limit)->offset($page)->get() as $arr){
@@ -271,6 +281,7 @@ class OrderserviceController extends Controller
                     'order_id'=>$arr['order_id'],
                     'service'=>$arr['service'],
                     'service_id'=>$arr['service_id'],
+                    'pet_id'=>$arr['pet_id'],
                     'type'=>$arr['type'],
                     'status'=>$arr['status'],
                     'total'=>$arr['total'],
@@ -286,8 +297,15 @@ class OrderserviceController extends Controller
                     'cancelled_at'=>$arr['cancelled_at'],
                     'cancelled_reason'=>$arr['cancelled_reason'],
                     'users_ids'=>$arr['users_ids'],
+                    'partner_user_id'=>$arr['partner_user_id'],
+                    'comission'=>$arr['comission'],
+                    'partner_paid_status'=>$arr['partner_paid_status'],
+                    'partner_paid_ammount'=>$arr['partner_paid_ammount'],
+                    'partner_paid_at'=>$arr['partner_paid_at'],
+                    'refund_at'=>$arr['refund_at'],
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
+
                 );
                 array_push($result, $method);
             }
@@ -329,6 +347,7 @@ class OrderserviceController extends Controller
             'order_id'=>$data->value('order_id'),
             'service'=>$data->value('service'),
             'service_id'=>$data->value('service_id'),
+            'pet_id'=>$data->value('pet_id'),
             'type'=>$data->value('type'),
             'status'=>$data->value('status'),
             'total'=>$data->value('total'),

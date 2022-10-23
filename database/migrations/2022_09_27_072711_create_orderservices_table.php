@@ -18,6 +18,7 @@ return new class extends Migration
             $table->char('order_id',16);
             $table->char('service',20);
             $table->char('service_id',10);
+            $table->char('pet_id',20);
             $table->char('type',20);
             $table->char('status',20);
             $table->char('total',20);
