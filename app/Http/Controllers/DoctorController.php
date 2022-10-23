@@ -115,6 +115,17 @@ class DoctorController extends Controller
         } else{
             $avgratings = round($ratings->avg('ratings'),1);
         }
+        if($request->service == 'chat'){
+            $comision = 6000;
+            $comision_type = 'fixed';
+        }else if($request->service == 'vidcall'){
+            $comision = 6000;
+            $comision_type = 'percent';
+        }else if($request->service == 'onsite'){
+            $comision = 6000;
+            $comision_type = 'percent';
+        }
+
         $year = Carbon::now()->year;
         return response()->JSON([
             'status' => 'success',
@@ -148,7 +159,9 @@ class DoctorController extends Controller
                 'total_review' => $ratings->count(),
                 'review' => ratings::leftJoin('users','ratings.users_id','=','users.id')->where('doctors_ids',$query->value('doctors.id'))->select('ratings.id','doctors_ids','username','profile_picture','reviews','ratings','timereviewed')->limit($limit)->offset($page)->get(),
                 'working_at' => clinic_doctor::where('doctor_id',$query->value('doctors.id'))->leftJoin('clinics','clinics.id','=','clinic_id')->get(),
-                'speciality' => doctor_speciality::where('doctor_id',$query->value('doctors.id'))->get()
+                'speciality' => doctor_speciality::where('doctor_id',$query->value('doctors.id'))->get(),
+                'commision_type' => $comision,
+                'commision_ammount' => $comision_type
             ] 
         ]);
         
@@ -519,7 +532,7 @@ class DoctorController extends Controller
                 ->leftJoin('doctor_specialities','doctors.id','=','doctor_specialities.doctor_id')
                 ->leftJoin('ratings','doctors.id','=','ratings.doctors_ids')
                 ->select('doctors.id', 'doctor_name','description' , 'profile_picture' , 'graduated_since' , 'worked_since' , 'lat', 'doctors.long','vidcall_price' , 'chat_price', 'offline_price', 'isonline' , 'lastonline', DB::raw('AVG(ratings.ratings) as rating'), DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))
-                ->where('speciality','LIKE','%'.$speciality.'%')
+                ->where('speciality','LIKE','%'.$speciality.'%')->where('doctor_name','LIKE','%'.$request->name.'%')
                 ->groupBy('doctors.id')
                 ->orderBy('isonline','DESC')
                 ->orderBy($order,$order_val);

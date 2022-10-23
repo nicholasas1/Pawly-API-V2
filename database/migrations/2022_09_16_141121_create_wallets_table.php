@@ -18,6 +18,8 @@ return new class extends Migration
             $table->integer('users_ids');
             $table->float('debit')->nullable();
             $table->float('credit')->nullable();
+            $table->char('type',15)->nullable();
+            $table->char('description',100)->nullable();
             $table->timestamps();
         });
     }
