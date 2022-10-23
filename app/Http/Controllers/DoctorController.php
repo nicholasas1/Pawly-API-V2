@@ -107,6 +107,8 @@ class DoctorController extends Controller
                 }
             }
         }
+        $comision = null;
+        $comision_type = null;
         
         $status = 'error';
         $ratings = ratings::where('doctors_ids',$query->value('doctors.id'));
