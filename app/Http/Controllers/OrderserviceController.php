@@ -503,7 +503,7 @@ class OrderserviceController extends Controller
                 'payment_id' => $trx_id,
                 'updated_at' => Carbon::now()
             ]);
-
+            //Jika success
             if($query==1){
                 $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$invoice)->value('users_ids'),'Consumer App');
                 foreach( $token_fb as $token){
@@ -511,6 +511,7 @@ class OrderserviceController extends Controller
                         $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$invoice,'','',$token['firebase_token']);
                     }
                 }
+
                 return response()->JSON([
                     'status' => 'success',
                 ]);
@@ -528,5 +529,39 @@ class OrderserviceController extends Controller
         }
         
     }
-        
+
+       
+    public function createVcLink(request $request){
+        $url = env('Whereby_URL');
+        //$timestamp = Carbon::now()->timestamp;
+        $data = array(
+                'isLocked' => false,
+                'roomNamePrefix' => 'Nama Room',
+                'roomNamePattern' => 'uuid',
+                'roomMode' => 'normal',
+                'endDate' => "2022-10-17T04:50:22Z",
+                'recording' => [
+                    'type'=> 'none',
+                    'destination' => [
+                        'provider'=> 's3',
+                        'bucket'=> 'string',
+                        'provider'=> 's3',
+                        'accessKeyId' =>  "string",
+                        'accessKeySecret' =>  "string",
+                        'fileFormat' =>  "mkv"
+                    ],
+                    'startTrigger'=> 'none',
+                ],
+                'fields' => [
+                    "hostRoomUrl"
+                ]                   
+         );
+
+        $response = Http::withHeaders([
+            'Authorization' => env('Whereby_Token'),
+            'Accept' => 'application/json'
+        ])->post($url, $data);
+        $saveddata = $response->json();
+        var_dump($saveddata);
+    }
 }
