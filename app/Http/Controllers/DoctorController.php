@@ -95,7 +95,7 @@ class DoctorController extends Controller
 
         $token = $request->header("Authorization");
         $isfav = '0';
-        $query = doctor::leftJoin('ratings','doctors.id','=','ratings.doctors_ids')->select('users_ids','doctors.id', 'doctor_name','description' , 'profile_picture' ,'graduated_from', 'graduated_since' , 'worked_since' , 'lat', 'doctors.long','vidcall_price' , 'chat_price', 'offline_price', 'isonline' , 'lastonline','Biography','Education_experience','vidcall_available','chat_available','offline_available', DB::raw('AVG(ratings.ratings) as rating'))->groupBy('doctors.id')->where('doctors.id','=',$request->id);
+        $query = doctor::leftJoin('ratings','doctors.id','=','ratings.doctors_ids')->select('users_ids','doctors.id', 'doctors.address','doctor_name','description' , 'profile_picture' ,'graduated_from', 'graduated_since' , 'worked_since' , 'lat', 'doctors.long','vidcall_price' , 'chat_price', 'offline_price', 'isonline' , 'lastonline','Biography','Education_experience','vidcall_available','chat_available','offline_available', DB::raw('AVG(ratings.ratings) as rating'))->groupBy('doctors.id')->where('doctors.id','=',$request->id);
 
         if($token!=NULL){
             $result = $this->JWTValidator->validateToken($token);
