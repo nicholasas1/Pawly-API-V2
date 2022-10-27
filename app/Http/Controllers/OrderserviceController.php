@@ -564,4 +564,84 @@ class OrderserviceController extends Controller
         $saveddata = $response->json();
         var_dump($saveddata);
     }
+
+    public function saasApointment(request $request){
+        $orderId = $request->orderId;
+        $type = $request->type;
+        $service = $request->service;
+        $status = $request->status;
+        if($request->limit==NULL){
+            $limit = 10;
+        } else{
+            $limit = $request->limit;
+        }
+    
+        if($request->page==NULL){
+            $page = 0;
+        } else{
+            $page = ($request->page - 1) * $limit;
+        }
+
+        if($request->date== 'Tomorrow'){
+            $date = Carbon::tomorrow()->toDateString();
+        }else{
+            $date = Carbon::today()->toDateString();
+        }
+            
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+    
+        if($result['status'] == 200){ 
+            $data = orderservice::where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');
+            $result=[];
+                
+            foreach($data->limit($limit)->offset($page)->get() as $arr){
+                if($arr['coupon_name']==NULL){
+                    $payment_allowed = 'a:2:{i:0;s:4:"dana";i:1;s:3:"ovo";}';
+                } else{
+                    $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
+                }
+                $method = array(
+                    'id' => $arr['id'],
+                    'order_id'=>$arr['order_id'],
+                    'service'=>$arr['service'],
+                    'service_id'=>$arr['service_id'],
+                    'pet_id'=>$arr['pet_id'],
+                    'type'=>$arr['type'],
+                    'status'=>$arr['status'],
+                    'total'=>$arr['total'],
+                     'diskon'=>$arr['diskon'],
+                    'coupon_name'=>$arr['coupon_name'],
+                    'subtotal'=>$arr['subtotal'],
+                    'allowed_payment'=>$payment_allowed,
+                    'payment_method'=>$arr['payment_method'],
+                    'payment_id'=>$arr['payment_id'],
+                    'booking_date'=>$arr['booking_date'],
+                    'payed_at'=>$arr['payed_at'],
+                    'payed_untill'=>$arr['payed_untill'],
+                    'cancelled_at'=>$arr['cancelled_at'],
+                    'cancelled_reason'=>$arr['cancelled_reason'],
+                    'users_ids'=>$arr['users_ids'],
+                    'user_name'=>User::where('id',$arr['users_ids'])->value('nickname'),
+                    'partner_user_id'=>$arr['partner_user_id'],
+                    'comission'=>$arr['comission'],
+                    'partner_paid_status'=>$arr['partner_paid_status'],
+                    'partner_paid_ammount'=>$arr['partner_paid_ammount'],
+                    'partner_paid_at'=>$arr['partner_paid_at'],
+                    'refund_at'=>$arr['refund_at'],
+                    'created_at'=>$arr['created_at'],
+                    'updated_at'=>$arr['updated_at']
+                );
+                array_push($result, $method);
+            }
+            return response()->json([
+                'status'=>'success',  
+                'total_data'=>$data->count(),  
+                'total_page'=> ceil($data->count() / $limit),
+                'results'=>$result
+            ]);
+        }else{
+            return $result;
+        }     
+    }
 }
