@@ -592,8 +592,10 @@ class OrderserviceController extends Controller
 
         if($request->date== 'Tomorrow'){
             $date = Carbon::tomorrow()->toDateString();
-        }else{
+        }else if($request->date== 'Today'){
             $date = Carbon::today()->toDateString();
+        }else{
+            $date = '';
         }
             
         $token = $request->header("Authorization");
