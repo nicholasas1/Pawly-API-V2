@@ -72,7 +72,7 @@ class UserController extends Controller
         if($user->value('wallet_status') == "Not Active"){
             $credit = "Activation";
         }else{
-            $credit = wallet::where('users_ids',$userid)->sum('debit') - wallet::where('users_ids',$userid)->sum('credit');
+            $credit = wallet::where('users_ids',$userid)->where('type','pawly_credit')->sum('debit') - wallet::where('users_ids',$userid)->where('type','pawly_credit')->sum('credit');
         }
         $arr = [
             'Id' => $userid,
@@ -112,7 +112,7 @@ class UserController extends Controller
             if($user->value('wallet_status') == "Not Active"){
                 $credit = "Activation";
             }else{
-                $credit = wallet::where('users_ids',$userid)->sum('debit') - wallet::where('users_ids',$userid)->sum('credit');
+                $credit = wallet::where('users_ids',$userid)->where('type','pawly_credit')->sum('debit') - wallet::where('users_ids',$userid)->where('type','pawly_credit')->sum('credit');
             }
             $arr = [
                 'Id' => $userid,
