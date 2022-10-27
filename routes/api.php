@@ -181,6 +181,8 @@ Route::get('order/get-list', [OrderserviceController::class,'orderListToken']);
 
 Route::get('saas/appointment', [OrderserviceController::class,'saasApointment']);
 
+Route::get('saas/newOrder', [OrderserviceController::class,'saasNewOrder']);
+
 Route::get('order/get-detail', [OrderserviceController::class,'getDetail']);
 
 Route::get('cms/statistic', [statisticcontroller::class,'statistic']);
