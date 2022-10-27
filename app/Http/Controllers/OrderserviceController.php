@@ -410,6 +410,12 @@ class OrderserviceController extends Controller
                         'payed_at' => Carbon::now(),
                         'updated_at' => Carbon::now()
                     ]);
+                    $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$orderId)->value('users_ids'),'Consumer App');
+                    foreach( $token_fb as $token){
+                    if($token['firebase_token'] != NULL){
+                        $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$orderId,'','',$token['firebase_token']);
+                    }
+                }
                 }
                 return response()->JSON([
                     'status' => 'success',
