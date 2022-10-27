@@ -385,7 +385,7 @@ class OrderserviceController extends Controller
         $payment_method_id = $request->payment_method_id;
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
-        $wallet = wallet::where('users_ids', $result['body']['user_id']);
+        $wallet = wallet::where('users_ids', $result['body']['user_id'])->where('type','pawly_credit');
         $ammount = $wallet->sum('debit') - $wallet->sum('credit');
         $total_transaction = orderservice::where('order_id','like', $orderId)->value('subtotal');
         
@@ -399,6 +399,8 @@ class OrderserviceController extends Controller
                     'users_ids' => $result['body']['user_id'], 
                     'debit' => '',
                     'credit' => $data->value('subtotal'),
+                    'description' => 'Payment order ID '.$orderId,
+                    'type' => 'pawly_credit',
                     'created_at' => $current_date_time
                 ]);
                 $wallet = wallet::where('id',$query)->get();
