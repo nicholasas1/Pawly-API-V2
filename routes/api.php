@@ -103,6 +103,8 @@ Route::get('doctor/filtersearch', [DoctorController::class, 'doctorGetList']);
 
 Route::post('ratings/add', [RatingsController::class, 'addratings']);
 
+Route::get('ratings/getList', [RatingsController::class, 'ratingList']);
+
 Route::post('refresh-token', [JWTValidator::class, 'refreshToken']);
 
 Route::post('logout', [JWTValidator::class, 'logout']);
