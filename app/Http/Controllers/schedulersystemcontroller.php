@@ -61,7 +61,7 @@ class schedulersystemcontroller extends Controller
 
     public function paymentPartner(){ 
         $current_timestamp = time();
-        $query = orderservice::where('status','like','BOOKING_COMPLATE')->where('partner_user_id','!=',NULL)->where('partner_paid_status','=',NULL);
+        $query = orderservice::where('status','like','ORDER_COMPLATE')->where('partner_user_id','!=',NULL)->where('partner_paid_status','=',NULL);
         foreach($query->get() as $data){
             $query2 = wallet::insert([
                 'users_ids' => $data['partner_user_id'], 

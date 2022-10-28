@@ -555,6 +555,10 @@ class OrderserviceController extends Controller
             }
         }else if($query->value('type')== 'wallet'){
             $this->wallet->AddAmmount($query->value('users_ids'),$query->value('total'),null,'pawly_credit','Top Up Saldo '.$order_id);
+            $query->update([
+                'status' => 'ORDER_COMPLATE',
+                'updated_at' => Carbon::now()
+            ]);
         }
     }
 
