@@ -194,3 +194,5 @@ Route::post('order/changestatus', [OrderserviceController::class,'changestatus']
 Route::post('haha', [schedulersystemcontroller::class,'orderList']);
 
 Route::post('coupon/validate', [CouponserviceController::class,'validate_coupon']);
+
+Route::post('order/reject',[OrderserviceController::class,'rejectorder']);

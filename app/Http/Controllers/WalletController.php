@@ -21,6 +21,7 @@ class WalletController extends Controller
         $query = wallet::insert([
                     'users_ids' => $request->user_id, 
                     'debit' => $request->debit,
+                    'type' => $request->type,
                     'credit' => $request->credit,
                     'created_at' => $current_date_time
         ]);
