@@ -12,10 +12,12 @@ use ReallySimpleJWT\Parse;
 use ReallySimpleJWT\Jwt;
 use ReallySimpleJWT\Decode;
 use App\Http\Controllers\JWTValidator;
+use App\Http\Controllers\WalletController;
 use Carbon\Carbon;
 use App\Models\doctor;
 use App\Models\clinic;
 use App\Models\wallet;
+use App\Models\vidcalldetail;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\VarDumper\VarDumper;
 use App\Models\User;
@@ -28,12 +30,13 @@ class OrderserviceController extends Controller
 {
     protected $coupons;
     protected $JWTValidator;
-    public function __construct(CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
+    public function __construct(WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
     {
         $this->coupons = $coupons;
         $this->JWTValidator = $jWTValidator;
         $this->fb_token = $fb_token;
         $this->mobile_banner = $mobile_banner;
+        $this->wallet = $wallet;
     }
 
     public function order_service(request $request){
@@ -59,15 +62,18 @@ class OrderserviceController extends Controller
             $pool = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
             if($service=='chat'){
-                $ordercode = 'CHOL';
+                $ordercode = 'CHT';
                 $paid_until = time()+ 3600;
             } else if($service=='vidcall'){
-                $ordercode = 'VCOL';
+                $ordercode = 'VDC';
                 $paid_until = time()+ 3600;
             } else if($service=='onsite'){
-                $ordercode = 'OSM';
+                $ordercode = 'DOS';
                 $dateformat = date($booking_time);
                 $paid_until = strtotime($dateformat) - 3600*2;
+            } else if($service=='pawly_credit'){
+                $ordercode = 'PWC';
+                $paid_until = time()+ 3600*24;
             } else{
                 $paid_until = time()+ 3600*24;
             }
@@ -319,6 +325,8 @@ class OrderserviceController extends Controller
     public function getDetail(request $request)
     {
         $orderId = $request->id;
+        $vcDetail=[];
+        $res=[];
         
         $data = orderservice::where('order_id','like',$orderId);
         
@@ -332,6 +340,19 @@ class OrderserviceController extends Controller
             ];
         }
 
+        if($data->value('service') == 'vidcall'){
+            $detail = vidcalldetail::where('booking_id','like',$data->value('order_id'));
+            $vcDetail = [
+                'status'=>$detail->value('status'),
+                'link_partner' => $detail->value('link_partner'),
+                'link_user'=>$detail->value('link_user'),
+                'meeting_id'=>$detail->value('meeting_id'),
+                'session_done_time'=>$detail->value('session_done_time'),
+                'partner_join_time'=>$detail->value('partner_join_time'),
+                'user_join_time'=>$detail->value('user_join_time'),
+            ];
+        }
+
         if($data->value('coupon_name')==NULL){
             $payment_allowed = '';
         } else{
@@ -341,10 +362,11 @@ class OrderserviceController extends Controller
         $arr = [
             'id' => $data->value('id'),
             'order_id'=>$data->value('order_id'),
+            'type'=>$data->value('type'),
             'service'=>$data->value('service'),
             'service_id'=>$data->value('service_id'),
+            'video_call_detail'=>$vcDetail,
             'pet_id'=>$data->value('pet_id'),
-            'type'=>$data->value('type'),
             'status'=>$data->value('status'),
             'total'=>$data->value('total'),
             'diskon'=>$data->value('diskon'),
@@ -417,6 +439,7 @@ class OrderserviceController extends Controller
                     if($token['firebase_token'] != NULL){
                         $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$orderId,'','',$token['firebase_token']);
                     }
+                    $this->prosesOrder($orderId);
                 }
                 }
                 return response()->JSON([
@@ -505,7 +528,7 @@ class OrderserviceController extends Controller
         $invoice = $request->invoice_number;
 
         if($status=='success'){
-            $query = orderservice::where('order_id','like',$invoice)->update([
+            $query = orderservice::where('order_id','like',$invoice)->where('status','like','PENDING_PAYMENT')->update([
                 'status' => 'BOOKING RESERVED',
                 'payed_at' => $payment_at,
                 'payment_id' => $trx_id,
@@ -519,6 +542,7 @@ class OrderserviceController extends Controller
                         $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$invoice,'','',$token['firebase_token']);
                     }
                 }
+                $this->prosesOrder($invoice);
 
                 return response()->JSON([
                     'status' => 'success',
@@ -538,16 +562,34 @@ class OrderserviceController extends Controller
         
     }
 
+    public function prosesOrder($order_id){
+        $query = orderservice::where('order_id','like',$order_id);
+
+        if($query->value('type')== 'doctor'){
+            if($query->value('service')== 'vidcall'){
+                //$this->createVcLink();
+            }
+        }else if($query->value('type')== 'wallet'){
+            $this->wallet->AddAmmount($query->value('users_ids'),$query->value('total'),null,'pawly_credit','Top Up Saldo '.$order_id);
+            $query->update([
+                'status' => 'ORDER_COMPLATE',
+                'updated_at' => Carbon::now()
+            ]);
+        }
+    }
+
        
     public function createVcLink(request $request){
+        $query = orderservice::where('order_id','like',$request->order_id);
         $url = env('Whereby_URL');
+        $newDateTime = Carbon::now()->addMinute(20)->toISOString();
         //$timestamp = Carbon::now()->timestamp;
         $data = array(
                 'isLocked' => false,
-                'roomNamePrefix' => 'Nama Room',
+                'roomNamePrefix' =>  $request->order_id,
                 'roomNamePattern' => 'uuid',
                 'roomMode' => 'normal',
-                'endDate' => "2022-10-17T04:50:22Z",
+                'endDate' => $newDateTime,
                 'recording' => [
                     'type'=> 'none',
                     'destination' => [
@@ -570,7 +612,27 @@ class OrderserviceController extends Controller
             'Accept' => 'application/json'
         ])->post($url, $data);
         $saveddata = $response->json();
-        var_dump($saveddata);
+        $query = vidcalldetail::insert([
+            'booking_id' =>  $request->order_id, 
+            'link_partner' =>  $saveddata['hostRoomUrl'] ,
+            'link_user' => $saveddata['roomUrl'],
+            'session_done_until' => strtotime($saveddata['endDate']),
+            'meeting_id' => $saveddata['meetingId'],
+            'status' => 'Active',
+            'created_at' => Carbon::now()
+        ]);
+        if($query == 1){
+            return response()->JSON([
+                'status' => 'success',
+                'msg' => ''
+            ]);
+        }else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => ''
+            ]);
+        }
+        
     }
 
     public function saasApointment(request $request){

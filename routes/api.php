@@ -113,7 +113,7 @@ Route::get('testing', [DoctorController::class, 'doctorGetList']);
 
 Route::post('clinic/addClinic', [ClinicController::class, 'addNewClinic']);
 
-Route::post('wallet/addAmount', [WalletController::class, 'AddAmmount']);
+Route::post('wallet/addAmount', [WalletController::class, 'TopUpManual']);
 
 Route::get('wallet/transaction', [WalletController::class, 'WaletTransaction']);
 
@@ -191,8 +191,10 @@ Route::post('order/pay', [OrderserviceController::class,'create_payment']);
 
 Route::post('order/changestatus', [OrderserviceController::class,'changestatus']);
 
-Route::post('haha', [schedulersystemcontroller::class,'orderList']);
+Route::post('haha', [schedulersystemcontroller::class,'vcLinkEnd']);
 
 Route::post('coupon/validate', [CouponserviceController::class,'validate_coupon']);
+
+Route::post('hahaha', [OrderserviceController::class,'createVcLink']);
 
 Route::post('order/reject',[OrderserviceController::class,'rejectorder']);

@@ -21,6 +21,8 @@ return new class extends Migration
             $table->char('user_join_time',50)->nullable();
             $table->char('session_done_time',50)->nullable();
             $table->char('session_done_until',50)->nullable();
+            $table->char('meeting_id',50);
+            $table->char('status',50);
             $table->char('created_at',50)->nullable();
             $table->char('updated_at',50)->nullable();
         });

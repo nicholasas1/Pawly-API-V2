@@ -16,18 +16,26 @@ class WalletController extends Controller
         $this->JWTValidator = $JWTValidator;
     }
 
-    public function AddAmmount(request $request){
+    public function TopUpManual(request $request){
+        $response = $this->AddAmmount($request->user_id,$request->debit,$request->credit,$request->type,$request->description);
+        return $response; 
+    }
+
+    public function AddAmmount($user_id,$debit,$credit,$type,$description){
         $current_date_time = date('Y-m-d H:i:s');
         $query = wallet::insert([
-                    'users_ids' => $request->user_id, 
-                    'debit' => $request->debit,
-                    'type' => $request->type,
-                    'credit' => $request->credit,
-                    'created_at' => $current_date_time
+                'users_ids' => $user_id, 
+                'debit' => $debit,
+                'credit' => $credit,
+                'type' => $type,
+                'description' => $description,
+                'created_at' => $current_date_time
         ]);
 
         if($query == 1){
             $status = "Success";
+        }else{
+            $status = "Failed";
         }
         return response()->json([
             'status'=>$status,
@@ -36,12 +44,20 @@ class WalletController extends Controller
     }
 
     public function WaletTransaction(request $request){
-        $query = wallet::where('users_ids',$request->user_id);
+        $token = $request->header("Authorization");
+        if($token  == null){
+            $user_id = $request->user_id;
+        }else{
+            $result = $this->JWTValidator->validateToken($token);
+            $user_id = $result['body']['user_id'];
+        }
+       
+        $query = wallet::where('users_ids',$user_id)->where('type',$request->type);
       
         return response()->json([
             'status'=>"success",
             'results'=> [
-                'pawly_credit' => $query->sum('debit') - $query->sum('credit'),
+                $request->type => $query->sum('debit') - $query->sum('credit'),
                 'transaction' => $query->get()
             ]
         ]); 

@@ -19,6 +19,10 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         //$schedule->command( [schedulersystemcontroller::class,'orderList'])->everyMinute()->runInBackground();
         $schedule->call('App\Http\Controllers\schedulersystemcontroller@orderList')->everyMinute();
+        $schedule->call('App\Http\Controllers\schedulersystemcontroller@vcLinkEnd')->everyMinute();
+        $schedule->call('App\Http\Controllers\schedulersystemcontroller@paymentPartner')->everyThreeHours();;
+
+        
         //[schedulersystemcontroller::class,'orderList']
     }
 
