@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use App\Models\doctor;
 use App\Models\clinic;
 use App\Models\wallet;
+use App\Models\vidcalldetail;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\VarDumper\VarDumper;
 use App\Models\User;
@@ -559,14 +560,16 @@ class OrderserviceController extends Controller
 
        
     public function createVcLink(request $request){
+        $query = orderservice::where('order_id','like',$request->order_id);
         $url = env('Whereby_URL');
+        $newDateTime = Carbon::now()->addMinute(20)->toISOString();
         //$timestamp = Carbon::now()->timestamp;
         $data = array(
                 'isLocked' => false,
-                'roomNamePrefix' => 'Nama Room',
+                'roomNamePrefix' =>  $request->order_id,
                 'roomNamePattern' => 'uuid',
                 'roomMode' => 'normal',
-                'endDate' => "2022-10-17T04:50:22Z",
+                'endDate' => $newDateTime,
                 'recording' => [
                     'type'=> 'none',
                     'destination' => [
@@ -589,7 +592,27 @@ class OrderserviceController extends Controller
             'Accept' => 'application/json'
         ])->post($url, $data);
         $saveddata = $response->json();
-        var_dump($saveddata);
+        $query = vidcalldetail::insert([
+            'booking_id' =>  $request->order_id, 
+            'link_partner' =>  $saveddata['hostRoomUrl'] ,
+            'link_user' => $saveddata['roomUrl'],
+            'session_done_until' => strtotime($saveddata['endDate']),
+            'meeting_id' => $saveddata['meetingId'],
+            'status' => 'Active',
+            'created_at' => Carbon::now()
+        ]);
+        if($query == 1){
+            return response()->JSON([
+                'status' => 'success',
+                'msg' => ''
+            ]);
+        }else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => ''
+            ]);
+        }
+        
     }
 
     public function saasApointment(request $request){
