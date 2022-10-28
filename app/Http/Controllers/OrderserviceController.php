@@ -728,4 +728,48 @@ class OrderserviceController extends Controller
             return $result;
         }     
     }
+
+    public function rejectorder(request $request){
+        $order_id = $request->orderid;
+
+        $order = orderservice::where('order_id',$order_id)->get();
+
+        if($order->value('status')=='BOOKING RESERVED'){
+            $update = orderservice::where('order_id',$order_id)->update([
+                'cancelled_at' => carbon::now()->timestamp,
+                'cancelled_reason' => 'doctor reject order',
+                'status' => 'BOOKING_CANCEL',
+                'refunded_at' => carbon::now(),
+
+            ]);
+
+            $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$order_id)->value('users_ids'),'Consumer App');
+                    foreach( $token_fb as $token){
+                    if($token['firebase_token'] != NULL){
+                        $notification = $this->mobile_banner->send_notif('Your Payment Has Been Cancelled','Your Money will be refuned 1x24'.$order_id,'','',$token['firebase_token']);
+                    }
+
+            $refund = wallet::insert([
+                'users_ids' => $order->value('users_ids'),
+                'debit' => $order->value('subtotal'),
+                'type' => 'pawly_credit',
+                'created_at' => carbon::now(),
+                'description' => 'Refund for order ID'.$order_id
+            ]);
+
+            if($refund==1){
+                return response()->JSON([
+                    'status' => 'success',
+                    'msg' => 'refund_success'
+                ]);
+             }
+            }
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'You can not cancel this order'
+            ]);
+            
+        }
+    }
 }
