@@ -325,6 +325,8 @@ class OrderserviceController extends Controller
     public function getDetail(request $request)
     {
         $orderId = $request->id;
+        $vcDetail=[];
+        $res=[];
         
         $data = orderservice::where('order_id','like',$orderId);
         
@@ -338,6 +340,19 @@ class OrderserviceController extends Controller
             ];
         }
 
+        if($data->value('service') == 'vidcall'){
+            $detail = vidcalldetail::where('booking_id','like',$data->value('order_id'));
+            $vcDetail = [
+                'status'=>$detail->value('status'),
+                'link_partner' => $detail->value('link_partner'),
+                'link_user'=>$detail->value('link_user'),
+                'meeting_id'=>$detail->value('meeting_id'),
+                'session_done_time'=>$detail->value('session_done_time'),
+                'partner_join_time'=>$detail->value('partner_join_time'),
+                'user_join_time'=>$detail->value('user_join_time'),
+            ];
+        }
+
         if($data->value('coupon_name')==NULL){
             $payment_allowed = '';
         } else{
@@ -347,10 +362,11 @@ class OrderserviceController extends Controller
         $arr = [
             'id' => $data->value('id'),
             'order_id'=>$data->value('order_id'),
+            'type'=>$data->value('type'),
             'service'=>$data->value('service'),
             'service_id'=>$data->value('service_id'),
+            'video_call_detail'=>$vcDetail,
             'pet_id'=>$data->value('pet_id'),
-            'type'=>$data->value('type'),
             'status'=>$data->value('status'),
             'total'=>$data->value('total'),
             'diskon'=>$data->value('diskon'),
