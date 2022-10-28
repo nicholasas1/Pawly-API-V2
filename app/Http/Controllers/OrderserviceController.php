@@ -59,15 +59,18 @@ class OrderserviceController extends Controller
             $pool = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
             if($service=='chat'){
-                $ordercode = 'CHOL';
+                $ordercode = 'CH';
                 $paid_until = time()+ 3600;
             } else if($service=='vidcall'){
-                $ordercode = 'VCOL';
+                $ordercode = 'VC';
                 $paid_until = time()+ 3600;
             } else if($service=='onsite'){
-                $ordercode = 'OSM';
+                $ordercode = 'OS';
                 $dateformat = date($booking_time);
                 $paid_until = strtotime($dateformat) - 3600*2;
+            } else if($service=='pawly_credit'){
+                $ordercode = 'PC';
+                $paid_until = time()+ 3600*24;
             } else{
                 $paid_until = time()+ 3600*24;
             }
