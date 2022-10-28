@@ -5,6 +5,8 @@ use App\Models\orderservice;
 use Carbon\Carbon;
 use App\Http\Controllers\MobileBannerController;
 use App\Http\Controllers\FirebaseTokenController;
+use App\Models\vidcalldetail;
+use Illuminate\Support\Facades\Http;
 
 use Illuminate\Http\Request;
 
@@ -17,8 +19,6 @@ class schedulersystemcontroller extends Controller
     }
 
     public function orderList(){ 
-
-       
         $current_timestamp = time();
         $query = orderservice::where('status','like','PENDING_PAYMENT')->where('payed_untill','<',$current_timestamp);
         foreach($query->get() as $data){
@@ -32,7 +32,27 @@ class schedulersystemcontroller extends Controller
                 [
                     'status' => 'CANCEL',
                     'cancelled_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
                     'cancelled_reason' => 'Order Not Paid'
+                ]
+            );
+        }
+    }
+
+    public function vcLinkEnd(){ 
+        $current_timestamp = time();
+        $query = vidcalldetail::where('status','like','Active')->where('session_done_until','<',$current_timestamp);
+        foreach($query->get() as $data){
+            $url = env('Whereby_URL')."/".$data['meeting_id'];
+            $response = Http::withHeaders([
+                'Authorization' => env('Whereby_Token'),
+                'Accept' => 'application/json'
+            ])->delete($url);
+            $query->update(
+                [
+                    'status' => 'Done',
+                    'session_done_time' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
                 ]
             );
         }

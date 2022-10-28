@@ -191,7 +191,7 @@ Route::post('order/pay', [OrderserviceController::class,'create_payment']);
 
 Route::post('order/changestatus', [OrderserviceController::class,'changestatus']);
 
-Route::post('haha', [schedulersystemcontroller::class,'orderList']);
+Route::post('haha', [schedulersystemcontroller::class,'vcLinkEnd']);
 
 Route::post('coupon/validate', [CouponserviceController::class,'validate_coupon']);
 
