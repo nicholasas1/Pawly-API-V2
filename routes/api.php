@@ -197,3 +197,4 @@ Route::post('coupon/validate', [CouponserviceController::class,'validate_coupon'
 
 Route::post('hahaha', [OrderserviceController::class,'createVcLink']);
 
+Route::post('order/reject',[OrderserviceController::class,'rejectorder']);
