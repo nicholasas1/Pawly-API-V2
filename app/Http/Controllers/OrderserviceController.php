@@ -511,7 +511,7 @@ class OrderserviceController extends Controller
         $invoice = $request->invoice_number;
 
         if($status=='success'){
-            $query = orderservice::where('order_id','like',$invoice)->update([
+            $query = orderservice::where('order_id','like',$invoice)->where('status','like','PENDING_PAYMENT')->update([
                 'status' => 'BOOKING RESERVED',
                 'payed_at' => $payment_at,
                 'payment_id' => $trx_id,
@@ -525,6 +525,7 @@ class OrderserviceController extends Controller
                         $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$invoice,'','',$token['firebase_token']);
                     }
                 }
+                $this->prosesOrder($invoice);
 
                 return response()->JSON([
                     'status' => 'success',
