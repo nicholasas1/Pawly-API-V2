@@ -17,7 +17,7 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->char('order_id',16);
             $table->char('service',20);
-            $table->char('service_id',10);
+            $table->char('service_id',10)->nullable();
             $table->char('pet_id',20)->nullable();
             $table->char('type',20);
             $table->char('status',20);
@@ -36,12 +36,12 @@ return new class extends Migration
             $table->char('users_ids',20);
             $table->char('created_at',50)->nullable();
             $table->char('updated_at',50)->nullable();
-            $table->char('partner_user_id',20);
-            $table->char('comission',20);
-            $table->char('partner_paid_status',20);
-            $table->char('partner_paid_ammount',20);
-            $table->char('partner_paid_at',20);
-            $table->char('refund_at',20);
+            $table->char('partner_user_id',20)->nullable();
+            $table->char('comission',20)->nullable();
+            $table->char('partner_paid_status',20)->nullable();
+            $table->char('partner_paid_ammount',20)->nullable();
+            $table->char('partner_paid_at',20)->nullable();
+            $table->char('refund_at',20)->nullable();
         });
     }
 
