@@ -44,12 +44,12 @@ class WalletController extends Controller
     }
 
     public function WaletTransaction(request $request){
-        $query = wallet::where('users_ids',$request->user_id);
+        $query = wallet::where('users_ids',$request->user_id)->where('type',$request->type);
       
         return response()->json([
             'status'=>"success",
             'results'=> [
-                'pawly_credit' => $query->sum('debit') - $query->sum('credit'),
+                $request->type => $query->sum('debit') - $query->sum('credit'),
                 'transaction' => $query->get()
             ]
         ]); 
