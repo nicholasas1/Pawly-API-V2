@@ -12,6 +12,7 @@ use ReallySimpleJWT\Parse;
 use ReallySimpleJWT\Jwt;
 use ReallySimpleJWT\Decode;
 use App\Http\Controllers\JWTValidator;
+use App\Http\Controllers\WalletController;
 use Carbon\Carbon;
 use App\Models\doctor;
 use App\Models\clinic;
@@ -28,12 +29,13 @@ class OrderserviceController extends Controller
 {
     protected $coupons;
     protected $JWTValidator;
-    public function __construct(CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
+    public function __construct(WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
     {
         $this->coupons = $coupons;
         $this->JWTValidator = $jWTValidator;
         $this->fb_token = $fb_token;
         $this->mobile_banner = $mobile_banner;
+        $this->wallet = $wallet;
     }
 
     public function order_service(request $request){
@@ -59,17 +61,17 @@ class OrderserviceController extends Controller
             $pool = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
             if($service=='chat'){
-                $ordercode = 'CH';
+                $ordercode = 'CHT';
                 $paid_until = time()+ 3600;
             } else if($service=='vidcall'){
-                $ordercode = 'VC';
+                $ordercode = 'VDC';
                 $paid_until = time()+ 3600;
             } else if($service=='onsite'){
-                $ordercode = 'OS';
+                $ordercode = 'DOS';
                 $dateformat = date($booking_time);
                 $paid_until = strtotime($dateformat) - 3600*2;
             } else if($service=='pawly_credit'){
-                $ordercode = 'PC';
+                $ordercode = 'PWC';
                 $paid_until = time()+ 3600*24;
             } else{
                 $paid_until = time()+ 3600*24;
@@ -420,6 +422,7 @@ class OrderserviceController extends Controller
                     if($token['firebase_token'] != NULL){
                         $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$orderId,'','',$token['firebase_token']);
                     }
+                    $this->prosesOrder($orderId);
                 }
                 }
                 return response()->JSON([
@@ -539,6 +542,18 @@ class OrderserviceController extends Controller
             ]);
         }
         
+    }
+
+    public function prosesOrder($order_id){
+        $query = orderservice::where('order_id','like',$order_id);
+
+        if($query->value('type')== 'doctor'){
+            if($query->value('service')== 'vidcall'){
+                //$this->createVcLink();
+            }
+        }else if($query->value('type')== 'wallet'){
+            $this->wallet->AddAmmount($query->value('users_ids'),$query->value('total'),null,'pawly_credit','Top Up Saldo '.$order_id);
+        }
     }
 
        
