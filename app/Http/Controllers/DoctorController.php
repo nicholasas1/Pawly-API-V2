@@ -122,9 +122,9 @@ class DoctorController extends Controller
             $comision_type = 'fixed';
         }else if($request->service == 'vidcall'){
             $comision = 6000;
-            $comision_type = 'percent';
+            $comision_type = 'fixed';
         }else if($request->service == 'onsite'){
-            $comision = 6000;
+            $comision = 12;
             $comision_type = 'percent';
         }
 
