@@ -580,7 +580,7 @@ class OrderserviceController extends Controller
 
        
     public function createVcLink(request $request){
-        $query = orderservice::where('order_id','like',$request->order_id);
+        $query2 = orderservice::where('order_id','like',$request->order_id);
         $url = env('Whereby_URL');
         $newDateTime = Carbon::now()->addMinute(20)->toISOString();
         //$timestamp = Carbon::now()->timestamp;
@@ -620,6 +620,10 @@ class OrderserviceController extends Controller
             'meeting_id' => $saveddata['meetingId'],
             'status' => 'Active',
             'created_at' => Carbon::now()
+        ]);
+        $query2->update([
+            'status' => 'ON_PROCESS',
+            'updated_at' => Carbon::now()
         ]);
         if($query == 1){
             return response()->JSON([
