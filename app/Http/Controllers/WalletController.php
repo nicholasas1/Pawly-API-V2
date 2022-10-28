@@ -44,7 +44,15 @@ class WalletController extends Controller
     }
 
     public function WaletTransaction(request $request){
-        $query = wallet::where('users_ids',$request->user_id)->where('type',$request->type);
+        $token = $request->header("Authorization");
+        if($token  == null){
+            $user_id = $request->user_id;
+        }else{
+            $result = $this->JWTValidator->validateToken($token);
+            $user_id = $result['body']['user_id'];
+        }
+       
+        $query = wallet::where('users_ids',$user_id)->where('type',$request->type);
       
         return response()->json([
             'status'=>"success",
