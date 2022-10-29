@@ -36,17 +36,21 @@ class RatingsController extends Controller
         }else{
             if($query->value('type')== "doctor"){
                 $validate = doctor::where('id',$query->value('service_id'));
+                $doctor = $query->value('service_id');
+                $clinic = null;
             }else if($query->value('type')== "clinic"){
                 $validate = clinic::where('id',$query->value('service_id'));
+                $clinic = $query->value('service_id');
+                $doctor = null;
             }
 
             $user = $result['body']['user_id'];
             if($validate->count()>0){
                 $query = DB::table('ratings')->insert([
-                    'service_id' => $query->value('service_id'),
-                    'service_meta' => $query->value('type'),
-                    'service_meta' => $request->order_id,
-                    'booking_id' => $user,
+                    'doctors_ids' => $doctor,
+                    'clinic_ids' => $clinic,
+                    'booking_id' => $request->order_id,
+                    'users_id' => $user,
                     'ratings' => $request->rating,
                     'reviews' => $request->reviews,
                     'timereviewed' => Carbon::now()->timestamp

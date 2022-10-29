@@ -67,7 +67,7 @@ Route::post('mobile/updateSplash', [SplashscreenMobileController::class, 'update
 
 Route::post('doctor/registration', [DoctorController::class, 'regisasdoctor']);
 
-Route::get('doctor/getdetaildoctor', [DoctorController::class, 'getlistdoctor']);
+Route::get('doctor/getdetaildoctor', [DoctorController::class, 'getDetaildoctor']);
 
 Route::post('doctor/updatedoctor', [DoctorController::class, 'updatedoctor']);
 

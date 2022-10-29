@@ -80,7 +80,7 @@ class DoctorController extends Controller
         ]);
     }
 
-    public function getlistdoctor(request $request){
+    public function getDetaildoctor(request $request){
         if($request->limit==NULL){
             $limit = 10;
         } else{

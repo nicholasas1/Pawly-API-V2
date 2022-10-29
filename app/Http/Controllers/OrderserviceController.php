@@ -23,6 +23,7 @@ use Symfony\Component\VarDumper\VarDumper;
 use App\Models\User;
 use App\Http\Controllers\FirebaseTokenController;
 use App\Http\Controllers\MobileBannerController;
+use App\Models\ratings;
 
 
 
@@ -352,6 +353,19 @@ class OrderserviceController extends Controller
                 'user_join_time'=>$detail->value('user_join_time'),
             ];
         }
+        $rating = ratings::where('booking_id','=',$orderId);
+
+        if($rating->count() == 1){
+            $is_rating = true;
+        }else{
+            $is_rating = false;
+        }
+
+        if($data->value('status') == 'ORDER_COMPLATE' && $is_rating == false){
+            $can_rating = true;
+        }else{
+            $can_rating = false;
+        }
 
         if($data->value('coupon_name')==NULL){
             $payment_allowed = '';
@@ -380,6 +394,8 @@ class OrderserviceController extends Controller
             'payed_untill'=>$data->value('payed_untill'),
             'payment_url'=>$data->value('payment_url'),
             'cancelled_at'=>$data->value('cancelled_at'),
+            'is_rating'=> $is_rating,
+            'can_rating'=> $can_rating,
             'cancelled_reason'=>$data->value('cancelled_reason'),
             'users_ids'=>$data->value('users_ids'),
             'partner_user_id' => $data->value('partner_user_id'),
