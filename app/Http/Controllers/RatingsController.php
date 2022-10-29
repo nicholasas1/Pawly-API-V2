@@ -10,6 +10,7 @@ use App\Http\Controllers\JWTValidator;
 use App\Models\clinic;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\orderservice;
 
 
 class RatingsController extends Controller
@@ -28,30 +29,49 @@ class RatingsController extends Controller
         }
         
         $result = $this->JWTValidator->validateToken($token);
-        $status = 'doctor not found';
-        $doctortrue = doctor::where('id',$request->doctor_id);
-        //$doctortrue = clinic::where('id',$request->clinic_id);
-        $user = $result['body']['user_id'];
-        if($doctortrue->count()>0){
-            $query = DB::table('ratings')->insert([
-                'doctors_ids' => $request->doctor_id,
-                //'clinic_id' => $request->clinic_id,
-                'users_id' => $user,
-                'ratings' => $request->rating,
-                'reviews' => $request->reviews,
-                'timereviewed' => Carbon::now()->timestamp
-            ]);
-            if($query==1){
-                return response()->JSON([
-                    'status' => 'success',
+        $status = 'error';
+        $query = orderservice::where('order_id','=',$request->order_id);
+        if($query->count() != 1){
+            $msg = 'Booking ID not found';
+        }else{
+            if($query->value('type')== "doctor"){
+                $validate = doctor::where('id',$query->value('service_id'));
+            }else if($query->value('type')== "clinic"){
+                $validate = clinic::where('id',$query->value('service_id'));
+            }
+
+            $user = $result['body']['user_id'];
+            if($validate->count()>0){
+                $query = DB::table('ratings')->insert([
+                    'service_id' => $query->value('service_id'),
+                    'service_meta' => $query->value('type'),
+                    'service_meta' => $request->order_id,
+                    'booking_id' => $user,
+                    'ratings' => $request->rating,
+                    'reviews' => $request->reviews,
+                    'timereviewed' => Carbon::now()->timestamp
                 ]);
-            } 
-        } else{
-            return response()->JSON([
-                'status' => $status
-            ]);
-            
+                if($query==1){
+                    $msg = '';
+                    $status = 'success';
+
+                }else{
+                    $msg = 'Failed input rating';
+                    $status = 'error';
+                }
+            } else{
+                $msg = 'Service ID not found';
+            }
         }
+
+        return response()->JSON([
+            'status' => $status,
+            'msg'   => $msg
+        ]);
+       
+       
+        //$validate = clinic::where('id',$request->clinic_id);
+       
     }
 
     public function ratingList(request $request){
