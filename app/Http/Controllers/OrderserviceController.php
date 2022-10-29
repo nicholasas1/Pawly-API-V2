@@ -644,12 +644,13 @@ class OrderserviceController extends Controller
         if($query == 1){
             return response()->JSON([
                 'status' => 'success',
+                'url'   => $saveddata['hostRoomUrl'],
                 'msg' => ''
             ]);
         }else{
             return response()->JSON([
                 'status' => 'error',
-                'msg' => ''
+                'msg' => 'Failed create room'
             ]);
         }
         
@@ -762,11 +763,6 @@ class OrderserviceController extends Controller
             $result=[];
                 
             foreach($data->limit($limit)->offset($page)->get() as $arr){
-                if($arr['coupon_name']==NULL){
-                    $payment_allowed = 'a:2:{i:0;s:4:"dana";i:1;s:3:"ovo";}';
-                } else{
-                    $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
-                }
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
@@ -775,28 +771,10 @@ class OrderserviceController extends Controller
                     'pet_id'=>$arr['pet_id'],
                     'type'=>$arr['type'],
                     'status'=>$arr['status'],
-                    'total'=>$arr['total'],
-                     'diskon'=>$arr['diskon'],
-                    'coupon_name'=>$arr['coupon_name'],
-                    'subtotal'=>$arr['subtotal'],
-                    'allowed_payment'=>$payment_allowed,
-                    'payment_method'=>$arr['payment_method'],
-                    'payment_id'=>$arr['payment_id'],
-                    'booking_date'=>$arr['booking_date'],
-                    'payed_at'=>$arr['payed_at'],
-                    'payed_untill'=>$arr['payed_untill'],
-                    'cancelled_at'=>$arr['cancelled_at'],
-                    'cancelled_reason'=>$arr['cancelled_reason'],
                     'users_ids'=>$arr['users_ids'],
                     'user_name'=>User::where('id',$arr['users_ids'])->value('nickname'),
-                    'partner_user_id'=>$arr['partner_user_id'],
-                    'comission'=>$arr['comission'],
-                    'partner_paid_status'=>$arr['partner_paid_status'],
-                    'partner_paid_ammount'=>$arr['partner_paid_ammount'],
-                    'partner_paid_at'=>$arr['partner_paid_at'],
-                    'refund_at'=>$arr['refund_at'],
-                    'created_at'=>$arr['created_at'],
-                    'updated_at'=>$arr['updated_at']
+                    'user_image'=>User::where('id',$arr['users_ids'])->value('profile_picture'),
+                    'partner_user_id'=>$arr['partner_user_id']
                 );
                 array_push($result, $method);
             }
@@ -812,7 +790,7 @@ class OrderserviceController extends Controller
     }
 
     public function rejectorder(request $request){
-        $order_id = $request->orderid;
+        $order_id = $request->order_id;
 
         $order = orderservice::where('order_id',$order_id)->get();
 
@@ -821,16 +799,16 @@ class OrderserviceController extends Controller
                 'cancelled_at' => carbon::now()->timestamp,
                 'cancelled_reason' => 'doctor reject order',
                 'status' => 'BOOKING_CANCEL',
-                'refunded_at' => carbon::now(),
-
+                'refund_at' => carbon::now(),
+                'updated_at' => Carbon::now()
             ]);
 
             $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$order_id)->value('users_ids'),'Consumer App');
-                    foreach( $token_fb as $token){
-                    if($token['firebase_token'] != NULL){
-                        $notification = $this->mobile_banner->send_notif('Your Payment Has Been Cancelled','Your Money will be refuned 1x24'.$order_id,'','',$token['firebase_token']);
-                    }
-
+            foreach( $token_fb as $token){
+                if($token['firebase_token'] != NULL){
+                    $notification = $this->mobile_banner->send_notif('Your Order '.$order_id.' Has Been Cancelled','Your Money will be refuned max 1x24','','',$token['firebase_token']);
+                }
+            }
             $refund = wallet::insert([
                 'users_ids' => $order->value('users_ids'),
                 'debit' => $order->value('subtotal'),
@@ -845,7 +823,6 @@ class OrderserviceController extends Controller
                     'msg' => 'refund_success'
                 ]);
              }
-            }
         } else{
             return response()->JSON([
                 'status' => 'error',
@@ -853,5 +830,34 @@ class OrderserviceController extends Controller
             ]);
             
         }
+    }
+
+    public function acceptOrder(request $request){
+        $order_id = $request->order_id;
+
+        $order = orderservice::where('order_id',$order_id);
+
+        if($order->value('status')=='BOOKING RESERVED'){
+            $update = orderservice::where('order_id',$order_id)->update([
+                'status' => 'ON_PROCESS',
+                'updated_at' => Carbon::now()
+            ]);
+            $status = 'success';
+            $msg = null;
+            $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$order_id)->value('users_ids'),'Consumer App');
+            foreach( $token_fb as $token){
+                if($token['firebase_token'] != NULL){
+                    $notification = $this->mobile_banner->send_notif('Your order is now in process','Order '.$order_id.' now on process','','',$token['firebase_token']);
+                }
+            }
+        } else{
+            $status = 'error';
+            $msg = 'Failed accept booking';
+        }
+
+        return response()->JSON([
+            'status' => $status,
+            'msg' => $msg
+        ]);
     }
 }

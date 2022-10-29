@@ -195,6 +195,8 @@ Route::post('haha', [schedulersystemcontroller::class,'vcLinkEnd']);
 
 Route::post('coupon/validate', [CouponserviceController::class,'validate_coupon']);
 
-Route::post('hahaha', [OrderserviceController::class,'createVcLink']);
+Route::post('vidcall/join', [OrderserviceController::class,'createVcLink']);
 
 Route::post('order/reject',[OrderserviceController::class,'rejectorder']);
+
+Route::post('order/accept',[OrderserviceController::class,'acceptOrder']);
