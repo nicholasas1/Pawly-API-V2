@@ -26,7 +26,7 @@ class schedulersystemcontroller extends Controller
             $token_fb = $this->fb_token->userFirebaseToken($query->value('users_ids'),'Consumer App');
             foreach( $token_fb as $token){
                 if($token['firebase_token'] != NULL){
-                    $notification = $this->mobile_banner->send_notif('Ups.. Your order has been cancel','Your order '.$query->value('order_id').' has been cancelled','','',$token['firebase_token']);
+                    $notification = $this->mobile_banner->send_notif('Ups.. Your order has been cancel','Your order '.$query->value('order_id').' has been cancelled','','',$token['firebase_token'],NULL,NULL);
                 }
             }
             $query->update(

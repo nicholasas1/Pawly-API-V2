@@ -437,7 +437,7 @@ class OrderserviceController extends Controller
                     $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$orderId)->value('users_ids'),'Consumer App');
                     foreach( $token_fb as $token){
                     if($token['firebase_token'] != NULL){
-                        $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$orderId,'','',$token['firebase_token']);
+                        $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$orderId,'','',$token['firebase_token'],NULL,NULL);
                     }
                     $this->prosesOrder($orderId);
                 }
@@ -539,7 +539,7 @@ class OrderserviceController extends Controller
                 $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$invoice)->value('users_ids'),'Consumer App');
                 foreach( $token_fb as $token){
                     if($token['firebase_token'] != NULL){
-                        $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$invoice,'','',$token['firebase_token']);
+                        $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$invoice,'','',$token['firebase_token'],NULL,NULL);
                     }
                 }
                 $this->prosesOrder($invoice);
@@ -812,7 +812,7 @@ class OrderserviceController extends Controller
             $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$order_id)->value('users_ids'),'Consumer App');
                     foreach( $token_fb as $token){
                     if($token['firebase_token'] != NULL){
-                        $notification = $this->mobile_banner->send_notif('Your Payment Has Been Cancelled','Your Money will be refuned 1x24'.$order_id,'','',$token['firebase_token']);
+                        $notification = $this->mobile_banner->send_notif('Your Payment Has Been Cancelled','Your Money will be refuned 1x24'.$order_id,'','',$token['firebase_token'],NULL,NULL);
                     }
 
             $refund = wallet::insert([
