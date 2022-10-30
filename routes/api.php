@@ -188,6 +188,8 @@ Route::get('order/get-detail', [OrderserviceController::class,'getDetail']);
 
 Route::get('cms/statistic', [statisticcontroller::class,'statistic']);
 
+Route::get('saas/statistic', [statisticcontroller::class,'saasstat']);
+
 Route::post('order/pay', [OrderserviceController::class,'create_payment']);
 
 Route::post('order/changestatus', [OrderserviceController::class,'changestatus']);
