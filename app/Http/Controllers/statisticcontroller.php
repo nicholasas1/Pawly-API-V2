@@ -43,7 +43,7 @@ class statisticcontroller extends Controller
 
         $arr = [
             'new_order' => orderservice::where('partner_user_id',$partner_id)->where('status','like','ON_PROCESS')->count(),
-            'pending_order' => orderservice::where('partner_user_id',$partner_id)->where('status','like','PENDING_PAYMENT')->count(),
+            'pending_payment' => orderservice::where('partner_user_id',$partner_id)->where('status','like','PENDING_PAYMENT')->count(),
             'total_order_today' => orderservice::select(orderservice::raw('CAST(created_at AS DATE) as RegisDate'))->where(orderservice::raw('CAST(created_at AS DATE)'),'=',$date)->where('partner_user_id',$partner_id)->count(),
             'total_booking_today' =>  orderservice::select(orderservice::raw('CAST(booking_date AS DATE) as RegisDate'))->where(orderservice::raw('CAST(booking_date AS DATE)'),'=',$date)->count(),
         ];
