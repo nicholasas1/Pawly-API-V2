@@ -23,7 +23,7 @@ use Symfony\Component\VarDumper\VarDumper;
 use App\Models\User;
 use App\Http\Controllers\FirebaseTokenController;
 use App\Http\Controllers\MobileBannerController;
-
+use App\Models\ratings;
 
 
 class OrderserviceController extends Controller
@@ -206,6 +206,7 @@ class OrderserviceController extends Controller
             } else{
                 $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
             }
+            
             $method = array(
                 'id' => $arr['id'],
                 'order_id'=>$arr['order_id'],
@@ -427,6 +428,19 @@ class OrderserviceController extends Controller
                 'user_join_time'=>$detail->value('user_join_time'),
             ];
         }
+        $rating = ratings::where('booking_id','=',$orderId);
+
+        if($rating->count() == 1){
+            $is_rating = true;
+        }else{
+            $is_rating = false;
+        }
+
+        if($data->value('status') == 'ORDER_COMPLATE' && $is_rating == false){
+            $can_rating = true;
+        }else{
+            $can_rating = false;
+        }
 
         if($data->value('coupon_name')==NULL){
             $payment_allowed = '';
@@ -455,6 +469,8 @@ class OrderserviceController extends Controller
             'payed_untill'=>$data->value('payed_untill'),
             'payment_url'=>$data->value('payment_url'),
             'cancelled_at'=>$data->value('cancelled_at'),
+            'is_rating'=> $is_rating,
+            'can_rating'=> $can_rating,
             'cancelled_reason'=>$data->value('cancelled_reason'),
             'users_ids'=>$data->value('users_ids'),
             'partner_user_id' => $data->value('partner_user_id'),
@@ -703,12 +719,13 @@ class OrderserviceController extends Controller
         if($query == 1){
             return response()->JSON([
                 'status' => 'success',
+                'url' => $saveddata['hostRoomUrl'],
                 'msg' => ''
             ]);
         }else{
             return response()->JSON([
                 'status' => 'error',
-                'msg' => ''
+                'msg' => 'Failed create room'
             ]);
         }
         
@@ -848,14 +865,8 @@ class OrderserviceController extends Controller
                     'cancelled_reason'=>$arr['cancelled_reason'],
                     'users_ids'=>$arr['users_ids'],
                     'user_name'=>User::where('id',$arr['users_ids'])->value('nickname'),
+                    'user_image'=>User::where('id',$arr['users_ids'])->value('profile_picture'),
                     'partner_user_id'=>$arr['partner_user_id'],
-                    'comission'=>$arr['comission'],
-                    'partner_paid_status'=>$arr['partner_paid_status'],
-                    'partner_paid_ammount'=>$arr['partner_paid_ammount'],
-                    'partner_paid_at'=>$arr['partner_paid_at'],
-                    'refund_at'=>$arr['refund_at'],
-                    'created_at'=>$arr['created_at'],
-                    'updated_at'=>$arr['updated_at']
                 );
                 array_push($result, $method);
             }
@@ -871,7 +882,7 @@ class OrderserviceController extends Controller
     }
 
     public function rejectorder(request $request){
-        $order_id = $request->orderid;
+        $order_id = $request->order_id;
 
         $order = orderservice::where('order_id',$order_id)->get();
 
@@ -880,8 +891,8 @@ class OrderserviceController extends Controller
                 'cancelled_at' => carbon::now()->timestamp,
                 'cancelled_reason' => 'doctor reject order',
                 'status' => 'BOOKING_CANCEL',
-                'refunded_at' => carbon::now(),
-
+                'refund_at' => carbon::now(),
+                'updated_at' => Carbon::now()
             ]);
 
             $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$order_id)->value('users_ids'),'Consumer App');
@@ -912,5 +923,34 @@ class OrderserviceController extends Controller
             ]);
             
         }
+    }
+
+    public function acceptOrder(request $request){
+        $order_id = $request->order_id;
+
+        $order = orderservice::where('order_id',$order_id);
+
+        if($order->value('status')=='BOOKING RESERVED'){
+            $update = orderservice::where('order_id',$order_id)->update([
+                'status' => 'ON_PROCESS',
+                'updated_at' => Carbon::now()
+            ]);
+            $status = 'success';
+            $msg = null;
+            $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$order_id)->value('users_ids'),'Consumer App');
+            foreach( $token_fb as $token){
+                if($token['firebase_token'] != NULL){
+                    $notification = $this->mobile_banner->send_notif('Your order is now in process','Order '.$order_id.' now on process','','',$token['firebase_token']);
+                }
+            }
+        } else{
+            $status = 'error';
+            $msg = 'Failed accept booking';
+        }
+
+        return response()->JSON([
+            'status' => $status,
+            'msg' => $msg
+        ]);
     }
 }

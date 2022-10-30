@@ -68,7 +68,7 @@ Route::post('mobile/updateSplash', [SplashscreenMobileController::class, 'update
 
 Route::post('doctor/registration', [DoctorController::class, 'regisasdoctor']);
 
-Route::get('doctor/getdetaildoctor', [DoctorController::class, 'getlistdoctor']);
+Route::get('doctor/getdetaildoctor', [DoctorController::class, 'getDetaildoctor']);
 
 Route::post('doctor/updatedoctor', [DoctorController::class, 'updatedoctor']);
 
@@ -203,5 +203,7 @@ Route::post('coupon/validate', [CouponserviceController::class,'validate_coupon'
 Route::post('hahaha', [OrderserviceController::class,'createVcLink']);
 
 Route::post('order/reject',[OrderserviceController::class,'rejectorder']);
+
+Route::post('order/accept',[OrderserviceController::class,'acceptOrder']);
 
 Route::post('session/vidcallhit',[VidcalldetailController::class,'vidcallhit']);
