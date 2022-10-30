@@ -180,6 +180,8 @@ Route::get('cms/get-list', [OrderserviceController::class,'orderList']);
 
 Route::get('order/get-list', [OrderserviceController::class,'orderListToken']);
 
+Route::get('saas/order-list', [OrderserviceController::class,'orderListPartner']);
+
 Route::get('saas/appointment', [OrderserviceController::class,'saasApointment']);
 
 Route::get('saas/newOrder', [OrderserviceController::class,'saasNewOrder']);
