@@ -4,82 +4,68 @@ namespace App\Http\Controllers;
 
 use App\Models\vidcalldetail;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class VidcalldetailController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
+    protected $request;
+
+    public function __construct(Request $request) {
+        $this->request = $request;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+    public function vidcallhit(request $request){
+        $type = $request->type;
+        $rolename = $request->data['roleName'];
+        $meetingid = $request->data['meetingId'];
+        $time = $request->createdAt;
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $roomisvalid = vidcalldetail::where('meeting_id',$meetingid);
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\vidcalldetail  $vidcalldetail
-     * @return \Illuminate\Http\Response
-     */
-    public function show(vidcalldetail $vidcalldetail)
-    {
-        //
-    }
+        if($type == 'room.client.joined'){
+            if($roomisvalid->count()==1){
+                if($rolename == 'host'){
+                    $update = vidcalldetail::where('meeting_id',$meetingid)->update([
+                        'partner_join_time' => carbon::now()->timestamp,
+                        'updated_at' => carbon::now()
+                    ]);
+                } else{
+                    $update = vidcalldetail::where('meeting_id',$meetingid)->update([
+                        'user_join_time' => carbon::now()->timestamp,
+                        'updated_at' => carbon::now()
+                    ]);
+                }
+    
+                if($update==1){
+                    return response()->JSON([
+                        'status' => 'success',
+                        'results' => vidcalldetail::where('meeting_id',$meetingid)->get()
+                    ]);
+                }
+            } else{
+                return response()->JSON([
+                    'status' => 'error',
+                    'msg' => 'room is not valid'
+                ]);
+            }
+        } else if($type == 'room.session.ended'){
+            if($roomisvalid->count()==1){
+                $update = vidcalldetail::where('meeting_id',$meetingid)->update([
+                    'session_done_time' => carbon::now()->timestamp,
+                    'status' => 'DONE'
+                ]);
+            if($update==1){
+                return response()->JSON([
+                    'status' => 'success',
+                ]);
+            }
+        } else{
+                return response()->JSON([
+                    'status' => 'error',
+                    'msg' => 'room is not valid'
+                ]);
+            }
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\vidcalldetail  $vidcalldetail
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(vidcalldetail $vidcalldetail)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\vidcalldetail  $vidcalldetail
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, vidcalldetail $vidcalldetail)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\vidcalldetail  $vidcalldetail
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(vidcalldetail $vidcalldetail)
-    {
-        //
     }
 }

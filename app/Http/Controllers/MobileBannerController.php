@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class MobileBannerController extends Controller
 {
     //
-    public function send_notif($title,$body,$image,$url,$recipient){
+    public function send_notif($title,$body,$image,$url,$recipient,$route,$event){
 
             $postdata = json_encode(
                 [
@@ -20,7 +20,11 @@ class MobileBannerController extends Controller
                             'click_action' => $url
                         ]
                     ,
-                    'to' => $recipient
+                    'to' => $recipient,
+                    'data' => [
+                        'route' => $route,
+                        'event' => $event
+                    ]
                 ]
             );
 
@@ -43,7 +47,7 @@ class MobileBannerController extends Controller
     }
 
     public function notificationdata(request $request){
-        $notification = $this->send_notif($request->title,$request->body,$request->image,$request->url,$request->recipient);
+        $notification = $this->send_notif($request->title,$request->body,$request->image,$request->url,$request->recipient,$request->route,$request->event);
         if($notification->success==1){
             return response()->JSON([
                 'status' => 'success',
