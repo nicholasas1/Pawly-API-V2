@@ -18,6 +18,7 @@ use App\Http\Controllers\SplashscreenMobileController;
 use App\Http\Controllers\statisticcontroller;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserpetsController;
+use App\Http\Controllers\VidcalldetailController;
 use App\Http\Controllers\WalletController;
 use App\Models\couponservice;
 use App\Models\fav;
@@ -198,3 +199,5 @@ Route::post('coupon/validate', [CouponserviceController::class,'validate_coupon'
 Route::post('hahaha', [OrderserviceController::class,'createVcLink']);
 
 Route::post('order/reject',[OrderserviceController::class,'rejectorder']);
+
+Route::post('session/vidcallhit',[VidcalldetailController::class,'vidcallhit']);
