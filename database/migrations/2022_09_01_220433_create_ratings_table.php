@@ -15,8 +15,9 @@ return new class extends Migration
     {
         Schema::create('ratings', function (Blueprint $table) {
             $table->id();
-            $table->integer('doctors_ids');
-            $table->integer('clinic_ids');
+            $table->integer('doctors_ids')->nullable();
+            $table->integer('clinic_ids')->nullable();
+            $table->char('booking_id',15)->nullable();
             $table->integer('users_id');
             $table->integer('ratings')->nullable();
             $table->text('reviews')->nullable();
