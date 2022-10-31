@@ -881,7 +881,7 @@ class OrderserviceController extends Controller
             $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$order_id)->value('users_ids'),'Consumer App');
             foreach( $token_fb as $token){
                 if($token['firebase_token'] != NULL){
-                    $notification = $this->mobile_banner->send_notif('Your Order '.$order_id.' Has Been Cancelled','Your Money will be refuned max 1x24','','',$token['firebase_token']);
+                    $notification = $this->mobile_banner->send_notif('Your Order '.$order_id.' Has Been Cancelled','Your Money will be refuned max 1x24','','',$token['firebase_token'],NULL,NULL);
                 }
             }
             $refund = wallet::insert([
@@ -922,7 +922,7 @@ class OrderserviceController extends Controller
             $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$order_id)->value('users_ids'),'Consumer App');
             foreach( $token_fb as $token){
                 if($token['firebase_token'] != NULL){
-                    $notification = $this->mobile_banner->send_notif('Your order is now in process','Order '.$order_id.' now on process','','',$token['firebase_token']);
+                    $notification = $this->mobile_banner->send_notif('Your order is now in process','Order '.$order_id.' now on process','','',$token['firebase_token'],NULL,NULL);
                 }
             }
         } else{
