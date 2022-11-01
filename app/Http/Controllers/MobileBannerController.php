@@ -46,6 +46,27 @@ class MobileBannerController extends Controller
 
     }
 
+    public function stream(){
+        return response()->stream(function () {
+            while (true) {
+                echo "event: ping\n";
+                $curDate = date(DATE_ISO8601);
+                echo 'data: {"time": "' . $curDate . '"}';
+                echo "\n\n";
+
+                ob_flush();
+                flush();
+
+                // Break the loop if the client aborted the connection (closed the page)
+                if (connection_aborted()) {break;}
+                usleep(50000); // 50ms
+            }
+        }, 200, [
+            'Cache-Control' => 'no-cache',
+            'Content-Type' => 'text/event-stream',
+        ]);
+    }
+
     public function notificationdata(request $request){
         $notification = $this->send_notif($request->title,$request->body,$request->image,$request->url,$request->recipient,$request->route,$request->event,NULL,NULL);
         if($notification->success==1){
