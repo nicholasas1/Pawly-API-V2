@@ -57,6 +57,7 @@ class MobileBannerController extends Controller
         ];
 
         $response = new StreamedResponse();
+     
         $response->setCallback(function () use ($data){
 
              echo 'data: ' . json_encode($data) . "\n\n";
