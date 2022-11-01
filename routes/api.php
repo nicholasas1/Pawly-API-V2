@@ -208,4 +208,4 @@ Route::post('order/accept',[OrderserviceController::class,'acceptOrder']);
 
 Route::post('session/vidcallhit',[VidcalldetailController::class,'vidcallhit']);
 
-Route::post('send', [MobileBannerController::class, 'stream']);
+Route::get('send', [MobileBannerController::class, 'stream']);
