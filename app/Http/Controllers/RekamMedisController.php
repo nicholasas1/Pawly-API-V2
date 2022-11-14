@@ -13,8 +13,14 @@ class RekamMedisController extends Controller
 {
     public function create_rek_med(request $request){
         $order = orderservice::where('order_id',$request->order_id)->get();
+        if(rekam_medis::where('order_id',$request->order_id)->count==1){
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'duplicate medic record'
+            ]);
+        }
         if($order->value('status')=='ON PROCCESS'){
-            $insertrm = rekam_medis::insertGetId([
+            $insertrm = rekam_medis::insert([
                 'order_id' => $request->order_id,
                 'pet_id' => $order->value('pet_id'),
                 'keluhan' => $request->keluhan,
@@ -24,36 +30,16 @@ class RekamMedisController extends Controller
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ]);
-            $insertmd = medicine::insertGetId([
-                'rm_id' => $insertrm,
-                'nama_obat' => $request->nama_obat,
-                'penggunaan' => $request->penggunaan
-            ]);
 
-            $insertpenanganan = penanganan::insertGetId([
-                'rm_ids' => $insertrm,
-                'tindakan' => $request->tindakan,
-                'biaya_tambahan' => $request->biaya_tambahan
-            ]);
-
-            $checkrm = rekam_medis::where('id',$insertrm);
-            $checkmd = medicine::where('id',$insertmd);
-            $checkpg = penanganan::where('id',$insertpenanganan);
-
-            if($checkrm->count()==1&&$checkmd->count()==1&&$checkpg->count()==1){
-                $updateorder = orderservice::where('order_id',$request->order_id)->update([
-                    'status' => 'COMPLATE'
+            if($insertrm==1){
+                return response()->JSON([
+                    'status' => 'success'
                 ]);
-                if($updateorder==1){
-                    return response()->JSON([
-                        'status' => 'success'
-                    ]);
-                }
             }
         } else{
             return response()->JSON([
                 'status' => 'error',
-                'msg' => 'you can not edit this record'
+                'msg' => 'you can not add this record yet'
             ]);
         }
     }
@@ -61,17 +47,15 @@ class RekamMedisController extends Controller
     public function update_rek_med(request $request){
         $order = orderservice::where('order_id',$request->order_id)->get();
         if($order->value('status')=='ON PROCCESS'){
-            $insertrm = rekam_medis::where('id',$request->id)->update([
+            $updaterm = rekam_medis::where('id',$request->id)->update([
                 'keluhan' => $request->keluhan,
                 'penanganan_sementara'=> $request->penanganan_sementara,
                 'penanganan_lanjut' => $request->penanganan_lanjut,
                 'diagnosa' => $request->diagnosa,
                 'updated_at' => Carbon::now()
             ]);
-        
-            $checkrm = rekam_medis::where('id',$insertrm);
     
-            if($checkrm->count()==1){   
+            if($updaterm==1){   
                 return response()->JSON([
                 'status' => 'success'
                 ]);
@@ -103,15 +87,13 @@ class RekamMedisController extends Controller
         $order = orderservice::where('order_id',$request->order_id)->get();
         if($order->value('status')=='ON PROCCESS'){
     
-            $insertmd = medicine::insertGetId([
+            $insertmd = medicine::insert([
                 'rm_id' => $request->rm_id,
                 'nama_obat' => $request->nama_obat,
                 'penggunaan' => $request->penggunaan
             ]);
 
-            $checkmd = medicine::where('id',$insertmd);
-
-            if($checkmd->count()==1){
+            if($insertmd==1){
                 return response()->JSON([
                     'status' => 'success'
                 ]);
@@ -124,4 +106,102 @@ class RekamMedisController extends Controller
         }
     }
 
+    public function edit_obat(request $request){
+        $order = orderservice::where('order_id',$request->order_id)->get();
+        if($order->value('status')=='ON PROCCESS'){
+    
+            $updatemd = medicine::insertGetId([
+                'rm_id' => $request->rm_id,
+                'nama_obat' => $request->nama_obat,
+                'penggunaan' => $request->penggunaan
+            ]);
+
+            if($updatemd==1){
+                return response()->JSON([
+                    'status' => 'success'
+                ]);
+            }
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'you can not edit this record'
+            ]);
+        }
+    }
+
+    public function delete_obat(request $request){
+        $deleteobat = medicine::where('id',$request->id)->delete();
+
+        if($deleteobat==1){
+            return response()->JSON([
+                'status' => 'success'
+            ]);
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'obat failed to be deleted'
+            ]);
+        }
+    }
+
+    public function add_penanganan(request $request){
+        $order = orderservice::where('order_id',$request->order_id)->get();
+        if($order->value('status')=='ON PROCCESS'){
+    
+            $insertpn = penanganan::insert([
+                'rm_ids' => $request->rm_id,
+                'tindakan' => $request->nama_obat,
+                'biaya_tambahan' => $request->penggunaan
+            ]);
+
+            if($insertpn==1){
+                return response()->JSON([
+                    'status' => 'success'
+                ]);
+            }
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'you can not edit this record'
+            ]);
+        }
+    }
+
+    public function edit_penanganan(request $request){
+        $order = orderservice::where('order_id',$request->order_id)->get();
+        if($order->value('status')=='ON PROCCESS'){
+    
+            $updatepn = penanganan::where('id',$request->id)->update([
+                'rm_ids' => $request->rm_id,
+                'tindakan' => $request->nama_obat,
+                'biaya_tambahan' => $request->penggunaan
+            ]);
+
+            if($updatepn==1){
+                return response()->JSON([
+                    'status' => 'success'
+                ]);
+            }
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'you can not edit this record'
+            ]);
+        }
+    }
+
+    public function delete_penanganan(request $request){
+        $deleteobat = penanganan::where('id',$request->id)->delete();
+
+        if($deleteobat==1){
+            return response()->JSON([
+                'status' => 'success'
+            ]);
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'obat failed to be deleted'
+            ]);
+        }
+    }
 }
