@@ -58,5 +58,70 @@ class RekamMedisController extends Controller
         }
     }
 
+    public function update_rek_med(request $request){
+        $order = orderservice::where('order_id',$request->order_id)->get();
+        if($order->value('status')=='ON PROCCESS'){
+            $insertrm = rekam_medis::where('id',$request->id)->update([
+                'keluhan' => $request->keluhan,
+                'penanganan_sementara'=> $request->penanganan_sementara,
+                'penanganan_lanjut' => $request->penanganan_lanjut,
+                'diagnosa' => $request->diagnosa,
+                'updated_at' => Carbon::now()
+            ]);
+        
+            $checkrm = rekam_medis::where('id',$insertrm);
+    
+            if($checkrm->count()==1){   
+                return response()->JSON([
+                'status' => 'success'
+                ]);
+            }
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'you can not edit this record'
+            ]);
+        }
+    }
+
+    public function delete_rek_med(request $request){
+        $deleterekmed = rekam_medis::where('order_id',$request->order_id)->delete();
+
+        if($deleterekmed==1){
+            return response()->JSON([
+                'status' => 'success'
+            ]);
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'rekam medis failed to be deleted'
+            ]);
+        }
+    }
+
+    public function add_obat(request $request){
+        $order = orderservice::where('order_id',$request->order_id)->get();
+        if($order->value('status')=='ON PROCCESS'){
+    
+            $insertmd = medicine::insertGetId([
+                'rm_id' => $request->rm_id,
+                'nama_obat' => $request->nama_obat,
+                'penggunaan' => $request->penggunaan
+            ]);
+
+            $checkmd = medicine::where('id',$insertmd);
+
+            if($checkmd->count()==1){
+                return response()->JSON([
+                    'status' => 'success'
+                ]);
+            }
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'you can not edit this record'
+            ]);
+        }
+    }
 
 }
