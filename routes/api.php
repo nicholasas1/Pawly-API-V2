@@ -11,6 +11,7 @@ use App\Http\Controllers\OrderserviceController;
 use App\Http\Controllers\otpController;
 use App\Http\Controllers\PaymentmethController;
 use App\Http\Controllers\RatingsController;
+use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\schedulersystemcontroller;
 use App\Http\Controllers\SiswaController;
@@ -207,3 +208,5 @@ Route::post('order/reject',[OrderserviceController::class,'rejectorder']);
 Route::post('order/accept',[OrderserviceController::class,'acceptOrder']);
 
 Route::post('session/vidcallhit',[VidcalldetailController::class,'vidcallhit']);
+
+Route::post('rekammedis/create', [RekamMedisController::class,'create_rek_med']);
