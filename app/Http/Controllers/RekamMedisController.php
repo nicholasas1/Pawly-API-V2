@@ -231,4 +231,22 @@ class RekamMedisController extends Controller
             'results' => $arr
         ]);
     }
+
+    public function changestatus(request $request){
+        $order_id = $request->order_id;
+
+        $record = rekam_medis::where('order_id', $order_id);
+        $medicine = medicine::where('rm_id',$record->value('id'));
+        $penanganan = medicine::where('rm_ids',$record->value('id'));
+
+        if($record->count()==1&&$medicine->count()==1&&$penanganan->count()==1){
+            $status = orderservice::where('order_id',$order_id)->update([
+                'status' => 'COMPLATE'
+            ]);
+
+            return response()->JSON([
+                'status' => 'success'
+            ]);
+        }
+    }
 }
