@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('penanganans', function (Blueprint $table) {
+        Schema::create('penanganan', function (Blueprint $table) {
             $table->id();
             $table->char('rm_ids',10);
             $table->text('tindakan');
-            $table->char('biaya',25);
+            $table->char('biaya_tambahan',25);
         });
     }
 

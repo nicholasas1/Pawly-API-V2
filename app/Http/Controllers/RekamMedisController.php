@@ -3,83 +3,60 @@
 namespace App\Http\Controllers;
 
 use App\Models\rekam_medis;
+use App\Models\medicine;
+use App\Models\penanganan;
+use App\Models\orderservice;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class RekamMedisController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
+    public function create_rek_med(request $request){
+        $order = orderservice::where('order_id',$request->order_id)->get();
+        if($order->value('status')=='ON PROCCESS'){
+            $insertrm = rekam_medis::insertGetId([
+                'order_id' => $request->order_id,
+                'pet_id' => $order->value('pet_id'),
+                'keluhan' => $request->keluhan,
+                'penanganan_sementara'=> $request->penanganan_sementara,
+                'penanganan_lanjut' => $request->penanganan_lanjut,
+                'diagnosa' => $request->diagnosa,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
+            ]);
+            $insertmd = medicine::insertGetId([
+                'rm_id' => $insertrm,
+                'nama_obat' => $request->nama_obat,
+                'penggunaan' => $request->penggunaan
+            ]);
+
+            $insertpenanganan = penanganan::insertGetId([
+                'rm_ids' => $insertrm,
+                'tindakan' => $request->tindakan,
+                'biaya_tambahan' => $request->biaya_tambahan
+            ]);
+
+            $checkrm = rekam_medis::where('id',$insertrm);
+            $checkmd = medicine::where('id',$insertmd);
+            $checkpg = penanganan::where('id',$insertpenanganan);
+
+            if($checkrm->count()==1&&$checkmd->count()==1&&$checkpg->count()==1){
+                $updateorder = orderservice::where('order_id',$request->order_id)->update([
+                    'status' => 'COMPLATE'
+                ]);
+                if($updateorder==1){
+                    return response()->JSON([
+                        'status' => 'success'
+                    ]);
+                }
+            }
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'you can not edit this record'
+            ]);
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\rekam_medis  $rekam_medis
-     * @return \Illuminate\Http\Response
-     */
-    public function show(rekam_medis $rekam_medis)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\rekam_medis  $rekam_medis
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(rekam_medis $rekam_medis)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\rekam_medis  $rekam_medis
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, rekam_medis $rekam_medis)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\rekam_medis  $rekam_medis
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(rekam_medis $rekam_medis)
-    {
-        //
-    }
 }
