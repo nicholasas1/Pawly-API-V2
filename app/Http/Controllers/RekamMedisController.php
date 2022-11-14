@@ -8,6 +8,7 @@ use App\Models\penanganan;
 use App\Models\orderservice;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class RekamMedisController extends Controller
 {
@@ -203,5 +204,31 @@ class RekamMedisController extends Controller
                 'msg' => 'obat failed to be deleted'
             ]);
         }
+    }
+
+    public function get_record_detail(request $request){
+        $query = DB::table('rekam_medis')
+        ->join('penanganan','id','=','rm_ids')
+        ->select(['id','order_id','pet_id','keluhan','penanganan_sementara','penanganan_lanjut','diagnosa','penanganan.tindakan','penanganan.biaya_tambahan'])
+        ->where('id',$request->id);
+
+        $arr = [
+            'rm_id' => $query->id,
+            'order_id' => $query->order_id,
+            'pet_id' => $query->pet_id,
+            'keluhan' => $query->keluhan,
+            'penanganan_sementara' => $query->penanganan_sementara,
+            'penanganan_lanjut' => $query->penanganan_lanjut,
+            'diagnosa' => $query->diagnosa,
+            'obat' => medicine::where('rm_id',$request->id)->get(),
+            'tindakan' => $query->tindakan,
+            'biaya_tambahan' => $query->biaya_tambahan
+
+        ];
+
+        return response()->JSON([
+            'status' => 'success',
+            'results' => $arr
+        ]);
     }
 }
