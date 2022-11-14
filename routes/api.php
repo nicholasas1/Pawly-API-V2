@@ -11,6 +11,7 @@ use App\Http\Controllers\OrderserviceController;
 use App\Http\Controllers\otpController;
 use App\Http\Controllers\PaymentmethController;
 use App\Http\Controllers\RatingsController;
+use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\schedulersystemcontroller;
 use App\Http\Controllers\SiswaController;
@@ -207,3 +208,25 @@ Route::post('order/reject',[OrderserviceController::class,'rejectorder']);
 Route::post('order/accept',[OrderserviceController::class,'acceptOrder']);
 
 Route::post('session/vidcallhit',[VidcalldetailController::class,'vidcallhit']);
+
+Route::post('record/create', [RekamMedisController::class,'create_rek_med']);
+
+Route::post('record/update', [RekamMedisController::class,'update_rek_med']);
+
+Route::post('record/delete', [RekamMedisController::class,'delete_rek_med']);
+
+Route::post('medicine/create', [RekamMedisController::class,'add_obat']);
+
+Route::post('medicine/update', [RekamMedisController::class,'edit_obat']);
+
+Route::post('medicine/delete', [RekamMedisController::class,'delete_obat']);
+
+Route::post('penanganan/create', [RekamMedisController::class,'add_penanganan']);
+
+Route::post('penanganan/update', [RekamMedisController::class,'edit_penanganan']);
+
+Route::post('penanganan/update', [RekamMedisController::class,'delete_penanganan']);
+
+Route::get('record/detail', [RekamMedisController::class,'get_record_detail']);
+
+Route::post('record/changestatus', [RekamMedisController::class,'changestatus']);
