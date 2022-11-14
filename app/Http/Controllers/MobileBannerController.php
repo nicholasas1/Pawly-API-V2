@@ -46,7 +46,6 @@ class MobileBannerController extends Controller
 
     }
 
-
     public function stream(){
         $random_string = chr(rand(65, 90)) . chr(rand(65, 90)) . chr(rand(65, 90));
         $data = [
@@ -81,7 +80,7 @@ class MobileBannerController extends Controller
 
         $response->send();
     }
-    
+
     public function notificationdata(request $request){
         $notification = $this->send_notif($request->title,$request->body,$request->image,$request->url,$request->recipient,$request->route,$request->event,NULL,NULL);
         if($notification->success==1){
