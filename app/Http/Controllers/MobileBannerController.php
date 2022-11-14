@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\mobile_banner;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-
 class MobileBannerController extends Controller
 {
     //
@@ -57,7 +56,7 @@ class MobileBannerController extends Controller
         ];
 
         $response = new StreamedResponse();
-     
+
         $response->setCallback(function () use ($data){
 
              echo 'data: ' . json_encode($data) . "\n\n";

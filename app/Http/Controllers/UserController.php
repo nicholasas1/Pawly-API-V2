@@ -74,12 +74,18 @@ class UserController extends Controller
         }else{
             $credit = wallet::where('users_ids',$userid)->where('type','pawly_credit')->sum('debit') - wallet::where('users_ids',$userid)->where('type','pawly_credit')->sum('credit');
         }
+        if($user->value('password')==NULL){
+            $set_password = true;
+        } else{
+            $set_password = false;
+        }
         $arr = [
             'Id' => $userid,
             'Username' => $user->value('Username'),
             'Nickname' => $user->value('nickname'),
             'Full_Name' => $user->value('fullname'), 
             'Email' => $user->value('email'),
+            'set_password' => $set_password,
             'phone_number' => $user->value('phone_number'),
             'birthday' => $user->value('birthday'),
             'gender'=> $user->value('gender'),
@@ -114,12 +120,18 @@ class UserController extends Controller
             }else{
                 $credit = wallet::where('users_ids',$userid)->where('type','pawly_credit')->sum('debit') - wallet::where('users_ids',$userid)->where('type','pawly_credit')->sum('credit');
             }
+            if($user->value('password')==NULL){
+                $set_password = true;
+            } else{
+                $set_password = false;
+            }
             $arr = [
                 'Id' => $userid,
                 'Username' => $user->value('Username'),
                 'Nickname' => $user->value('nickname'),
                 'Full_Name' => $user->value('fullname'), 
                 'Email' => $user->value('email'),
+                'set_password' => $set_password,
                 'phone_number' => $user->value('phone_number'),
                 'birthday' => $user->value('birthday'),
                 'gender'=> $user->value('gender'),
