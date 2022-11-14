@@ -56,7 +56,7 @@ class DoctorController extends Controller
             'worked_since' => $request->workedsince,
             'lat' => $request->lat,
             'long' => $request->long,
-            'isonline' => 'online'
+            'isonline' => 'online',
         ]);
 
         $doctorid = doctor::where('users_ids',$request->id)->value('id');

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\mobile_banner;
 use Illuminate\Http\Request;
-
+use Symfony\Component\HttpFoundation\StreamedResponse;
 class MobileBannerController extends Controller
 {
     //
@@ -46,6 +46,42 @@ class MobileBannerController extends Controller
 
     }
 
+
+    public function stream(){
+        $random_string = chr(rand(65, 90)) . chr(rand(65, 90)) . chr(rand(65, 90));
+        $data = [
+            'message' => $random_string,
+            'name' => 'Sadhan Sarker',
+            'time' => date('h:i:s'),
+            'id' => rand(10, 100),
+        ];
+
+        $response = new StreamedResponse();
+
+        $response->setCallback(function () use ($data){
+
+             echo 'data: ' . json_encode($data) . "\n\n";
+             //echo "retry: 100\n\n"; // no retry would default to 3 seconds.
+             //echo "data: Hello There\n\n";
+             ob_flush();
+             flush();
+             //sleep(10);
+             usleep(2000);
+        });
+
+        $response->headers->set('Content-Type', 'text/event-stream');
+        $response->headers->set('X-Accel-Buffering', 'no');
+        $response->headers->set('Cach-Control', 'no-cache');
+
+        $response->headers->set('Access-Control-Allow-Origin', 'http://localhost:8100');
+        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST');
+        $response->headers->set('Access-Control-Allow-Credentials', 'true');
+        $response->headers->set('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, X-Requested-With');
+
+
+        $response->send();
+    }
+    
     public function notificationdata(request $request){
         $notification = $this->send_notif($request->title,$request->body,$request->image,$request->url,$request->recipient,$request->route,$request->event,NULL,NULL);
         if($notification->success==1){
