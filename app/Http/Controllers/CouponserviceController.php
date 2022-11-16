@@ -172,13 +172,15 @@ class CouponserviceController extends Controller
     }
 
     public function create_coupon(request $request){
+        $data = json_decode($request->allowed_payment);
+        $serilize = serialize($data);
         $query = couponservice::insert([
             'coupon_name' => $request->coupon_name,
             'coupon_type' => $request->coupon_type,
             'min_price' => $request->min_price,
             'max_price' => $request->max_price,
             'coupon_service' => $request->coupon_service,
-            'allowed_payment' => $request->allowed_payment,
+            'allowed_payment' => $serilize,
             'coupon_rule' => $request->coupon_rule,
             'coupon_value' => $request->coupon_value,
             'max_usage' => $request->max_usage,
