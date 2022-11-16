@@ -345,6 +345,8 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
 
         if($result['status'] == 200){
+            $data2 = orderservice::where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%') ->orderBy('created_at','DESC');
+
             $data = orderservice::where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%') ->orderBy('created_at','DESC');
             $result=[];
             
@@ -389,8 +391,8 @@ class OrderserviceController extends Controller
             }
             return response()->json([
                 'status'=>'success',  
-                'total_data'=>$data->count(),  
-                'total_page'=> ceil($data->count() / $limit),
+                'total_data'=>$data2->count(),  
+                'total_page'=> ceil($data2->count() / $limit),
                 'results'=>$result
             ]);
         }else{
