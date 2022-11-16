@@ -45,7 +45,7 @@ class WalletController extends Controller
 
     public function WaletTransaction(request $request){
         $token = $request->header("Authorization");
-        $search = $request->limit;
+        $search = $request->search;
         if($token  == null){
             $user_id = $request->user_id;
         }else{
