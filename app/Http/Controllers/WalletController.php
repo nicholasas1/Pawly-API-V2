@@ -64,7 +64,7 @@ class WalletController extends Controller
         } else{
             $page = ($request->page - 1) * $limit;
         }
-
+        $ammount =  wallet::where('users_ids',$user_id)->where('type',$request->type);
         $data = wallet::where('users_ids',$user_id)->where('type',$request->type)->where('description','like','%'.$search.'%')->orderBy('created_at','DESC');
         $query = wallet::where('users_ids',$user_id)->where('type',$request->type)->where('description','like','%'.$search.'%')->orderBy('created_at','DESC')->limit($limit)->offset($page);
         
@@ -74,7 +74,7 @@ class WalletController extends Controller
             'total_data'=>$data->count(),  
             'total_page'=> ceil($data->count() / $limit),
             'results'=> [
-                $request->type => $data->sum('debit') - $data->sum('credit'),
+                $request->type => $ammount->sum('debit') - $ammount->sum('credit'),
                 'transaction' => $query->get()
             ]
         ]); 
