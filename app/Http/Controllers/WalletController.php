@@ -66,7 +66,7 @@ class WalletController extends Controller
         }
 
         $data = wallet::where('users_ids',$user_id)->where('type',$request->type)->where('description','like','%'.$search.'%')->orderBy('created_at','DESC');
-        $query = $data->limit($limit)->offset($page);
+        $query = wallet::where('users_ids',$user_id)->where('type',$request->type)->where('description','like','%'.$search.'%')->orderBy('created_at','DESC')->limit($limit)->offset($page);
         
       
         return response()->json([
