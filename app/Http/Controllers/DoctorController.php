@@ -90,7 +90,7 @@ class DoctorController extends Controller
         if($request->page==NULL){
             $page = 0;
         } else{
-            $page = $request->page - 1 * $limit;
+            $page = ($request->page - 1) * $limit;
         }
 
         $token = $request->header("Authorization");
