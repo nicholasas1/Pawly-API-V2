@@ -35,6 +35,6 @@ class MailServer extends Controller
     public function InvoicePendingPayment($details){
        
        
-        Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
+        Mail::to($details['user_detail']['email'])->send(new \App\Mail\CustomerInvoicePendinngPayment($details));
     }
 }
