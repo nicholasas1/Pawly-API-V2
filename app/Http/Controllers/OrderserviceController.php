@@ -25,7 +25,7 @@ use App\Models\User;
 use App\Http\Controllers\FirebaseTokenController;
 use App\Http\Controllers\MobileBannerController;
 use App\Models\ratings;
-
+use Illuminate\Support\Facades\Mail;
 
 
 class OrderserviceController extends Controller
@@ -132,9 +132,9 @@ class OrderserviceController extends Controller
                     'booking_date' => $booking_time,
                     'partnerDetail' => $res
                 ];
-
                 if($insertorderid==1){
-                    $this->mailServer->InvoicePendingPayment($details);
+                    //$this->mailServer->InvoicePendingPayment($details);
+                    Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -194,7 +194,7 @@ class OrderserviceController extends Controller
                 ];
 
                 if($insertorderid==1){
-                    $this->mailServer->InvoicePendingPayment($details);
+                    Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
