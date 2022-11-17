@@ -166,4 +166,22 @@ class MobileBannerController extends Controller
             ]);
         }
     }
+
+    public function getbannerlist(request $request){
+        $query = mobile_banner::all();
+
+        return response()->json([
+            'status' => 'success',
+            'results' => $query
+        ]);
+    }
+
+    public function getbannerdetail(request $request){
+        $query = mobile_banner::where('id', $request->id)->get();
+
+        return response()->json([
+            'status' => 'success',
+            'results' => $query
+        ]);
+    }
 }
