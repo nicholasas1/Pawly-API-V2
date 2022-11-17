@@ -139,8 +139,8 @@ class OrderserviceController extends Controller
                     'partnerDetail' => $res
                 ];
                 if($insertorderid==1){
-                    //$this->mailServer->InvoicePendingPayment($details);
-                    Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
+                    $this->mailServer->InvoicePendingPayment($details);
+                    //Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
                     $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY SUPER APP:\n1. Nama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
 
                     $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
@@ -205,7 +205,8 @@ class OrderserviceController extends Controller
                 ];
 
                 if($insertorderid==1){
-                    Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
+                    $this->mailServer->InvoicePendingPayment($details);
+                    //Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
                     $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY SUPER APP:\n1. Nama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
 
                     $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
