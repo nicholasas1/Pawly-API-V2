@@ -81,9 +81,9 @@ For what reason would it be advisable for me to think about business content? Th
                             </td>
                         </tr>
                         <tr>
-                            <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 10px;">
-                                <div class="row" style="margin-top: 20px">
-                                    <div class="col-6">
+                            <table role="presentation" style="width:100%;border-collapse:collapse;border:0;border-spacing:0;">
+                                <tr>
+                                    <td style="width:260px;padding:0;vertical-align:top;">
                                         <p style="font-size: 16px; font-weight: 600; line-height: 10px; color: black;">
                                             Order ID
                                         </p>
@@ -96,14 +96,15 @@ For what reason would it be advisable for me to think about business content? Th
                                         <p style="font-size: 16px; font-weight: 400; line-height: 10px; color: #777777;">
                                             {{ $details['type'] }} - {{ $details['service'] }}
                                         </p>
-                                    </div>
-                                    <div class="col-6">
+                                    </td>
+                                    <td style="width:20px;padding:0;font-size:0;line-height:0;">&nbsp;</td>
+                                    <td style="width:260px;padding:0;vertical-align:top;">
                                         <p style="font-size: 16px; font-weight: 400; line-height: 25px; color: black;margin-top:-10px">
                                             Your booking status is now <b> Pending Payment </b> To enjoy your session, please complete the payment for your booking as followed:
                                         </p>
-                                    </div>
-                                </div>
-                            </td>
+                                    </td>
+                                </tr>
+                            </table>
                         </tr>
                         <tr>
                             <td align="left" style="padding-top: 20px;">
@@ -147,29 +148,46 @@ For what reason would it be advisable for me to think about business content? Th
                                 <table cellspacing="0" cellpadding="0" border="0" width="100%">
                                     <tr>
                                         <div class="row" style=" border-top: 3px solid #eeeeee; border-bottom: 3px solid #eeeeee;">
-                                            <div class="col-6">
-                                                <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; padding: 10px;"> 
-                                                    Total Price
-                                                </p>
-                                                <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400;padding: 10px;margin-top:-13%"> 
-                                                    Biaya Admin / Pajak
-                                                </p>
-                                                <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800;  padding: 10px;;margin-top:-5%"> 
-                                                    Total Payment
-                                                </p>
-                                            </div>
-                                            <div class="col-6">
-                                                <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400;  padding: 10px;text-align:right"> 
-                                                    {{ $details['total_price']}}
-                                                    
-                                                </p>
-                                                <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400;  padding: 10px;text-align:right;margin-top:-13%"> 
-                                                    
-                                                </p>
-                                                <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800;  padding: 10px;text-align:right;margin-top:-5%"> 
-                                                    {{ $details['total_price'] }}
-                                                </p>
-                                            </div>
+                                        </div>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <table role="presentation" style="width:100%;border-collapse:collapse;border:0;border-spacing:0;">
+                                <tr>
+                                    <td style="width:260px;padding:0;vertical-align:top;">
+                                        <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; padding: 10px;"> 
+                                            Total Price
+                                        </p>
+                                        <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400;padding: 10px;margin-top:-13%"> 
+                                            Biaya Admin / Pajak
+                                        </p>
+                                        <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800;  padding: 10px;;margin-top:-5%"> 
+                                            Total Payment
+                                        </p>
+                                    </td>
+                                    <td style="width:20px;padding:0;font-size:0;line-height:0;">&nbsp;</td>
+                                    <td style="width:260px;padding:0;vertical-align:top;">
+                                        <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400;  padding: 10px;text-align:right"> 
+                                            {{ $details['total_price']}}
+                                            
+                                        </p>
+                                        <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400;  padding: 10px;text-align:right;margin-top:-13%"> 
+                                            
+                                        </p>
+                                        <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800;  padding: 10px;text-align:right;margin-top:-5%"> 
+                                            {{ $details['total_price'] }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tr>
+                        <tr>
+                            <td align="left" style="padding-top: 20px;">
+                                <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                    <tr>
+                                        <div class="row" style=" border-top: 3px solid #eeeeee; border-bottom: 3px solid #eeeeee;">
                                         </div>
                                     </tr>
                                 </table>
