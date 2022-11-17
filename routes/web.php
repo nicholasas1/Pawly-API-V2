@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\mail;
+//use App\Http\Controllers\mail;
 use App\Http\Controllers\MailServer;
 use App\Http\Controllers\UserController;
-
+use Illuminate\Support\Facades\Mail;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -39,3 +39,15 @@ Route::get('/lala', function () {
 });
 
 Route::get('profile/ActivateAccount', [UserController::class, 'ActivateEmail']);
+
+Route::get('send-mail', function () {
+   
+    $details = [
+        'title' => 'Mail from ItSolutionStuff.com',
+        'body' => 'This is for testing email using smtp'
+    ];
+   
+    Mail::to('nicholas@strongbee.co.id')->send(new \App\Mail\CustomerInvoicePendinngPayment($details));
+   
+    dd("Email is Sent.");
+});
