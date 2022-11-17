@@ -56,7 +56,7 @@ For what reason would it be advisable for me to think about business content? Th
                     <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;">
                         <tr>
                             <td align="left" valign="top" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 36px; font-weight: 800; line-height: 48px;" class="mobile-center">
-                                <img src="{{ URL::asset('LOGO WITH TEXT NO BACKGROUND (1).png') }}" alt="" style="width: 100%;max-width:200px">
+                                <img src="https://staging.api.pawly.my.id/LOGO%20WITH%20TEXT%20NO%20BACKGROUND%20(1).png" alt="" style="width: 100%;max-width:200px">
                             </td>
                         </tr>
                     </table>
@@ -213,7 +213,7 @@ For what reason would it be advisable for me to think about business content? Th
                 <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
                     <tr>
                         <td align="center">
-                            <img src="{{ URL::asset('LOGO WITH TEXT NO BACKGROUND (1).png') }}" width="100" height="100" style="display: block; border: 0px;"/>
+                            <img src="https://staging.api.pawly.my.id/LOGO%20WITH%20TEXT%20NO%20BACKGROUND%20(1).png" width="100" height="100" style="display: block; border: 0px;"/>
                         </td>
                     </tr>
                     <tr>
