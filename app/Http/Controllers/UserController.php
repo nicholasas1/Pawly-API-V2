@@ -251,7 +251,7 @@ class UserController extends Controller
         $number    = preg_match('@[0-9]@', $request->password);
         $specialChars = preg_match('@[^\w]@', $request->password);
         
-        if(!$uppercase || !$lowercase || !$number || !$specialChars || strlen($request->password) < 8) {
+        if(!$uppercase || !$lowercase || !$number || strlen($request->password) < 8) {
             $status ="Pasword setidaknya harus 8 karakter dan harus memiliki huruf besar, huruf kecil, angka, dan spesial karakter.";
             $error = 1;
         }
