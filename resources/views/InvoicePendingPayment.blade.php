@@ -74,7 +74,7 @@ For what reason would it be advisable for me to think about business content? Th
                         </tr>
                         <tr>
                             <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 10px;">
-                                <h2>Hi, Nicholas Antonius!</h2>
+                                <h2>Hi, {{ $details['user_detail']['nickname'] }}!</h2>
                                 <p style="font-size: 16px; font-weight: 400; line-height: 24px; color: #777777;">
                                     We have received your booking request with the following details:
                                 </p>
@@ -88,13 +88,13 @@ For what reason would it be advisable for me to think about business content? Th
                                             Order ID
                                         </p>
                                         <p style="font-size: 16px; font-weight: 400; line-height: 10px; color: #777777;">
-                                            SKH20Z4PS
+                                            {{ $details['order_id'] }}
                                         </p>
                                         <p style="font-size: 16px; font-weight: 600; line-height: 10px; color: black; margin-top:30px">
                                             Service Type
                                         </p>
                                         <p style="font-size: 16px; font-weight: 400; line-height: 10px; color: #777777;">
-                                            Doctor - Video Call
+                                            {{ $details['type'] }} - {{ $details['service'] }}
                                         </p>
                                     </div>
                                     <div class="col-6">
@@ -121,14 +121,14 @@ For what reason would it be advisable for me to think about business content? Th
                                             Doctor Name / Clinic Name
                                         </td>
                                         <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
-                                            Luda
+                                            {{ $details['partnerDetail']['name'] }}
                                         </td>
                                     </tr>
                                     <tr>
                                         <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;">
                                             Booking Date
                                         <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;">
-                                            19 Nov 2022 
+                                            {{ \Carbon\Carbon::parse($details['booking_date'])->format('d M Y')}}
                                         </td>
                                     </tr>
                                     <tr>
@@ -136,7 +136,7 @@ For what reason would it be advisable for me to think about business content? Th
                                             Booking Time
                                         </td>
                                         <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;">
-                                            17:00
+                                            {{ \Carbon\Carbon::parse($details['booking_date'])->format('H:i:s')}}
                                         </td>
                                     </tr>
                                 </table>

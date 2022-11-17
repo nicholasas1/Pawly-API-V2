@@ -40,6 +40,8 @@ Route::get('/lala', function () {
 
 Route::get('profile/ActivateAccount', [UserController::class, 'ActivateEmail']);
 
+Route::get('tes', [MailServer::class, 'InvoicePendingPayment']);
+
 Route::get('send-mail', function () {
    
     $details = [

@@ -28,6 +28,6 @@ class CustomerInvoicePendinngPayment extends Mailable
      */
     public function build()
     {
-        return $this->from($address = 'no-reply@pawly.my.id', $name = 'Pawly Indonesia')->view('InvoicePendingPayment');
+        return $this->from($address = 'no-reply@pawly.my.id', $name = 'Pawly Indonesia')->subject("Hai ".$this->details['user_detail']['nickname'].", Please Complate Your Order")->view('InvoicePendingPayment');
     }
 }

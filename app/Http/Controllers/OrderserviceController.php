@@ -13,6 +13,7 @@ use ReallySimpleJWT\Jwt;
 use ReallySimpleJWT\Decode;
 use App\Http\Controllers\JWTValidator;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\MailServer;
 use Carbon\Carbon;
 use App\Models\doctor;
 use App\Models\clinic;
@@ -26,17 +27,20 @@ use App\Http\Controllers\MobileBannerController;
 use App\Models\ratings;
 
 
+
 class OrderserviceController extends Controller
 {
     protected $coupons;
     protected $JWTValidator;
-    public function __construct(WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
+    public function __construct(MailServer $mailServer,WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
     {
         $this->coupons = $coupons;
         $this->JWTValidator = $jWTValidator;
         $this->fb_token = $fb_token;
         $this->mobile_banner = $mobile_banner;
         $this->wallet = $wallet;
+        $this->mailServer = $mailServer;
+
     }
 
     public function order_service(request $request){
@@ -77,7 +81,23 @@ class OrderserviceController extends Controller
             } else{
                 $paid_until = time()+ 3600*24;
             }
-
+            $res=[];
+            $user=[];
+            $user_detail = User::where('id','like', $userid);
+            $user = [
+                    'nickname' => $user_detail->value('nickname'),
+                    'profile_picture'=>$user_detail->value('profile_picture'),
+                    'email'=>$user_detail->value('email')
+            ];
+            if($type == 'doctor'){
+                $detail = doctor::where('id','like', $service_id);
+                $res = [
+                    'account_id' => $detail->value('users_ids'),
+                    'id'=>$detail->value('id'),
+                    'name'=>$detail->value('doctor_name'),
+                    'profile_picture'=>$detail->value('profile_picture')
+                ];
+            }
         
             if($coupon_name==NULL){
                 $total_price = $price;
@@ -99,11 +119,22 @@ class OrderserviceController extends Controller
                     'payed_untill' => $paid_until,
                     'booking_date' => $booking_time
                 ]);
+                $orderId = $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 3).$query;
                 $insertorderid = orderservice::where('id',$query)->update([
-                    'order_id' => $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 3).$query
+                    'order_id' => $orderId
                 ]);
 
+                $details = [
+                    'user_detail' =>$user,
+                    'order_id' =>$orderId,
+                    'service' => $service,
+                    'type' => $type,
+                    'booking_date' => $booking_time,
+                    'partnerDetail' => $res
+                ];
+
                 if($insertorderid==1){
+                    $this->mailServer->InvoicePendingPayment($details);
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -152,7 +183,18 @@ class OrderserviceController extends Controller
                     'order_id' => $orderId
                 ]);
 
+                 
+                $details = [
+                    'user_detail' =>$user,
+                    'order_id' =>$orderId,
+                    'service' => $service,
+                    'type' => $type,
+                    'booking_date' => $booking_time,
+                    'partnerDetail' => $res
+                ];
+
                 if($insertorderid==1){
+                    $this->mailServer->InvoicePendingPayment($details);
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -400,9 +442,11 @@ class OrderserviceController extends Controller
         }     
     }
 
-    public function getDetail(request $request)
-    {
-        $orderId = $request->id;
+    public function getDetail(request $request){
+        return $this->orderDetail($request->id);
+    }
+
+    public function orderDetail($orderId){
         $vcDetail=[];
         $res=[];
         
@@ -490,8 +534,6 @@ class OrderserviceController extends Controller
             'status'=>'success',
             'results'=>$arr
         ]);
-       
-        
     }
 
     public function create_payment(request $request){
