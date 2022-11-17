@@ -20,6 +20,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/ReminderPayment', function () {
+    return view('InvoiceCancel');
+});
+
 Route::get('migrate-fresh', function () {
     $exitCode = Artisan::call('migrate:fresh --seed --force');
 });
