@@ -26,13 +26,14 @@ use App\Http\Controllers\FirebaseTokenController;
 use App\Http\Controllers\MobileBannerController;
 use App\Models\ratings;
 use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\whatsapp_notif;
 
 
 class OrderserviceController extends Controller
 {
     protected $coupons;
     protected $JWTValidator;
-    public function __construct(MailServer $mailServer,WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
+    public function __construct(whatsapp_notif $whatsapp,MailServer $mailServer,WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
     {
         $this->coupons = $coupons;
         $this->JWTValidator = $jWTValidator;
@@ -40,6 +41,7 @@ class OrderserviceController extends Controller
         $this->mobile_banner = $mobile_banner;
         $this->wallet = $wallet;
         $this->mailServer = $mailServer;
+        $this->whatsapp = $whatsapp;
 
     }
 
@@ -87,7 +89,8 @@ class OrderserviceController extends Controller
             $user = [
                     'nickname' => $user_detail->value('nickname'),
                     'profile_picture'=>$user_detail->value('profile_picture'),
-                    'email'=>$user_detail->value('email')
+                    'email'=>$user_detail->value('email'),
+                    'phone_number'=>$user_detail->value('phone_number')
             ];
             if($type == 'doctor'){
                 $detail = doctor::where('id','like', $service_id);
@@ -95,6 +98,7 @@ class OrderserviceController extends Controller
                     'account_id' => $detail->value('users_ids'),
                     'id'=>$detail->value('id'),
                     'name'=>$detail->value('doctor_name'),
+                    'phone_number'=>User::where('id','like',$detail->value('users_ids'))->value('phone_number'),
                     'profile_picture'=>$detail->value('profile_picture')
                 ];
             }
@@ -135,6 +139,9 @@ class OrderserviceController extends Controller
                 if($insertorderid==1){
                     //$this->mailServer->InvoicePendingPayment($details);
                     Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
+                    $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY SUPER APP:\n1. Nama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
+
+                    $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
