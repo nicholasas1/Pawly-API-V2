@@ -160,13 +160,14 @@ For what reason would it be advisable for me to think about business content? Th
                                             </div>
                                             <div class="col-6">
                                                 <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400;  padding: 10px;text-align:right"> 
-                                                    Total Price
+                                                    {{ $details['total_price']}}
+                                                    
                                                 </p>
                                                 <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400;  padding: 10px;text-align:right;margin-top:-13%"> 
-                                                    Total Price
+                                                    
                                                 </p>
                                                 <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800;  padding: 10px;text-align:right;margin-top:-5%"> 
-                                                    Total Payment
+                                                    {{ $details['total_price'] }}
                                                 </p>
                                             </div>
                                         </div>

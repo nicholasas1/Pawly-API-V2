@@ -134,6 +134,8 @@ class OrderserviceController extends Controller
                     'service' => $service,
                     'type' => $type,
                     'booking_date' => $booking_time,
+                    'total_price' => $total_price,
+                    'total_payment' => $subtotal,
                     'partnerDetail' => $res
                 ];
                 if($insertorderid==1){
@@ -197,6 +199,8 @@ class OrderserviceController extends Controller
                     'service' => $service,
                     'type' => $type,
                     'booking_date' => $booking_time,
+                    'total_price' => $total_price,
+                    'total_payment' => $subtotal,
                     'partnerDetail' => $res
                 ];
 
