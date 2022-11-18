@@ -101,6 +101,15 @@ class OrderserviceController extends Controller
                     'phone_number'=>User::where('id','like',$detail->value('users_ids'))->value('phone_number'),
                     'profile_picture'=>$detail->value('profile_picture')
                 ];
+            }else{
+                $detail = doctor::where('id','like', $service_id);
+                $res = [
+                    'account_id' => '',
+                    'id'=>'',
+                    'name'=>'',
+                    'phone_number'=>'6288213276665',
+                    'profile_picture'=>''
+                ];
             }
         
             if($coupon_name==NULL){
