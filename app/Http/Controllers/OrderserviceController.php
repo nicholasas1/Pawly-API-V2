@@ -18,6 +18,8 @@ use Carbon\Carbon;
 use App\Models\doctor;
 use App\Models\clinic;
 use App\Models\wallet;
+use App\Models\Medicine;
+use App\Models\Penanganan;
 use App\Models\vidcalldetail;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\VarDumper\VarDumper;
@@ -27,7 +29,7 @@ use App\Http\Controllers\MobileBannerController;
 use App\Models\ratings;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\whatsapp_notif;
-
+use App\Models\RekamMedis;
 
 class OrderserviceController extends Controller
 {
@@ -272,7 +274,9 @@ class OrderserviceController extends Controller
             } else{
                 $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
             }
-            
+            $rekammedis = RekamMedis::where('order_id',$arr['order_id'])->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
+            $obat = medicine::where('rm_id',$rekammedis->id)->get();
+            $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
             $method = array(
                 'id' => $arr['id'],
                 'order_id'=>$arr['order_id'],
@@ -300,6 +304,9 @@ class OrderserviceController extends Controller
                 'partner_paid_ammount'=>$arr['partner_paid_ammount'],
                 'partner_paid_at'=>$arr['partner_paid_at'],
                 'refund_at'=>$arr['refund_at'],
+                'rekam_medis'=>$rekammedis,
+                'medicine' => $obat,
+                'penanganan' => $penanganan,
                 'created_at'=>$arr['created_at'],
                 'updated_at'=>$arr['updated_at']
             );
@@ -345,6 +352,9 @@ class OrderserviceController extends Controller
                 } else{
                     $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
                 }
+                $rekammedis = RekamMedis::where('order_id',$arr['order_id'])->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
+                $obat = medicine::where('rm_id',$rekammedis->id)->get();
+                $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
@@ -372,6 +382,9 @@ class OrderserviceController extends Controller
                     'partner_paid_ammount'=>$arr['partner_paid_ammount'],
                     'partner_paid_at'=>$arr['partner_paid_at'],
                     'refund_at'=>$arr['refund_at'],
+                    'rekam_medis'=>$rekammedis,
+                    'medicine' => $obat,
+                    'penanganan' => $penanganan,
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
 
@@ -422,6 +435,10 @@ class OrderserviceController extends Controller
                 } else{
                     $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
                 }
+
+                $rekammedis = RekamMedis::where('order_id',$arr['order_id'])->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
+                $obat = medicine::where('rm_id',$rekammedis->id)->get();
+                $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
@@ -449,6 +466,9 @@ class OrderserviceController extends Controller
                     'partner_paid_ammount'=>$arr['partner_paid_ammount'],
                     'partner_paid_at'=>$arr['partner_paid_at'],
                     'refund_at'=>$arr['refund_at'],
+                    'rekam_medis'=>$rekammedis,
+                    'medicine' => $obat,
+                    'penanganan' => $penanganan,
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
 
@@ -518,6 +538,10 @@ class OrderserviceController extends Controller
             $payment_allowed =  couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
         }
 
+        $rekammedis = RekamMedis::where('order_id',$data->value('order_id'))->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
+        $obat = medicine::where('rm_id',$rekammedis->id)->get();
+        $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
+
         $arr = [
             'id' => $data->value('id'),
             'order_id'=>$data->value('order_id'),
@@ -550,6 +574,9 @@ class OrderserviceController extends Controller
             'partner_paid_ammount' => $data->value('partner_paid_ammount'),
             'partner_paid_at' => $data->value('partner_paid_at'),
             'refund_at' => $data->value('refund_at'),
+            'rekam_medis'=>$rekammedis,
+            'medicine' => $obat,
+            'penanganan' => $penanganan,
             'created_at'=>$data->value('created_at'),
             'updated_at'=>$data->value('updated_at')
         ]; 
@@ -836,6 +863,9 @@ class OrderserviceController extends Controller
                 } else{
                     $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
                 }
+                $rekammedis = RekamMedis::where('order_id',$arr['order_id'])->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
+                $obat = medicine::where('rm_id',$rekammedis->id)->get();
+                $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
@@ -864,6 +894,9 @@ class OrderserviceController extends Controller
                     'partner_paid_ammount'=>$arr['partner_paid_ammount'],
                     'partner_paid_at'=>$arr['partner_paid_at'],
                     'refund_at'=>$arr['refund_at'],
+                    'rekam_medis'=>$rekammedis,
+                    'medicine' => $obat,
+                    'penanganan' => $penanganan,
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
                 );
