@@ -38,39 +38,46 @@ class UserpetsController extends Controller
         }else{
             $picture = $request->pets_picture;
         }
-        $query = userpets::insert([
-            'user_id' => $userid,
-            'petsname' => $request->pets_name,
-            'species' => $request->species,
-            'breed' => $request->breed,
-            'size' => $request->size,
-            'pets_picture' => $picture,
-            'gender' => $request->gender,
-            'birthdate' => $request->birthdate,
-            'neutered' => $request->neutered,
-            'vaccinated' => $request->vaccinated,
-            'fdlwdogs' => $request->fdlwdogs, //friendly with dogs
-            'fdlwcats' => $request->fdlwcats, //friendly with cats
-            'fdlywkidsless10' => $request->fdlywkidsless10, //friendly with kids < 10 years old
-            'fdlwkidsmore10' => $request->fdlwkidsmore10, //friendly with kids > 10 years old
-            'microchipped' => $request->microchipped,
-            'purbered' => $request->purbered
-        ]);
-
-        $petowner = User::where('id',$userid)->value('username');
-        if($query==1){
-            $status = 'success';
-            $pet = ['pet_owner' => $petowner, 'pet_name' => $request->pets_name, 'species_breed' => $request->breed.' '.$request->species];
+        if($request->pets_name==NULL||$request->species==NULL||$request->breed==NULL||$request->gender==NULL||$request->birthdate==NULL){
             return response()->JSON([
-                'status' => $status,
-                'result' => $pet
+                'status' => 'error',
+                'msg' => 'please fill the * part'
             ]);
         } else{
-            $status = "fail";
-            return response()->JSON([
-                'status' => $status
+            $query = userpets::insert([
+                'user_id' => $userid,
+                'petsname' => $request->pets_name,
+                'species' => $request->species,
+                'breed' => $request->breed,
+                'size' => $request->size,
+                'pets_picture' => $picture,
+                'gender' => $request->gender,
+                'birthdate' => $request->birthdate,
+                'neutered' => $request->neutered,
+                'vaccinated' => $request->vaccinated,
+                'fdlwdogs' => $request->fdlwdogs, //friendly with dogs
+                'fdlwcats' => $request->fdlwcats, //friendly with cats
+                'fdlywkidsless10' => $request->fdlywkidsless10, //friendly with kids < 10 years old
+                'fdlwkidsmore10' => $request->fdlwkidsmore10, //friendly with kids > 10 years old
+                'microchipped' => $request->microchipped,
+                'purbered' => $request->purbered
             ]);
-        }
+    
+            $petowner = User::where('id',$userid)->value('username');
+            if($query==1){
+                $status = 'success';
+                $pet = ['pet_owner' => $petowner, 'pet_name' => $request->pets_name, 'species_breed' => $request->breed.' '.$request->species];
+                return response()->JSON([
+                    'status' => $status,
+                    'result' => $pet
+                ]);
+            } else{
+                $status = "fail";
+                return response()->JSON([
+                    'status' => $status
+                ]);
+            }
+        }    
     }
 
     public function getuserpet(request $request){

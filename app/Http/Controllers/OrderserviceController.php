@@ -18,6 +18,8 @@ use Carbon\Carbon;
 use App\Models\doctor;
 use App\Models\clinic;
 use App\Models\wallet;
+use App\Models\Medicine;
+use App\Models\Penanganan;
 use App\Models\vidcalldetail;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\VarDumper\VarDumper;
@@ -27,7 +29,7 @@ use App\Http\Controllers\MobileBannerController;
 use App\Models\ratings;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\whatsapp_notif;
-
+use App\Models\RekamMedis;
 
 class OrderserviceController extends Controller
 {
@@ -101,6 +103,15 @@ class OrderserviceController extends Controller
                     'phone_number'=>User::where('id','like',$detail->value('users_ids'))->value('phone_number'),
                     'profile_picture'=>$detail->value('profile_picture')
                 ];
+            }else{
+                $detail = doctor::where('id','like', $service_id);
+                $res = [
+                    'account_id' => '',
+                    'id'=>'',
+                    'name'=>'',
+                    'phone_number'=>'6288213276665',
+                    'profile_picture'=>''
+                ];
             }
         
             if($coupon_name==NULL){
@@ -139,8 +150,8 @@ class OrderserviceController extends Controller
                     'partnerDetail' => $res
                 ];
                 if($insertorderid==1){
-                    //$this->mailServer->InvoicePendingPayment($details);
-                    Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
+                    $this->mailServer->InvoicePendingPayment($details);
+                    //Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
                     $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY SUPER APP:\n1. Nama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
 
                     $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
@@ -205,7 +216,8 @@ class OrderserviceController extends Controller
                 ];
 
                 if($insertorderid==1){
-                    Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
+                    $this->mailServer->InvoicePendingPayment($details);
+                    //Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
                     $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY SUPER APP:\n1. Nama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
 
                     $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
@@ -262,7 +274,9 @@ class OrderserviceController extends Controller
             } else{
                 $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
             }
-            
+            $rekammedis = RekamMedis::where('order_id',$arr['order_id'])->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
+            $obat = medicine::where('rm_id',$rekammedis->id)->get();
+            $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
             $method = array(
                 'id' => $arr['id'],
                 'order_id'=>$arr['order_id'],
@@ -290,6 +304,9 @@ class OrderserviceController extends Controller
                 'partner_paid_ammount'=>$arr['partner_paid_ammount'],
                 'partner_paid_at'=>$arr['partner_paid_at'],
                 'refund_at'=>$arr['refund_at'],
+                'rekam_medis'=>$rekammedis,
+                'medicine' => $obat,
+                'penanganan' => $penanganan,
                 'created_at'=>$arr['created_at'],
                 'updated_at'=>$arr['updated_at']
             );
@@ -335,6 +352,9 @@ class OrderserviceController extends Controller
                 } else{
                     $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
                 }
+                $rekammedis = RekamMedis::where('order_id',$arr['order_id'])->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
+                $obat = medicine::where('rm_id',$rekammedis->id)->get();
+                $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
@@ -362,6 +382,9 @@ class OrderserviceController extends Controller
                     'partner_paid_ammount'=>$arr['partner_paid_ammount'],
                     'partner_paid_at'=>$arr['partner_paid_at'],
                     'refund_at'=>$arr['refund_at'],
+                    'rekam_medis'=>$rekammedis,
+                    'medicine' => $obat,
+                    'penanganan' => $penanganan,
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
 
@@ -412,6 +435,10 @@ class OrderserviceController extends Controller
                 } else{
                     $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
                 }
+
+                $rekammedis = RekamMedis::where('order_id',$arr['order_id'])->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
+                $obat = medicine::where('rm_id',$rekammedis->id)->get();
+                $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
@@ -439,6 +466,9 @@ class OrderserviceController extends Controller
                     'partner_paid_ammount'=>$arr['partner_paid_ammount'],
                     'partner_paid_at'=>$arr['partner_paid_at'],
                     'refund_at'=>$arr['refund_at'],
+                    'rekam_medis'=>$rekammedis,
+                    'medicine' => $obat,
+                    'penanganan' => $penanganan,
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
 
@@ -508,6 +538,10 @@ class OrderserviceController extends Controller
             $payment_allowed =  couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
         }
 
+        $rekammedis = RekamMedis::where('order_id',$data->value('order_id'))->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
+        $obat = medicine::where('rm_id',$rekammedis->id)->get();
+        $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
+
         $arr = [
             'id' => $data->value('id'),
             'order_id'=>$data->value('order_id'),
@@ -540,6 +574,9 @@ class OrderserviceController extends Controller
             'partner_paid_ammount' => $data->value('partner_paid_ammount'),
             'partner_paid_at' => $data->value('partner_paid_at'),
             'refund_at' => $data->value('refund_at'),
+            'rekam_medis'=>$rekammedis,
+            'medicine' => $obat,
+            'penanganan' => $penanganan,
             'created_at'=>$data->value('created_at'),
             'updated_at'=>$data->value('updated_at')
         ]; 
@@ -568,7 +605,6 @@ class OrderserviceController extends Controller
                     $current_date_time = date('Y-m-d H:i:s');
                 $query = wallet::insertGetId([
                     'users_ids' => $result['body']['user_id'], 
-                    'debit' => '',
                     'credit' => $data->value('subtotal'),
                     'description' => 'Payment order ID '.$orderId,
                     'type' => 'pawly_credit',
@@ -827,6 +863,9 @@ class OrderserviceController extends Controller
                 } else{
                     $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
                 }
+                $rekammedis = RekamMedis::where('order_id',$arr['order_id'])->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
+                $obat = medicine::where('rm_id',$rekammedis->id)->get();
+                $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
@@ -855,6 +894,9 @@ class OrderserviceController extends Controller
                     'partner_paid_ammount'=>$arr['partner_paid_ammount'],
                     'partner_paid_at'=>$arr['partner_paid_at'],
                     'refund_at'=>$arr['refund_at'],
+                    'rekam_medis'=>$rekammedis,
+                    'medicine' => $obat,
+                    'penanganan' => $penanganan,
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
                 );

@@ -248,4 +248,5 @@ class RekamMedisController extends Controller
                 'status' => 'success'
             ]);
         }
+    }
 }
