@@ -578,7 +578,6 @@ class OrderserviceController extends Controller
                     $current_date_time = date('Y-m-d H:i:s');
                 $query = wallet::insertGetId([
                     'users_ids' => $result['body']['user_id'], 
-                    'debit' => '',
                     'credit' => $data->value('subtotal'),
                     'description' => 'Payment order ID '.$orderId,
                     'type' => 'pawly_credit',
