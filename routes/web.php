@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\mail;
+//use App\Http\Controllers\mail;
 use App\Http\Controllers\MailServer;
 use App\Http\Controllers\UserController;
-
+use Illuminate\Support\Facades\Mail;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -18,6 +18,10 @@ use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::get('/ReminderPayment', function () {
+    return view('InvoicePendingPayment');
 });
 
 Route::get('migrate-fresh', function () {

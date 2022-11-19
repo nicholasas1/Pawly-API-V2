@@ -56,7 +56,7 @@ class DoctorController extends Controller
             'worked_since' => $request->workedsince,
             'lat' => $request->lat,
             'long' => $request->long,
-            'isonline' => 'online'
+            'isonline' => 'online',
         ]);
 
         $doctorid = doctor::where('users_ids',$request->id)->value('id');
@@ -90,7 +90,7 @@ class DoctorController extends Controller
         if($request->page==NULL){
             $page = 0;
         } else{
-            $page = $request->page - 1 * $limit;
+            $page = ($request->page - 1) * $limit;
         }
 
         $token = $request->header("Authorization");

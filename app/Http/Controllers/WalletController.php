@@ -45,6 +45,7 @@ class WalletController extends Controller
 
     public function WaletTransaction(request $request){
         $token = $request->header("Authorization");
+        $search = $request->search;
         if($token  == null){
             $user_id = $request->user_id;
         }else{
@@ -52,12 +53,28 @@ class WalletController extends Controller
             $user_id = $result['body']['user_id'];
         }
        
-        $query = wallet::where('users_ids',$user_id)->where('type',$request->type);
+        if($request->limit==NULL){
+            $limit = 10;
+        } else{
+            $limit = $request->limit;
+        }
+
+        if($request->page==NULL){
+            $page = 0;
+        } else{
+            $page = ($request->page - 1) * $limit;
+        }
+        $ammount =  wallet::where('users_ids',$user_id)->where('type',$request->type);
+        $data = wallet::where('users_ids',$user_id)->where('type',$request->type)->where('description','like','%'.$search.'%')->orderBy('created_at','DESC');
+        $query = wallet::where('users_ids',$user_id)->where('type',$request->type)->where('description','like','%'.$search.'%')->orderBy('created_at','DESC')->limit($limit)->offset($page);
+        
       
         return response()->json([
             'status'=>"success",
+            'total_data'=>$data->count(),  
+            'total_page'=> ceil($data->count() / $limit),
             'results'=> [
-                $request->type => $query->sum('debit') - $query->sum('credit'),
+                $request->type => $ammount->sum('debit') - $ammount->sum('credit'),
                 'transaction' => $query->get()
             ]
         ]); 

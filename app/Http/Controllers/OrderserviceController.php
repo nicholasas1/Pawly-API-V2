@@ -13,6 +13,7 @@ use ReallySimpleJWT\Jwt;
 use ReallySimpleJWT\Decode;
 use App\Http\Controllers\JWTValidator;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\MailServer;
 use Carbon\Carbon;
 use App\Models\doctor;
 use App\Models\clinic;
@@ -24,19 +25,24 @@ use App\Models\User;
 use App\Http\Controllers\FirebaseTokenController;
 use App\Http\Controllers\MobileBannerController;
 use App\Models\ratings;
+use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\whatsapp_notif;
 
 
 class OrderserviceController extends Controller
 {
     protected $coupons;
     protected $JWTValidator;
-    public function __construct(WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
+    public function __construct(whatsapp_notif $whatsapp,MailServer $mailServer,WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
     {
         $this->coupons = $coupons;
         $this->JWTValidator = $jWTValidator;
         $this->fb_token = $fb_token;
         $this->mobile_banner = $mobile_banner;
         $this->wallet = $wallet;
+        $this->mailServer = $mailServer;
+        $this->whatsapp = $whatsapp;
+
     }
 
     public function order_service(request $request){
@@ -77,7 +83,34 @@ class OrderserviceController extends Controller
             } else{
                 $paid_until = time()+ 3600*24;
             }
-
+            $res=[];
+            $user=[];
+            $user_detail = User::where('id','like', $userid);
+            $user = [
+                    'nickname' => $user_detail->value('nickname'),
+                    'profile_picture'=>$user_detail->value('profile_picture'),
+                    'email'=>$user_detail->value('email'),
+                    'phone_number'=>$user_detail->value('phone_number')
+            ];
+            if($type == 'doctor'){
+                $detail = doctor::where('id','like', $service_id);
+                $res = [
+                    'account_id' => $detail->value('users_ids'),
+                    'id'=>$detail->value('id'),
+                    'name'=>$detail->value('doctor_name'),
+                    'phone_number'=>User::where('id','like',$detail->value('users_ids'))->value('phone_number'),
+                    'profile_picture'=>$detail->value('profile_picture')
+                ];
+            }else{
+                $detail = doctor::where('id','like', $service_id);
+                $res = [
+                    'account_id' => '',
+                    'id'=>'',
+                    'name'=>'',
+                    'phone_number'=>'6288213276665',
+                    'profile_picture'=>''
+                ];
+            }
         
             if($coupon_name==NULL){
                 $total_price = $price;
@@ -99,11 +132,27 @@ class OrderserviceController extends Controller
                     'payed_untill' => $paid_until,
                     'booking_date' => $booking_time
                 ]);
+                $orderId = $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 3).$query;
                 $insertorderid = orderservice::where('id',$query)->update([
-                    'order_id' => $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 3).$query
+                    'order_id' => $orderId
                 ]);
 
+                $details = [
+                    'user_detail' =>$user,
+                    'order_id' =>$orderId,
+                    'service' => $service,
+                    'type' => $type,
+                    'booking_date' => $booking_time,
+                    'total_price' => $total_price,
+                    'total_payment' => $subtotal,
+                    'partnerDetail' => $res
+                ];
                 if($insertorderid==1){
+                    $this->mailServer->InvoicePendingPayment($details);
+                    //Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
+                    $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY SUPER APP:\n1. Nama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
+
+                    $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -152,7 +201,24 @@ class OrderserviceController extends Controller
                     'order_id' => $orderId
                 ]);
 
+                 
+                $details = [
+                    'user_detail' =>$user,
+                    'order_id' =>$orderId,
+                    'service' => $service,
+                    'type' => $type,
+                    'booking_date' => $booking_time,
+                    'total_price' => $total_price,
+                    'total_payment' => $subtotal,
+                    'partnerDetail' => $res
+                ];
+
                 if($insertorderid==1){
+                    $this->mailServer->InvoicePendingPayment($details);
+                    //Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
+                    $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY SUPER APP:\n1. Nama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
+
+                    $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -345,6 +411,8 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
 
         if($result['status'] == 200){
+            $data2 = orderservice::where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%') ->orderBy('created_at','DESC');
+
             $data = orderservice::where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%') ->orderBy('created_at','DESC');
             $result=[];
             
@@ -389,8 +457,8 @@ class OrderserviceController extends Controller
             }
             return response()->json([
                 'status'=>'success',  
-                'total_data'=>$data->count(),  
-                'total_page'=> ceil($data->count() / $limit),
+                'total_data'=>$data2->count(),  
+                'total_page'=> ceil($data2->count() / $limit),
                 'results'=>$result
             ]);
         }else{
@@ -398,9 +466,11 @@ class OrderserviceController extends Controller
         }     
     }
 
-    public function getDetail(request $request)
-    {
-        $orderId = $request->id;
+    public function getDetail(request $request){
+        return $this->orderDetail($request->id);
+    }
+
+    public function orderDetail($orderId){
         $vcDetail=[];
         $res=[];
         
@@ -488,8 +558,6 @@ class OrderserviceController extends Controller
             'status'=>'success',
             'results'=>$arr
         ]);
-       
-        
     }
 
     public function create_payment(request $request){
@@ -881,7 +949,7 @@ class OrderserviceController extends Controller
             $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$order_id)->value('users_ids'),'Consumer App');
             foreach( $token_fb as $token){
                 if($token['firebase_token'] != NULL){
-                    $notification = $this->mobile_banner->send_notif('Your Order '.$order_id.' Has Been Cancelled','Your Money will be refuned max 1x24','','',$token['firebase_token']);
+                    $notification = $this->mobile_banner->send_notif('Your Order '.$order_id.' Has Been Cancelled','Your Money will be refuned max 1x24','','',$token['firebase_token'],NULL,NULL);
                 }
             }
             $refund = wallet::insert([
@@ -922,7 +990,7 @@ class OrderserviceController extends Controller
             $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$order_id)->value('users_ids'),'Consumer App');
             foreach( $token_fb as $token){
                 if($token['firebase_token'] != NULL){
-                    $notification = $this->mobile_banner->send_notif('Your order is now in process','Order '.$order_id.' now on process','','',$token['firebase_token']);
+                    $notification = $this->mobile_banner->send_notif('Your order is now in process','Order '.$order_id.' now on process','','',$token['firebase_token'],NULL,NULL);
                 }
             }
         } else{

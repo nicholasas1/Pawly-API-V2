@@ -28,11 +28,11 @@ return new class extends Migration
             $table->char('lat',20)->nullable();
             $table->char('long',20)->nullable();
             $table->float('vidcall_price')->nullable();
-            $table->char('vidcall_available')->nullable();
+            $table->boolean('vidcall_available')->nullable();
             $table->float('chat_price')->nullable();
-            $table->char('chat_available')->nullable();
+            $table->boolean('chat_available')->nullable();
             $table->float('offline_price')->nullable();
-            $table->char('offline_available')->nullable();
+            $table->boolean('offline_available')->nullable();
             $table->char('isonline')->nullable();
             $table->char('lastonline')->nullable();
         });

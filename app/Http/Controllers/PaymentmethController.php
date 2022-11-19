@@ -29,7 +29,7 @@ class PaymentmethController extends Controller
         $arr = array(
             array('payment_method' => 'Wallet',
             'total_ammount'=>$ammount,
-            'image_url'=>'https://www.pngrepo.com/png/287670/512/wallet.png',
+            'image_url'=>'https://cdn-icons-png.flaticon.com/512/3360/3360459.png',
             'payment_id'=>'',
             'description'=>'Make your life more simple'),
 
