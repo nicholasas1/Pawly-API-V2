@@ -13,7 +13,6 @@ class NotificationdbController extends Controller
             'meta_role' => $request->meta_role,
             'meta_id' => $request->meta_id,
             'notification_data' => $request->notif_data,
-            'view' => $request->view,
             'redirect' => $request->redirect
         ]);
 
@@ -35,7 +34,6 @@ class NotificationdbController extends Controller
             'meta_role' => $request->meta_role,
             'meta_id' => $request->meta_id,
             'notification_data' => $request->notif_data,
-            'view' => $request->view,
             'redirect' => $request->redirect
         ]);
 
@@ -146,6 +144,19 @@ class NotificationdbController extends Controller
     }
 
     public function viewnotif(request $request){
-        
+        $query = notificationdb::where('id',$request->id)->where('usersids',$request->user_id)->update([
+            'view' => true
+        ]);
+
+        if($query==1){
+            return response()->JSON([
+                'status' => 'success'
+            ]);
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => ''
+            ]);
+        }
     }
 }
