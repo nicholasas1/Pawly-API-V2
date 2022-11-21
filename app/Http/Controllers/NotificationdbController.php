@@ -7,13 +7,14 @@ use Illuminate\Http\Request;
 
 class NotificationdbController extends Controller
 {
-    public function createnotif(request $request){
+    public function createnotif($user_id,$meta_role,$meta_id,$notif_data,$redirect){
         $query = notificationdb::insert([
-            'usersids' => $request->user_id,
-            'meta_role' => $request->meta_role,
-            'meta_id' => $request->meta_id,
-            'notification_data' => $request->notif_data,
-            'redirect' => $request->redirect
+            'usersids' => $user_id,
+            'meta_role' => $meta_role,
+            'meta_id' => $meta_id,
+            'notification_data' => $notif_data,
+            'redirect' => $redirect,
+            'view' => NULL
         ]);
 
         if($query==1){

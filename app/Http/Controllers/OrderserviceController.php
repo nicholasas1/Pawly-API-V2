@@ -11,6 +11,7 @@ use ReallySimpleJWT\Token;
 use ReallySimpleJWT\Parse;
 use ReallySimpleJWT\Jwt;
 use ReallySimpleJWT\Decode;
+use App\Models\notificationdb;
 use App\Http\Controllers\JWTValidator;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\MailServer;
@@ -35,9 +36,11 @@ class OrderserviceController extends Controller
 {
     protected $coupons;
     protected $JWTValidator;
-    public function __construct(whatsapp_notif $whatsapp,MailServer $mailServer,WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
+    protected $notif;
+    public function __construct(notificationdb $notif,whatsapp_notif $whatsapp,MailServer $mailServer,WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
     {
         $this->coupons = $coupons;
+        $this->notificationdb = $notif;
         $this->JWTValidator = $jWTValidator;
         $this->fb_token = $fb_token;
         $this->mobile_banner = $mobile_banner;
@@ -151,6 +154,7 @@ class OrderserviceController extends Controller
                 ];
                 if($insertorderid==1){
                     $this->mailServer->InvoicePendingPayment($details);
+                    $this->notificationdb->createnotif($userid,$type,$partner_user_id,NULL,NULL);
                     //Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
                     $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY SUPER APP:\n1. Nama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
 
@@ -217,9 +221,10 @@ class OrderserviceController extends Controller
 
                 if($insertorderid==1){
                     $this->mailServer->InvoicePendingPayment($details);
+                    $this->notificationdb->createnotif($userid,$type,$partner_user_id,NULL,NULL);
                     //Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
                     $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY SUPER APP:\n1. Nama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
-
+                    
                     $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
                     return response()->JSON([
                         'status' => 'success',
