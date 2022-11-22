@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\notificationdb;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class NotificationdbController extends Controller
 {
@@ -14,7 +15,9 @@ class NotificationdbController extends Controller
             'meta_id' => $meta_id,
             'notification_data' => $notif_data,
             'redirect' => $redirect,
-            'view' => NULL
+            'view' => NULL,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
         ]);
 
         if($query==1){
@@ -35,7 +38,8 @@ class NotificationdbController extends Controller
             'meta_role' => $request->meta_role,
             'meta_id' => $request->meta_id,
             'notification_data' => $request->notif_data,
-            'redirect' => $request->redirect
+            'redirect' => $request->redirect,
+            'updated_at' => Carbon::now()
         ]);
 
         if($query==1){

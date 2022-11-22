@@ -21,6 +21,8 @@ return new class extends Migration
             $table->text('notification_data')->nullable();
             $table->boolean('view')->nullable();
             $table->text('redirect')->nullable();
+            $table->datetime('created_at')->nullable();
+            $table->datetime('updated_at')->nullable();
         });
     }
 
