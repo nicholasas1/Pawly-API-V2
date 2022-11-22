@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('medicines', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
             $table->char('rm_id',10);
             $table->char('nama_obat',100);
             $table->text('penggunaan');
