@@ -33,8 +33,10 @@ class MailServer extends Controller
     }
 
     public function InvoicePendingPayment($details){
-       
-       
         Mail::to($details['user_detail']['email'])->send(new \App\Mail\CustomerInvoicePendinngPayment($details));
+    }
+
+    public function InvoiceCancelCusttomer($details){
+        Mail::to($details['user_detail']['email'])->send(new \App\Mail\CustumerInvoiceCancel($details));
     }
 }
