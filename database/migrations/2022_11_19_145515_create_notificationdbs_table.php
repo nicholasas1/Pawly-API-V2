@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('notificationdbs', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('usersids',10);
+            $table->char('usersids',10);
             $table->char('meta_role',100)->nullable();
             $table->text('meta_id')->nullable();
             $table->text('notification_data')->nullable();
