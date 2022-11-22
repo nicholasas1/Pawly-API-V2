@@ -86,20 +86,20 @@ class NotificationdbController extends Controller
 
         foreach($query->limit($limit)->offset($page)->get() as $queries){
             $arr[] = [
-                'id' => $query->id,
-                'user_id' => $query->usersids,
-                'meta_role' => $query->meta_role,
-                'meta_id' => $query->meta_id,
-                'notification_data' => $query->notification_data,
-                'view' => $query->view,
-                'redirect' => $query->redirect
+                'id' => $queries->id,
+                'user_id' => $queries->usersids,
+                'meta_role' => $queries->meta_role,
+                'meta_id' => $queries->meta_id,
+                'notification_data' => $queries->notification_data,
+                'view' => $queries->view,
+                'redirect' => $queries->redirect
             ];
         }
 
         return response()->JSON([
             'status' => 'success',
-            'total_data' => count($query),
-            'total_page' => ceil(count($query) / $limit),
+            'total_data' => $query->count(),
+            'total_page' => ceil($query->count() / $limit),
             'total_result' => count($arr),
             'results' => $arr
         ]);
@@ -125,24 +125,24 @@ class NotificationdbController extends Controller
             $roles = ['doctor','clinic'];
         }
         
-        $query = notificationdb::where('usersids',$request->usersids)->whereIn('meta_role',$roles)->get();
+        $query = notificationdb::where('usersids',$request->usersids)->whereIn('meta_role',$roles);
 
         foreach($query->limit($limit)->offset($page)->get() as $queries){
             $arr[] = [
-                'id' => $query->id,
-                'user_id' => $query->usersids,
-                'meta_role' => $query->meta_role,
-                'meta_id' => $query->meta_id,
-                'notification_data' => $query->notification_data,
-                'view' => $query->view,
-                'redirect' => $query->redirect
+                'id' => $queries->id,
+                'user_id' => $queries->usersids,
+                'meta_role' => $queries->meta_role,
+                'meta_id' => $queries->meta_id,
+                'notification_data' => $queries->notification_data,
+                'view' => $queries->view,
+                'redirect' => $queries->redirect
             ];
         }
 
         return response()->JSON([
             'status' => 'success',
-            'total_data' => count($query),
-            'total_page' => ceil(count($query) / $limit),
+            'total_data' => $query->count(),
+            'total_page' => ceil($query->count() / $limit),
             'total_result' => count($arr),
             'results' => $arr
         ]);
