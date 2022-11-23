@@ -68,11 +68,6 @@ For what reason would it be advisable for me to think about business content? Th
                 <td align="center" style="padding: 35px 35px 20px 35px; background-color: #ffffff;" bgcolor="#ffffff">
                     <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
                         <tr>
-                            <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 25px;">
-                                <img src="https://img.icons8.com/carbon-copy/100/000000/checked-checkbox.png" width="125" height="120" style="display: block; border: 0px;" /><br>
-                            </td>
-                        </tr>
-                        <tr>
                             <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 10px;">
                                 <h2>Hi, {{ $details['user_detail']['nickname'] }}!</h2>
                                 <p style="font-size: 16px; font-weight: 400; line-height: 24px; color: #777777;">

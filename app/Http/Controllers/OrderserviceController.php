@@ -478,11 +478,10 @@ class OrderserviceController extends Controller
     }
 
     public function getDetail(request $request){
-        return $this->orderDetail($request->id);
+        return response()->json($this->orderDetail($request->id));
     }
 
     public function orderDetail($orderId){
-       
         $vcDetail=[];
         $res=[];
         
@@ -491,8 +490,8 @@ class OrderserviceController extends Controller
             $detail = doctor::where('id','like',$data->value('service_id'));
             $res = [
                 'account_id' => $detail->value('users_ids'),
-                'doctor_id'=>$detail->value('id'),
-                'doctor_name'=>$detail->value('doctor_name'),
+                'id'=>$detail->value('id'),
+                'name'=>$detail->value('doctor_name'),
                 'profile_picture'=>$detail->value('profile_picture'),
             ];
         }
@@ -541,6 +540,7 @@ class OrderserviceController extends Controller
                 $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
             }          
         }
+        $user_detail = User::where('id','like', $data->value('users_ids'));
 
        
 
@@ -569,6 +569,12 @@ class OrderserviceController extends Controller
             'can_rating'=> $can_rating,
             'cancelled_reason'=>$data->value('cancelled_reason'),
             'users_ids'=>$data->value('users_ids'),
+            'user_detail' => [
+                'nickname' => $user_detail->value('nickname'),
+                'profile_picture'=>$user_detail->value('profile_picture'),
+                'email'=>$user_detail->value('email'),
+                'phone_number'=>$user_detail->value('phone_number')
+            ],
             'partner_user_id' => $data->value('partner_user_id'),
             'partner_detail' => $res,
             'comission' => $data->value('comission'),
@@ -583,10 +589,10 @@ class OrderserviceController extends Controller
             'updated_at'=>$data->value('updated_at')
         ]; 
 
-        return response()->json([
+        return [
             'status'=>'success',
             'results'=>$arr
-        ]);
+        ];
     }
 
     public function create_payment(request $request){
