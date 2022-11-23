@@ -637,6 +637,10 @@ class OrderserviceController extends Controller
                             'partnerDetail' => $orderDetail['results']['partner_detail'],
                         ];
                         $this->mailServer->InvoicePaymentSuccessCusttomer($details);
+                        $chat = "Hallo, ".$orderDetail['partner_detail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$orderDetail['user_detail']['nickname']."\nBooking Service : ".$orderDetail['type']." - ".$orderDetail['service']."\nBooking Code : ".$orderDetail['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
+
+                        $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
+               
                         $this->prosesOrder($orderId);
                     }
                     return response()->JSON([
@@ -739,6 +743,21 @@ class OrderserviceController extends Controller
                         $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$invoice,'','',$token['firebase_token'],'/tabs/tab3',NULL);
                     }
                 }
+                $orderDetail = $this->orderDetail($orderId);
+                $details = [
+                    'user_detail' =>$orderDetail['results']['user_detail'],
+                    'order_id' =>$orderDetail['results']['order_id'],
+                    'service' => $orderDetail['results']['service'],
+                    'type' => $orderDetail['results']['type'],
+                    'booking_date' => $orderDetail['results']['booking_date'],
+                    'total_price' => $orderDetail['results']['total'],
+                    'total_payment' => $orderDetail['results']['subtotal'],
+                    'partnerDetail' => $orderDetail['results']['partner_detail'],
+                ];
+                $this->mailServer->InvoicePaymentSuccessCusttomer($details);
+                $chat = "Hallo, ".$orderDetail['partner_detail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$orderDetail['user_detail']['nickname']."\nBooking Service : ".$orderDetail['type']." - ".$orderDetail['service']."\nBooking Code : ".$orderDetail['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
+
+                $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
                 $this->prosesOrder($invoice);
 
                 return response()->JSON([
