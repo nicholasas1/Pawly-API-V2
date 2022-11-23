@@ -197,7 +197,7 @@ Route::post('order/pay', [OrderserviceController::class,'create_payment']);
 
 Route::post('order/changestatus', [OrderserviceController::class,'changestatus']);
 
-Route::post('haha', [schedulersystemcontroller::class,'vcLinkEnd']);
+Route::post('haha', [schedulersystemcontroller::class,'orderList']);
 
 Route::post('coupon/validate', [CouponserviceController::class,'validate_coupon']);
 
@@ -211,7 +211,7 @@ Route::post('session/vidcallhit',[VidcalldetailController::class,'vidcallhit']);
 
 Route::get('send', [MobileBannerController::class, 'stream']);
 
-Route::post('notif/create',[NotificationdbController::class,'createnotif']);
+// Route::post('notif/create',[NotificationdbController::class,'createnotif']);
 
 Route::post('notif/update',[NotificationdbController::class,'updatenotif']);
 

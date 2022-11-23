@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('penanganan', function (Blueprint $table) {
-            $table->id();
+        Schema::create('penanganans', function (Blueprint $table) {
+            $table->bigIncrements('id');
             $table->char('rm_ids',10);
             $table->text('tindakan');
             $table->char('biaya_tambahan',25);

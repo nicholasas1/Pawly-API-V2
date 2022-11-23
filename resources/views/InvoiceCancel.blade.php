@@ -56,7 +56,7 @@ For what reason would it be advisable for me to think about business content? Th
                     <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;">
                         <tr>
                             <td align="left" valign="top" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 36px; font-weight: 800; line-height: 48px;" class="mobile-center">
-                                <img src="{{ URL::asset('LOGO WITH TEXT NO BACKGROUND (1).png') }}" alt="" style="width: 100%;max-width:200px">
+                                <img src="https://staging.api.pawly.my.id/LOGO%20WITH%20TEXT%20NO%20BACKGROUND%20(1).png" alt="" style="width: 100%;max-width:200px">
                             </td>
                         </tr>
                     </table>
@@ -68,42 +68,37 @@ For what reason would it be advisable for me to think about business content? Th
                 <td align="center" style="padding: 35px 35px 20px 35px; background-color: #ffffff;" bgcolor="#ffffff">
                     <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
                         <tr>
-                            <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 25px;">
-                                <img src="https://img.icons8.com/carbon-copy/100/000000/checked-checkbox.png" width="125" height="120" style="display: block; border: 0px;" /><br>
-                            </td>
-                        </tr>
-                        <tr>
                             <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 10px;">
-                                <h2>Hi, Nicholas Antonius!</h2>
-                                <p style="font-size: 16px; font-weight: 400; line-height: 24px; color: #777777;">
+                                <h2>Hi, {{ $details['user_detail']['nickname'] }}!</h2>                                <p style="font-size: 16px; font-weight: 400; line-height: 24px; color: #777777;">
                                     This following order details : 
                                 </p>
                             </td>
                         </tr>
                         <tr>
-                            <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 10px;">
-                                <div class="row" style="margin-top: 20px">
-                                    <div class="col-6">
+                            <table role="presentation" style="width:100%;border-collapse:collapse;border:0;border-spacing:0;">
+                                <tr>
+                                    <td style="width:260px;padding:0;vertical-align:top;">
                                         <p style="font-size: 16px; font-weight: 600; line-height: 10px; color: black;">
                                             Order ID
                                         </p>
                                         <p style="font-size: 16px; font-weight: 400; line-height: 10px; color: #777777;">
-                                            SKH20Z4PS
+                                            {{ $details['order_id'] }}
                                         </p>
                                         <p style="font-size: 16px; font-weight: 600; line-height: 10px; color: black; margin-top:30px">
                                             Service Type
                                         </p>
                                         <p style="font-size: 16px; font-weight: 400; line-height: 10px; color: #777777;">
-                                            Doctor - Video Call
+                                            {{ $details['type'] }} - {{ $details['service'] }}
                                         </p>
-                                    </div>
-                                    <div class="col-6">
+                                    </td>
+                                    <td style="width:20px;padding:0;font-size:0;line-height:0;">&nbsp;</td>
+                                    <td style="width:260px;padding:0;vertical-align:top;">
                                         <p style="font-size: 16px; font-weight: 400; line-height: 25px; color: black;margin-top:-10px">
                                             We are sorry to inform you that you have missed the deadline to pay for your session. Your booking is now <b style="color: black">CANCELED</b>.
                                         </p>
-                                    </div>
-                                </div>
-                            </td>
+                                    </td>
+                                </tr>
+                            </table>
                         </tr>
                         <tr>
                             <td align="left" style="padding-top: 20px;">
@@ -121,14 +116,14 @@ For what reason would it be advisable for me to think about business content? Th
                                             Doctor Name / Clinic Name
                                         </td>
                                         <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
-                                            Luda
+                                            {{ $details['partnerDetail']['name'] }}
                                         </td>
                                     </tr>
                                     <tr>
                                         <td width="75%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;">
                                             Booking Date
                                         <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;">
-                                            19 Nov 2022 
+                                            {{ \Carbon\Carbon::parse($details['booking_date'])->format('d M Y')}}
                                         </td>
                                     </tr>
                                     <tr>
@@ -136,7 +131,7 @@ For what reason would it be advisable for me to think about business content? Th
                                             Booking Time
                                         </td>
                                         <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 10px;">
-                                            17:00
+                                            {{ \Carbon\Carbon::parse($details['booking_date'])->format('H:i:s')}}
                                         </td>
                                     </tr>
                                 </table>
@@ -152,6 +147,36 @@ For what reason would it be advisable for me to think about business content? Th
                                     </tr>
                                 </table>
                             </td>
+                        </tr>
+                        <tr>
+                            <table role="presentation" style="width:100%;border-collapse:collapse;border:0;border-spacing:0;">
+                                <tr>
+                                    <td style="width:260px;padding:0;vertical-align:top;">
+                                        <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; padding: 10px;"> 
+                                            Total Price
+                                        </p>
+                                        <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400;padding: 10px;margin-top:-13%"> 
+                                            Biaya Admin / Pajak
+                                        </p>
+                                        <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800;  padding: 10px;;margin-top:-5%"> 
+                                            Total Payment
+                                        </p>
+                                    </td>
+                                    <td style="width:20px;padding:0;font-size:0;line-height:0;">&nbsp;</td>
+                                    <td style="width:260px;padding:0;vertical-align:top;">
+                                        <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400;  padding: 10px;text-align:right"> 
+                                            {{ $details['total_price']}}
+                                            
+                                        </p>
+                                        <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400;  padding: 10px;text-align:right;margin-top:-13%"> 
+                                            
+                                        </p>
+                                        <p style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800;  padding: 10px;text-align:right;margin-top:-5%"> 
+                                            {{ $details['total_price'] }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
                         </tr>
                     </table>
                 </td>
@@ -194,7 +219,7 @@ For what reason would it be advisable for me to think about business content? Th
                 <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
                     <tr>
                         <td align="center">
-                            <img src="{{ URL::asset('LOGO WITH TEXT NO BACKGROUND (1).png') }}" width="100" height="100" style="display: block; border: 0px;"/>
+                            <img src="https://staging.api.pawly.my.id/LOGO%20WITH%20TEXT%20NO%20BACKGROUND%20(1).png" width="100" height="100" style="display: block; border: 0px;"/>
                         </td>
                     </tr>
                     <tr>

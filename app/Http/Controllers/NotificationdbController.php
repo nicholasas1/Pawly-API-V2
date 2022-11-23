@@ -4,16 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Models\notificationdb;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use App\Http\Controllers\JWTValidator;
+
 
 class NotificationdbController extends Controller
 {
-    public function createnotif(request $request){
+    protected $JWTValidator;
+    public function __construct(JWTValidator $jWTValidator)
+    {
+        $this->JWTValidator = $jWTValidator;
+    }
+
+    public function createnotif($user_id,$meta_role,$meta_id,$notif_data,$redirect){
         $query = notificationdb::insert([
-            'usersids' => $request->user_id,
-            'meta_role' => $request->meta_role,
-            'meta_id' => $request->meta_id,
-            'notification_data' => $request->notif_data,
-            'redirect' => $request->redirect
+            'usersids' => $user_id,
+            'meta_role' => $meta_role,
+            'meta_id' => $meta_id,
+            'notification_data' => $notif_data,
+            'redirect' => $redirect,
+            'view' => NULL,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
         ]);
 
         if($query==1){
@@ -34,7 +46,8 @@ class NotificationdbController extends Controller
             'meta_role' => $request->meta_role,
             'meta_id' => $request->meta_id,
             'notification_data' => $request->notif_data,
-            'redirect' => $request->redirect
+            'redirect' => $request->redirect,
+            'updated_at' => Carbon::now()
         ]);
 
         if($query==1){
@@ -81,20 +94,20 @@ class NotificationdbController extends Controller
 
         foreach($query->limit($limit)->offset($page)->get() as $queries){
             $arr[] = [
-                'id' => $query->id,
-                'user_id' => $query->usersids,
-                'meta_role' => $query->meta_role,
-                'meta_id' => $query->meta_id,
-                'notification_data' => $query->notification_data,
-                'view' => $query->view,
-                'redirect' => $query->redirect
+                'id' => $queries->id,
+                'user_id' => $queries->usersids,
+                'meta_role' => $queries->meta_role,
+                'meta_id' => $queries->meta_id,
+                'notification_data' => $queries->notification_data,
+                'view' => $queries->view,
+                'redirect' => $queries->redirect
             ];
         }
 
         return response()->JSON([
             'status' => 'success',
-            'total_data' => count($query),
-            'total_page' => ceil(count($query) / $limit),
+            'total_data' => $query->count(),
+            'total_page' => ceil($query->count() / $limit),
             'total_result' => count($arr),
             'results' => $arr
         ]);
@@ -119,33 +132,60 @@ class NotificationdbController extends Controller
         } else if($role=='provider'){
             $roles = ['doctor','clinic'];
         }
-        
-        $query = notificationdb::where('usersids',$request->usersids)->whereIn('meta_role',$roles)->get();
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
 
-        foreach($query->limit($limit)->offset($page)->get() as $queries){
-            $arr[] = [
-                'id' => $query->id,
-                'user_id' => $query->usersids,
-                'meta_role' => $query->meta_role,
-                'meta_id' => $query->meta_id,
-                'notification_data' => $query->notification_data,
-                'view' => $query->view,
-                'redirect' => $query->redirect
-            ];
+        if($result['status'] == 200){
+            $userid = $result['body']['user_id'];
+            $query = notificationdb::where('usersids',$userid)->whereIn('meta_role',$roles);
+
+            foreach($query->limit($limit)->offset($page)->get() as $queries){
+                $arr[] = [
+                    'id' => $queries->id,
+                    'user_id' => $queries->usersids,
+                    'meta_role' => $queries->meta_role,
+                    'meta_id' => $queries->meta_id,
+                    'notification_data' => $queries->notification_data,
+                    'view' => $queries->view,
+                    'redirect' => $queries->redirect
+                ];
+            }
+    
+            return response()->JSON([
+                'status' => 'success',
+                'total_data' => $query->count(),
+                'total_page' => ceil($query->count() / $limit),
+                'total_data_unread' => $query->where('view',null)->count(),
+                'results' => $arr
+            ]);
+        }else{
+            return $result;
         }
-
-        return response()->JSON([
-            'status' => 'success',
-            'total_data' => count($query),
-            'total_page' => ceil(count($query) / $limit),
-            'total_result' => count($arr),
-            'results' => $arr
-        ]);
+        
     }
 
     public function viewnotif(request $request){
-        $query = notificationdb::where('id',$request->id)->where('usersids',$request->user_id)->update([
-            'view' => true
+        $query = notificationdb::where('id',$request->id)->update([
+            'view' => true,
+            'updated_at' => Carbon::now()
+        ]);
+
+        if($query==1){
+            return response()->JSON([
+                'status' => 'success'
+            ]);
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => ''
+            ]);
+        }
+    }
+
+    public function readNotifAll(request $request){
+        $query = notificationdb::where('id',$request->id)->update([
+            'view' => true,
+            'updated_at' => Carbon::now()
         ]);
 
         if($query==1){
