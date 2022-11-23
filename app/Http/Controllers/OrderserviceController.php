@@ -498,11 +498,11 @@ class OrderserviceController extends Controller
     }
 
     public function orderDetail($orderId){
+       
         $vcDetail=[];
         $res=[];
         
         $data = orderservice::where('order_id','like',$orderId);
-        
         if($data->value('type') == 'doctor'){
             $detail = doctor::where('id','like',$data->value('service_id'));
             $res = [
@@ -545,9 +545,20 @@ class OrderserviceController extends Controller
             $payment_allowed =  couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
         }
 
-        $rekammedis = RekamMedis::where('order_id',$data->value('order_id'))->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
-        $obat = medicine::where('rm_id',$rekammedis->id)->get();
-        $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
+        $obat = [];
+        $penanganan = [];
+        $rekammedis = [];
+        if(RekamMedis::where('order_id',1)->count() > 0){
+            $rekammedis = RekamMedis::where('order_id',$data->value('order_id'))->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get(); 
+            if(medicine::where('rm_id',$rekammedis->id)->count()>0){
+                $obat = medicine::where('rm_id',$rekammedis->id)->get();
+            }
+            if(penanganan::where('rm_ids',$rekammedis->id)->count()>0){
+                $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
+            }          
+        }
+
+       
 
         $arr = [
             'id' => $data->value('id'),
