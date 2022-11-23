@@ -527,7 +527,7 @@ class OrderserviceController extends Controller
         }
         $rating = ratings::where('booking_id','=',$orderId);
 
-        if($rating->count() == 1){
+        if($rating->count() == 1 || $data->value('type') == 'pawly_credit'){
             $is_rating = true;
         }else{
             $is_rating = false;
