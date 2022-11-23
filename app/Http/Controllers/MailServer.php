@@ -39,4 +39,8 @@ class MailServer extends Controller
     public function InvoiceCancelCusttomer($details){
         Mail::to($details['user_detail']['email'])->queue(new \App\Mail\CustumerInvoiceCancel($details));
     }
+
+    public function InvoicePaymentSuccessCusttomer($details){
+        Mail::to($details['user_detail']['email'])->queue(new \App\Mail\CustumerInvoicePaymentSuccess($details));
+    }
 }

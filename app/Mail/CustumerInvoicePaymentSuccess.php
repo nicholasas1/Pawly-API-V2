@@ -11,14 +11,15 @@ class CustumerInvoicePaymentSuccess extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $details;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($details)
     {
-        //
+        $this->details = $details;
     }
 
     /**
@@ -28,6 +29,6 @@ class CustumerInvoicePaymentSuccess extends Mailable
      */
     public function build()
     {
-        return $this->view('view.name');
+        return $this->from($address = 'no-reply@pawly.my.id', $name = 'Pawly Indonesia')->subject("Hai ".$this->details['user_detail']['nickname'].", We have received your payment")->view('InvoiceCustomerPaymentSuccess');
     }
 }

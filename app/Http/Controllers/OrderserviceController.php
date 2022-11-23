@@ -156,10 +156,6 @@ class OrderserviceController extends Controller
                 if($insertorderid==1){
                     $this->mailServer->InvoicePendingPayment($details);
                     $this->notif->createnotif($userid,$type,$partner_user_id,'New Order'.$orderId.'from'.$user_detail->value('nickname'),NULL);
-                    //Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
-                    $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY SUPER APP:\n1. Nama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
-
-                    $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -222,12 +218,8 @@ class OrderserviceController extends Controller
 
                 if($insertorderid==1){
                     $this->mailServer->InvoicePendingPayment($details);
-                    //$this->notificationdb->createnotif($userid,$type,$partner_user_id,NULL,NULL);
-                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order '.$orderId.' from' .$user_detail->value('nickname'),NULL);
-                    //Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
-                    $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY SUPER APP:\n1. Nama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
-                    
-                    $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
+                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order'.$orderId.'from'.$user_detail->value('nickname'),NULL);
+                   
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -611,35 +603,47 @@ class OrderserviceController extends Controller
             if($payment_method == 'Wallet'){
                 if($total_transaction < $ammount){
                     $current_date_time = date('Y-m-d H:i:s');
-                $query = wallet::insertGetId([
-                    'users_ids' => $result['body']['user_id'], 
-                    'credit' => $data->value('subtotal'),
-                    'description' => 'Payment order ID '.$orderId,
-                    'type' => 'pawly_credit',
-                    'created_at' => $current_date_time
-                ]);
-                $wallet = wallet::where('id',$query)->get();
-                if($wallet->count()==1){
-                    $statuschange = orderservice::where('order_id',$orderId)->update([
-                        'status' => 'BOOKING RESERVED',
-                        'payment_method' => 'Wallet',
-                        'payment_id' => $query,
-                        'payed_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
+                    $query = wallet::insertGetId([
+                        'users_ids' => $result['body']['user_id'], 
+                        'credit' => $data->value('subtotal'),
+                        'description' => 'Payment order ID '.$orderId,
+                        'type' => 'pawly_credit',
+                        'created_at' => $current_date_time
                     ]);
-                    $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$orderId)->value('users_ids'),'Consumer App');
-                    foreach( $token_fb as $token){
-                    if($token['firebase_token'] != NULL){
-                        $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$orderId,'','',$token['firebase_token'],NULL,NULL);
+                    $wallet = wallet::where('id',$query)->get();
+                    if($wallet->count()==1){
+                        $statuschange = orderservice::where('order_id',$orderId)->update([
+                            'status' => 'BOOKING RESERVED',
+                            'payment_method' => 'Wallet',
+                            'payment_id' => $query,
+                            'payed_at' => Carbon::now(),
+                            'updated_at' => Carbon::now()
+                        ]);
+                        $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$orderId)->value('users_ids'),'Consumer App');
+                        foreach( $token_fb as $token){
+                            if($token['firebase_token'] != NULL){
+                                $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$orderId,'','',$token['firebase_token'],NULL,NULL);
+                            }
+                        }
+                        $orderDetail = $this->orderDetail($orderId);
+                        $details = [
+                            'user_detail' =>$orderDetail['results']['user_detail'],
+                            'order_id' =>$orderDetail['results']['order_id'],
+                            'service' => $orderDetail['results']['service'],
+                            'type' => $orderDetail['results']['type'],
+                            'booking_date' => $orderDetail['results']['booking_date'],
+                            'total_price' => $orderDetail['results']['total'],
+                            'total_payment' => $orderDetail['results']['subtotal'],
+                            'partnerDetail' => $orderDetail['results']['partner_detail'],
+                        ];
+                        $this->mailServer->InvoicePaymentSuccessCusttomer($details);
+                        $this->prosesOrder($orderId);
                     }
-                    $this->prosesOrder($orderId);
-                }
-                }
-                return response()->JSON([
-                    'status' => 'success',
-                    'payment_url' => 'https://web.pawly.my.id/',
-                    'success_url' => ''
-                ]);
+                    return response()->JSON([
+                        'status' => 'success',
+                        'payment_url' => 'https://web.pawly.my.id/',
+                        'success_url' => ''
+                    ]);
                 } else{
                     return response()->JSON([
                         'status' => 'error',
