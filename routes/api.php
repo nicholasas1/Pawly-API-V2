@@ -211,7 +211,7 @@ Route::post('session/vidcallhit',[VidcalldetailController::class,'vidcallhit']);
 
 Route::get('send', [MobileBannerController::class, 'stream']);
 
-Route::post('notif/create',[NotificationdbController::class,'createnotif']);
+// Route::post('notif/create',[NotificationdbController::class,'createnotif']);
 
 Route::post('notif/update',[NotificationdbController::class,'updatenotif']);
 
