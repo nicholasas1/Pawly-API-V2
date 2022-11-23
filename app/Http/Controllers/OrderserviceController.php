@@ -523,7 +523,7 @@ class OrderserviceController extends Controller
         $obat = [];
         $penanganan = [];
         $rekammedis = [];
-        if(RekamMedis::where('order_id',1)->count() > 0){
+        if(RekamMedis::where('order_id',$data->value('order_id'))->count() > 0){
             $rekammedis = RekamMedis::where('order_id',$data->value('order_id'))->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get(); 
             if(medicine::where('rm_id',$rekammedis->id)->count()>0){
                 $obat = medicine::where('rm_id',$rekammedis->id)->get();
