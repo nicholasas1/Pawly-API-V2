@@ -7,6 +7,7 @@ use App\Http\Controllers\FavController;
 use App\Http\Controllers\FirebaseTokenController;
 use App\Http\Controllers\JWTValidator;
 use App\Http\Controllers\MobileBannerController;
+use App\Http\Controllers\NotificationdbController;
 use App\Http\Controllers\OrderserviceController;
 use App\Http\Controllers\otpController;
 use App\Http\Controllers\PaymentmethController;
@@ -196,7 +197,7 @@ Route::post('order/pay', [OrderserviceController::class,'create_payment']);
 
 Route::post('order/changestatus', [OrderserviceController::class,'changestatus']);
 
-Route::post('haha', [schedulersystemcontroller::class,'vcLinkEnd']);
+Route::post('haha', [schedulersystemcontroller::class,'orderList']);
 
 Route::post('coupon/validate', [CouponserviceController::class,'validate_coupon']);
 
@@ -209,3 +210,15 @@ Route::post('order/accept',[OrderserviceController::class,'acceptOrder']);
 Route::post('session/vidcallhit',[VidcalldetailController::class,'vidcallhit']);
 
 Route::get('send', [MobileBannerController::class, 'stream']);
+
+// Route::post('notif/create',[NotificationdbController::class,'createnotif']);
+
+Route::post('notif/update',[NotificationdbController::class,'updatenotif']);
+
+Route::post('notif/delete',[NotificationdbController::class,'deletenotif']);
+
+Route::get('notif/getnotifall',[NotificationdbController::class,'getnotifall']);
+
+Route::get('notif/getnotiffilter',[NotificationdbController::class,'getnotiffilter']);
+
+Route::post('notif/view',[NotificationdbController::class,'viewnotif']);

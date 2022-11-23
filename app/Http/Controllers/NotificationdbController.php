@@ -4,82 +4,199 @@ namespace App\Http\Controllers;
 
 use App\Models\notificationdb;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use App\Http\Controllers\JWTValidator;
+
 
 class NotificationdbController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    protected $JWTValidator;
+    public function __construct(JWTValidator $jWTValidator)
     {
-        //
+        $this->JWTValidator = $jWTValidator;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+    public function createnotif($user_id,$meta_role,$meta_id,$notif_data,$redirect){
+        $query = notificationdb::insert([
+            'usersids' => $user_id,
+            'meta_role' => $meta_role,
+            'meta_id' => $meta_id,
+            'notification_data' => $notif_data,
+            'redirect' => $redirect,
+            'view' => NULL,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
+
+        if($query==1){
+            return response()->JSON([
+                'status' => 'success'
+            ]);
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => ''
+            ]);
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
+    public function updatenotif(request $request){
+        $query = notificationdb::where('id',$request->id)->update([
+            'usersids' => $request->user_id,
+            'meta_role' => $request->meta_role,
+            'meta_id' => $request->meta_id,
+            'notification_data' => $request->notif_data,
+            'redirect' => $request->redirect,
+            'updated_at' => Carbon::now()
+        ]);
+
+        if($query==1){
+            return response()->JSON([
+                'status' => 'success'
+            ]);
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => ''
+            ]);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\notificationdb  $notificationdb
-     * @return \Illuminate\Http\Response
-     */
-    public function show(notificationdb $notificationdb)
-    {
-        //
+    public function deletenotif(request $request){
+
+        $query = notificationdb::where('id',$request->id)->delete();
+
+        if($query==1){
+            return response()->JSON([
+                'status' => 'success'
+            ]);
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => ''
+            ]);
+        }
+    }   
+
+    public function getnotifall(request $request){
+        if($request->limit==NULL){
+            $limit = 10;
+        } else{
+            $limit = $request->limit;
+        }
+
+        if($request->page==NULL){
+            $page = 0;
+        } else{
+            $page = ($request->page - 1) * $limit;
+        }
+        $query = notificationdb::all();
+
+        foreach($query->limit($limit)->offset($page)->get() as $queries){
+            $arr[] = [
+                'id' => $queries->id,
+                'user_id' => $queries->usersids,
+                'meta_role' => $queries->meta_role,
+                'meta_id' => $queries->meta_id,
+                'notification_data' => $queries->notification_data,
+                'view' => $queries->view,
+                'redirect' => $queries->redirect
+            ];
+        }
+
+        return response()->JSON([
+            'status' => 'success',
+            'total_data' => $query->count(),
+            'total_page' => ceil($query->count() / $limit),
+            'total_result' => count($arr),
+            'results' => $arr
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\notificationdb  $notificationdb
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(notificationdb $notificationdb)
-    {
-        //
+    public function getnotiffilter(request $request){
+        if($request->limit==NULL){
+            $limit = 10;
+        } else{
+            $limit = $request->limit;
+        }
+
+        if($request->page==NULL){
+            $page = 0;
+        } else{
+            $page = ($request->page - 1) * $limit;
+        }
+        $role = $request->role;
+
+        if($role=='consumer'){
+            $roles[] = ['user'];
+        } else if($role=='provider'){
+            $roles = ['doctor','clinic'];
+        }
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+
+        if($result['status'] == 200){
+            $userid = $result['body']['user_id'];
+            $query = notificationdb::where('usersids',$userid)->whereIn('meta_role',$roles);
+
+            foreach($query->limit($limit)->offset($page)->get() as $queries){
+                $arr[] = [
+                    'id' => $queries->id,
+                    'user_id' => $queries->usersids,
+                    'meta_role' => $queries->meta_role,
+                    'meta_id' => $queries->meta_id,
+                    'notification_data' => $queries->notification_data,
+                    'view' => $queries->view,
+                    'redirect' => $queries->redirect
+                ];
+            }
+    
+            return response()->JSON([
+                'status' => 'success',
+                'total_data' => $query->count(),
+                'total_page' => ceil($query->count() / $limit),
+                'total_data_unread' => $query->where('view',null)->count(),
+                'results' => $arr
+            ]);
+        }else{
+            return $result;
+        }
+        
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\notificationdb  $notificationdb
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, notificationdb $notificationdb)
-    {
-        //
+    public function viewnotif(request $request){
+        $query = notificationdb::where('id',$request->id)->update([
+            'view' => true,
+            'updated_at' => Carbon::now()
+        ]);
+
+        if($query==1){
+            return response()->JSON([
+                'status' => 'success'
+            ]);
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => ''
+            ]);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\notificationdb  $notificationdb
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(notificationdb $notificationdb)
-    {
-        //
+    public function readNotifAll(request $request){
+        $query = notificationdb::where('id',$request->id)->update([
+            'view' => true,
+            'updated_at' => Carbon::now()
+        ]);
+
+        if($query==1){
+            return response()->JSON([
+                'status' => 'success'
+            ]);
+        } else{
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => ''
+            ]);
+        }
     }
 }

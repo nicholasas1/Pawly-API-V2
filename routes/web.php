@@ -21,7 +21,7 @@ Route::get('/', function () {
 });
 
 Route::get('/ReminderPayment', function () {
-    return view('InvoicePendingPayment');
+    return view('InvoiceCancel');
 });
 
 Route::get('migrate-fresh', function () {

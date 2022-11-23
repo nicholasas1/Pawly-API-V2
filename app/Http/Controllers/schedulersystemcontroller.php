@@ -8,15 +8,20 @@ use App\Http\Controllers\FirebaseTokenController;
 use App\Models\vidcalldetail;
 use Illuminate\Support\Facades\Http;
 use App\Models\wallet;
+use App\Http\Controllers\OrderserviceController;
+use App\Http\Controllers\MailServer;
+
 
 use Illuminate\Http\Request;
 
 class schedulersystemcontroller extends Controller
 {
-    public function __construct(MobileBannerController $mobile_banner,FirebaseTokenController $fb_token)
+    public function __construct(MailServer $mailServer,OrderserviceController $orderService,MobileBannerController $mobile_banner,FirebaseTokenController $fb_token)
     {
         $this->mobile_banner = $mobile_banner;
         $this->fb_token = $fb_token;
+        $this->orderService = $orderService;
+        $this->mailServer = $mailServer;
     }
 
     public function orderList(){ 
@@ -29,7 +34,18 @@ class schedulersystemcontroller extends Controller
                     $notification = $this->mobile_banner->send_notif('Ups.. Your order has been cancel','Your order '.$query->value('order_id').' has been cancelled','','',$token['firebase_token'],NULL,NULL);
                 }
             }
-            $query->update(
+            $orderDetail = $this->orderService->orderDetail($data['order_id']);
+            $details = [
+                'user_detail' =>$orderDetail['results']['user_detail'],
+                'order_id' =>$orderDetail['results']['order_id'],
+                'service' => $orderDetail['results']['service'],
+                'type' => $orderDetail['results']['type'],
+                'booking_date' => $orderDetail['results']['booking_date'],
+                'total_price' => $orderDetail['results']['total'],
+                'total_payment' => $orderDetail['results']['subtotal'],
+                'partnerDetail' => $orderDetail['results']['partner_detail'],
+            ];
+            orderservice::where('order_id','like',$data['order_id'])->update(
                 [
                     'status' => 'CANCEL',
                     'cancelled_at' => Carbon::now(),
@@ -37,6 +53,7 @@ class schedulersystemcontroller extends Controller
                     'cancelled_reason' => 'Order Not Paid'
                 ]
             );
+            $this->mailServer->InvoiceCancelCusttomer($details);
         }
     }
 
