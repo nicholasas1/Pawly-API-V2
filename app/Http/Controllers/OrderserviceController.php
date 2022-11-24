@@ -502,13 +502,13 @@ class OrderserviceController extends Controller
         }
         $rating = ratings::where('booking_id','=',$orderId);
 
-        if($rating->count() == 1 || $data->value('type') == 'pawly_credit'){
+        if($rating->count() == 1 ){
             $is_rating = true;
         }else{
             $is_rating = false;
         }
 
-        if($data->value('status') == 'ORDER_COMPLATE' && $is_rating == false){
+        if($data->value('status') == 'ORDER_COMPLATE' && $is_rating == false && $data->value('type') != 'pawly_credit'){
             $can_rating = true;
         }else{
             $can_rating = false;
