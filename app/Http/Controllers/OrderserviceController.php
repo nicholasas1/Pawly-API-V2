@@ -637,7 +637,7 @@ class OrderserviceController extends Controller
                             'partnerDetail' => $orderDetail['results']['partner_detail'],
                         ];
                         $this->mailServer->InvoicePaymentSuccessCusttomer($details);
-                        $chat = "Hallo, ".$orderDetail['partner_detail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$orderDetail['user_detail']['nickname']."\nBooking Service : ".$orderDetail['type']." - ".$orderDetail['service']."\nBooking Code : ".$orderDetail['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
+                        $chat = "Hallo, ".$details['partner_detail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$orderDetail['user_detail']['nickname']."\nBooking Service : ".$orderDetail['type']." - ".$orderDetail['service']."\nBooking Code : ".$orderDetail['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
 
                         $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
                
