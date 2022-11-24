@@ -508,7 +508,7 @@ class OrderserviceController extends Controller
             $is_rating = false;
         }
 
-        if($data->value('status') == 'ORDER_COMPLATE' && $is_rating == false && $data->value('type') != 'pawly_credit'){
+        if($data->value('status') == 'ORDER_COMPLATE' && $is_rating == false && $data->value('service') != 'pawly_credit'){
             $can_rating = true;
         }else{
             $can_rating = false;
