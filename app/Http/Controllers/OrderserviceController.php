@@ -523,12 +523,12 @@ class OrderserviceController extends Controller
         $obat = [];
         $penanganan = [];
         $rekammedis = [];
-        if(RekamMedis::where('order_id',$data->value('order_id'))->count() > 0){
+        if(RekamMedis::where('order_id',$data->value('order_id'))->get()->count() > 0){
             $rekammedis = RekamMedis::where('order_id',$data->value('order_id'))->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get(); 
-            if(medicine::where('rm_id',$rekammedis->id)->count()>0){
+            if(medicine::where('rm_id',$rekammedis->id)->get()->count()>0){
                 $obat = medicine::where('rm_id',$rekammedis->id)->get();
             }
-            if(penanganan::where('rm_ids',$rekammedis->id)->count()>0){
+            if(penanganan::where('rm_ids',$rekammedis->id)->get()->count()>0){
                 $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
             }          
         }
@@ -743,7 +743,7 @@ class OrderserviceController extends Controller
                         $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$invoice,'','',$token['firebase_token'],'/tabs/tab3',NULL);
                     }
                 }
-                $orderDetail = $this->orderDetail($orderId);
+                $orderDetail = $this->orderDetail($invoice);
                 $details = [
                     'user_detail' =>$orderDetail['results']['user_detail'],
                     'order_id' =>$orderDetail['results']['order_id'],
