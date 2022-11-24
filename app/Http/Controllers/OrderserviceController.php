@@ -155,7 +155,7 @@ class OrderserviceController extends Controller
                 ];
                 if($insertorderid==1){
                     $this->mailServer->InvoicePendingPayment($details);
-                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order'.$orderId.'from'.$user_detail->value('nickname'),NULL);
+                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL);
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -218,7 +218,7 @@ class OrderserviceController extends Controller
 
                 if($insertorderid==1){
                     $this->mailServer->InvoicePendingPayment($details);
-                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order'.$orderId.'from'.$user_detail->value('nickname'),NULL);
+                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL);
                    
                     return response()->JSON([
                         'status' => 'success',
