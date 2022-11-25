@@ -18,6 +18,7 @@ return new class extends Migration
             $table->char('usersids',10);
             $table->char('meta_role',100)->nullable();
             $table->text('meta_id')->nullable();
+            $table->char('order_ids',16)->nullable();
             $table->text('notification_data')->nullable();
             $table->boolean('view')->nullable();
             $table->text('redirect')->nullable();

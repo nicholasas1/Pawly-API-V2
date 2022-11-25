@@ -16,11 +16,12 @@ class NotificationdbController extends Controller
         $this->JWTValidator = $jWTValidator;
     }
 
-    public function createnotif($user_id,$meta_role,$meta_id,$notif_data,$redirect){
+    public function createnotif($user_id,$meta_role,$meta_id,$order_id,$notif_data,$redirect){
         $query = notificationdb::insert([
             'usersids' => $user_id,
             'meta_role' => $meta_role,
             'meta_id' => $meta_id,
+            'order_ids' => $order_id,
             'notification_data' => $notif_data,
             'redirect' => $redirect,
             'view' => NULL,
@@ -45,6 +46,7 @@ class NotificationdbController extends Controller
             'usersids' => $request->user_id,
             'meta_role' => $request->meta_role,
             'meta_id' => $request->meta_id,
+            'order_ids' => $request->order_id,
             'notification_data' => $request->notif_data,
             'redirect' => $request->redirect,
             'updated_at' => Carbon::now()
@@ -98,6 +100,7 @@ class NotificationdbController extends Controller
                 'user_id' => $queries->usersids,
                 'meta_role' => $queries->meta_role,
                 'meta_id' => $queries->meta_id,
+                'order_id' => $queries->order_ids,
                 'notification_data' => $queries->notification_data,
                 'view' => $queries->view,
                 'redirect' => $queries->redirect
@@ -145,6 +148,7 @@ class NotificationdbController extends Controller
                     'user_id' => $queries->usersids,
                     'meta_role' => $queries->meta_role,
                     'meta_id' => $queries->meta_id,
+                    'order_id' => $queries->order_ids,
                     'notification_data' => $queries->notification_data,
                     'view' => $queries->view,
                     'redirect' => $queries->redirect
