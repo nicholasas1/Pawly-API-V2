@@ -897,7 +897,8 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
     
         if($result['status'] == 200){ 
-            $data = orderservice::where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');
+            // $data = orderservice::leftjoin('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');;
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.nickname','orderservices.*')->where('users.nickname','like','%'.$request->name.'%')->where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('orderservices.status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');
             $result=[];
                 
             foreach($data->limit($limit)->offset($page)->get() as $arr){
@@ -915,7 +916,7 @@ class OrderserviceController extends Controller
                     'type'=>$arr['type'],
                     'status'=>$arr['status'],
                     'total'=>$arr['total'],
-                     'diskon'=>$arr['diskon'],
+                    'diskon'=>$arr['diskon'],
                     'coupon_name'=>$arr['coupon_name'],
                     'subtotal'=>$arr['subtotal'],
                     'allowed_payment'=>$payment_allowed,
@@ -929,7 +930,7 @@ class OrderserviceController extends Controller
                     'users_ids'=>$arr['users_ids'],
                     'user_name'=>User::where('id',$arr['users_ids'])->value('nickname'),
                     'email'=>User::where('id',$arr['users_ids'])->value('email'),
-                    'phone_number'=>User::where('id',$arr['users_ids'])->value('phone_numer'),
+                    'phone_number'=>User::where('id',$arr['users_ids'])->value('phone_number'),
                     'gender'=>User::where('id',$arr['users_ids'])->value('gender'),
                     'profile_picture'=>User::where('id',$arr['users_ids'])->value('profile_picture'),
                     'partner_user_id'=>$arr['partner_user_id'],
