@@ -129,7 +129,7 @@ class NotificationdbController extends Controller
             $page = ($request->page - 1) * $limit;
         }
         $role = $request->role;
-
+        $roles = [];
         if($role=='consumer'){
             $roles[] = ['user'];
         } else if($role=='provider'){
@@ -140,7 +140,7 @@ class NotificationdbController extends Controller
         $arr=[];
         if($result['status'] == 200){
             $userid = $result['body']['user_id'];
-            $query = notificationdb::where('usersids',$userid)->whereIn('meta_role',$roles);
+            $query = notificationdb::where('usersids',$userid)->whereIn('meta_role',$roles)->select('id','usersids','meta_role','meta_id','order_ids','notification_data','view','redirect');
 
             foreach($query->limit($limit)->offset($page)->get() as $queries){
                 $arr[] = [
