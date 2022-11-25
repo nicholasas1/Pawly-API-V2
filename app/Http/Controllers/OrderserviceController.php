@@ -155,7 +155,7 @@ class OrderserviceController extends Controller
                 ];
                 if($insertorderid==1){
                     $this->mailServer->InvoicePendingPayment($details);
-                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order'.$orderId.'from'.$user_detail->value('nickname'),NULL);
+                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL);
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -218,7 +218,7 @@ class OrderserviceController extends Controller
 
                 if($insertorderid==1){
                     $this->mailServer->InvoicePendingPayment($details);
-                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order'.$orderId.'from'.$user_detail->value('nickname'),NULL);
+                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL);
                    
                     return response()->JSON([
                         'status' => 'success',
@@ -476,7 +476,7 @@ class OrderserviceController extends Controller
     public function orderDetail($orderId){
         $vcDetail=[];
         $res=[];
-        
+        //Partner Detail
         $data = orderservice::where('order_id','like',$orderId);
         if($data->value('type') == 'doctor'){
             $detail = doctor::where('id','like',$data->value('service_id'));
@@ -485,6 +485,15 @@ class OrderserviceController extends Controller
                 'id'=>$detail->value('id'),
                 'name'=>$detail->value('doctor_name'),
                 'profile_picture'=>$detail->value('profile_picture'),
+                'phone_number'=>User::where('id','like', $detail->value('users_ids'))->value('phone_number')
+            ];
+        }else  if($data->value('type') == 'wallet'){
+            $res = [
+                'account_id' => '',
+                'id'=>'',
+                'name'=>'Pawly Admin',
+                'profile_picture'=>'',
+                'phone_number'=> '6288213276665'
             ];
         }
 
@@ -508,7 +517,7 @@ class OrderserviceController extends Controller
             $is_rating = false;
         }
 
-        if($data->value('status') == 'ORDER_COMPLATE' && $is_rating == false && $data->value('type') != 'pawly_credit'){
+        if($data->value('status') == 'ORDER_COMPLATE' && $is_rating == false && $data->value('service') != 'pawly_credit'){
             $can_rating = true;
         }else{
             $can_rating = false;
@@ -637,7 +646,7 @@ class OrderserviceController extends Controller
                             'partnerDetail' => $orderDetail['results']['partner_detail'],
                         ];
                         $this->mailServer->InvoicePaymentSuccessCusttomer($details);
-                        $chat = "Hallo, ".$details['partner_detail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$orderDetail['user_detail']['nickname']."\nBooking Service : ".$orderDetail['type']." - ".$orderDetail['service']."\nBooking Code : ".$orderDetail['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
+                        $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
 
                         $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
                
