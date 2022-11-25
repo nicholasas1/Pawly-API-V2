@@ -155,11 +155,8 @@ class OrderserviceController extends Controller
                 ];
                 if($insertorderid==1){
                     $this->mailServer->InvoicePendingPayment($details);
-                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order'.$orderId.'from'.$user_detail->value('nickname'),NULL);
-                    //Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
-                    $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY SUPER APP:\n1. Nama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
-
-                    $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
+                    $this->notif->createnotif($partner_user_id,$type,$partner_user_id,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif partner
+                    $this->notif->createnotif($userid,'consumer',$partner_user_id,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif user
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -222,11 +219,8 @@ class OrderserviceController extends Controller
 
                 if($insertorderid==1){
                     $this->mailServer->InvoicePendingPayment($details);
-                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order '.$orderId.' from' .$user_detail->value('nickname'),NULL);
-                    //Mail::to('nicholas@strongbee.co.id')->queue(new \App\Mail\CustomerInvoicePendinngPayment($details));
-                    $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY SUPER APP:\n1. Nama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
-                    
-                    $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
+                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL);
+                    $this->notif->createnotif($userid,'consumer',$partner_user_id,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif user
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -280,9 +274,7 @@ class OrderserviceController extends Controller
             } else{
                 $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
             }
-            $rekammedis = RekamMedis::where('order_id',$arr['order_id'])->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
-            $obat = medicine::where('rm_id',$rekammedis->id)->get();
-            $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
+           
             $method = array(
                 'id' => $arr['id'],
                 'order_id'=>$arr['order_id'],
@@ -310,9 +302,6 @@ class OrderserviceController extends Controller
                 'partner_paid_ammount'=>$arr['partner_paid_ammount'],
                 'partner_paid_at'=>$arr['partner_paid_at'],
                 'refund_at'=>$arr['refund_at'],
-                'rekam_medis'=>$rekammedis,
-                'medicine' => $obat,
-                'penanganan' => $penanganan,
                 'created_at'=>$arr['created_at'],
                 'updated_at'=>$arr['updated_at']
             );
@@ -358,9 +347,6 @@ class OrderserviceController extends Controller
                 } else{
                     $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
                 }
-                $rekammedis = RekamMedis::where('order_id',$arr['order_id'])->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
-                $obat = medicine::where('rm_id',$rekammedis->id)->get();
-                $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
@@ -388,9 +374,6 @@ class OrderserviceController extends Controller
                     'partner_paid_ammount'=>$arr['partner_paid_ammount'],
                     'partner_paid_at'=>$arr['partner_paid_at'],
                     'refund_at'=>$arr['refund_at'],
-                    'rekam_medis'=>$rekammedis,
-                    'medicine' => $obat,
-                    'penanganan' => $penanganan,
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
 
@@ -442,9 +425,7 @@ class OrderserviceController extends Controller
                     $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
                 }
 
-                $rekammedis = RekamMedis::where('order_id',$arr['order_id'])->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
-                $obat = medicine::where('rm_id',$rekammedis->id)->get();
-                $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
+               
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
@@ -472,9 +453,6 @@ class OrderserviceController extends Controller
                     'partner_paid_ammount'=>$arr['partner_paid_ammount'],
                     'partner_paid_at'=>$arr['partner_paid_at'],
                     'refund_at'=>$arr['refund_at'],
-                    'rekam_medis'=>$rekammedis,
-                    'medicine' => $obat,
-                    'penanganan' => $penanganan,
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
 
@@ -493,22 +471,32 @@ class OrderserviceController extends Controller
     }
 
     public function getDetail(request $request){
-        return $this->orderDetail($request->id);
+        return response()->json($this->orderDetail($request->id));
     }
 
     public function orderDetail($orderId){
         $vcDetail=[];
         $res=[];
-        
+        //Partner Detail
         $data = orderservice::where('order_id','like',$orderId);
-        
         if($data->value('type') == 'doctor'){
             $detail = doctor::where('id','like',$data->value('service_id'));
             $res = [
                 'account_id' => $detail->value('users_ids'),
-                'doctor_id'=>$detail->value('id'),
-                'doctor_name'=>$detail->value('doctor_name'),
+                'id'=>$detail->value('id'),
+                'name'=>$detail->value('doctor_name'),
                 'profile_picture'=>$detail->value('profile_picture'),
+                'phone_number'=>User::where('id','like', $detail->value('users_ids'))->value('phone_number'),
+                'address' => $detail->value('address')
+            ];
+        }else  if($data->value('type') == 'wallet'){
+            $res = [
+                'account_id' => '',
+                'id'=>'',
+                'name'=>'Pawly Admin',
+                'profile_picture'=>'',
+                'phone_number'=> '6288213276665',
+                'address' => ''
             ];
         }
 
@@ -526,13 +514,13 @@ class OrderserviceController extends Controller
         }
         $rating = ratings::where('booking_id','=',$orderId);
 
-        if($rating->count() == 1){
+        if($rating->count() == 1 ){
             $is_rating = true;
         }else{
             $is_rating = false;
         }
 
-        if($data->value('status') == 'ORDER_COMPLATE' && $is_rating == false){
+        if($data->value('status') == 'ORDER_COMPLATE' && $is_rating == false && $data->value('service') != 'pawly_credit'){
             $can_rating = true;
         }else{
             $can_rating = false;
@@ -544,9 +532,21 @@ class OrderserviceController extends Controller
             $payment_allowed =  couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
         }
 
-        $rekammedis = RekamMedis::where('order_id',$data->value('order_id'))->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
-        $obat = medicine::where('rm_id',$rekammedis->id)->get();
-        $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
+        $obat = [];
+        $penanganan = [];
+        $rekammedis = [];
+        if(RekamMedis::where('order_id',$data->value('order_id'))->get()->count() > 0){
+            $rekammedis = RekamMedis::where('order_id',$data->value('order_id'))->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get(); 
+            if(medicine::where('rm_id',$rekammedis->id)->get()->count()>0){
+                $obat = medicine::where('rm_id',$rekammedis->id)->get();
+            }
+            if(penanganan::where('rm_ids',$rekammedis->id)->get()->count()>0){
+                $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
+            }          
+        }
+        $user_detail = User::where('id','like', $data->value('users_ids'));
+
+       
 
         $arr = [
             'id' => $data->value('id'),
@@ -573,6 +573,12 @@ class OrderserviceController extends Controller
             'can_rating'=> $can_rating,
             'cancelled_reason'=>$data->value('cancelled_reason'),
             'users_ids'=>$data->value('users_ids'),
+            'user_detail' => [
+                'nickname' => $user_detail->value('nickname'),
+                'profile_picture'=>$user_detail->value('profile_picture'),
+                'email'=>$user_detail->value('email'),
+                'phone_number'=>$user_detail->value('phone_number')
+            ],
             'partner_user_id' => $data->value('partner_user_id'),
             'partner_detail' => $res,
             'comission' => $data->value('comission'),
@@ -587,10 +593,10 @@ class OrderserviceController extends Controller
             'updated_at'=>$data->value('updated_at')
         ]; 
 
-        return response()->json([
+        return [
             'status'=>'success',
             'results'=>$arr
-        ]);
+        ];
     }
 
     public function create_payment(request $request){
@@ -609,35 +615,51 @@ class OrderserviceController extends Controller
             if($payment_method == 'Wallet'){
                 if($total_transaction < $ammount){
                     $current_date_time = date('Y-m-d H:i:s');
-                $query = wallet::insertGetId([
-                    'users_ids' => $result['body']['user_id'], 
-                    'credit' => $data->value('subtotal'),
-                    'description' => 'Payment order ID '.$orderId,
-                    'type' => 'pawly_credit',
-                    'created_at' => $current_date_time
-                ]);
-                $wallet = wallet::where('id',$query)->get();
-                if($wallet->count()==1){
-                    $statuschange = orderservice::where('order_id',$orderId)->update([
-                        'status' => 'BOOKING RESERVED',
-                        'payment_method' => 'Wallet',
-                        'payment_id' => $query,
-                        'payed_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
+                    $query = wallet::insertGetId([
+                        'users_ids' => $result['body']['user_id'], 
+                        'credit' => $data->value('subtotal'),
+                        'description' => 'Payment order ID '.$orderId,
+                        'type' => 'pawly_credit',
+                        'created_at' => $current_date_time
                     ]);
-                    $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$orderId)->value('users_ids'),'Consumer App');
-                    foreach( $token_fb as $token){
-                    if($token['firebase_token'] != NULL){
-                        $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$orderId,'','',$token['firebase_token'],NULL,NULL);
+                    $wallet = wallet::where('id',$query)->get();
+                    if($wallet->count()==1){
+                        $statuschange = orderservice::where('order_id',$orderId)->update([
+                            'status' => 'BOOKING RESERVED',
+                            'payment_method' => 'Wallet',
+                            'payment_id' => $query,
+                            'payed_at' => Carbon::now(),
+                            'updated_at' => Carbon::now()
+                        ]);
+                        $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$orderId)->value('users_ids'),'Consumer App');
+                        foreach( $token_fb as $token){
+                            if($token['firebase_token'] != NULL){
+                                $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$orderId,'','',$token['firebase_token'],'/tabs/tab3',NULL);
+                            }
+                        }
+                        $orderDetail = $this->orderDetail($orderId);
+                        $details = [
+                            'user_detail' =>$orderDetail['results']['user_detail'],
+                            'order_id' =>$orderDetail['results']['order_id'],
+                            'service' => $orderDetail['results']['service'],
+                            'type' => $orderDetail['results']['type'],
+                            'booking_date' => $orderDetail['results']['booking_date'],
+                            'total_price' => $orderDetail['results']['total'],
+                            'total_payment' => $orderDetail['results']['subtotal'],
+                            'partnerDetail' => $orderDetail['results']['partner_detail'],
+                        ];
+                        $this->mailServer->InvoicePaymentSuccessCusttomer($details);
+                        $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
+
+                        $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
+               
+                        $this->prosesOrder($orderId);
                     }
-                    $this->prosesOrder($orderId);
-                }
-                }
-                return response()->JSON([
-                    'status' => 'success',
-                    'payment_url' => 'https://web.pawly.my.id/',
-                    'success_url' => ''
-                ]);
+                    return response()->JSON([
+                        'status' => 'success',
+                        'payment_url' => 'https://web.pawly.my.id/',
+                        'success_url' => ''
+                    ]);
                 } else{
                     return response()->JSON([
                         'status' => 'error',
@@ -730,9 +752,24 @@ class OrderserviceController extends Controller
                 $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$invoice)->value('users_ids'),'Consumer App');
                 foreach( $token_fb as $token){
                     if($token['firebase_token'] != NULL){
-                        $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$invoice,'','',$token['firebase_token'],NULL,NULL);
+                        $notification = $this->mobile_banner->send_notif('Your payment has been received','Thank you for payment order '.$invoice,'','',$token['firebase_token'],'/tabs/tab3',NULL);
                     }
                 }
+                $orderDetail = $this->orderDetail($invoice);
+                $details = [
+                    'user_detail' =>$orderDetail['results']['user_detail'],
+                    'order_id' =>$orderDetail['results']['order_id'],
+                    'service' => $orderDetail['results']['service'],
+                    'type' => $orderDetail['results']['type'],
+                    'booking_date' => $orderDetail['results']['booking_date'],
+                    'total_price' => $orderDetail['results']['total'],
+                    'total_payment' => $orderDetail['results']['subtotal'],
+                    'partnerDetail' => $orderDetail['results']['partner_detail'],
+                ];
+                $this->mailServer->InvoicePaymentSuccessCusttomer($details);
+                $chat = "Hallo, ".$orderDetail['partner_detail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$orderDetail['user_detail']['nickname']."\nBooking Service : ".$orderDetail['type']." - ".$orderDetail['service']."\nBooking Code : ".$orderDetail['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
+
+                $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
                 $this->prosesOrder($invoice);
 
                 return response()->JSON([
@@ -869,9 +906,6 @@ class OrderserviceController extends Controller
                 } else{
                     $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
                 }
-                $rekammedis = RekamMedis::where('order_id',$arr['order_id'])->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get();
-                $obat = medicine::where('rm_id',$rekammedis->id)->get();
-                $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
@@ -900,9 +934,6 @@ class OrderserviceController extends Controller
                     'partner_paid_ammount'=>$arr['partner_paid_ammount'],
                     'partner_paid_at'=>$arr['partner_paid_at'],
                     'refund_at'=>$arr['refund_at'],
-                    'rekam_medis'=>$rekammedis,
-                    'medicine' => $obat,
-                    'penanganan' => $penanganan,
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
                 );
@@ -987,7 +1018,7 @@ class OrderserviceController extends Controller
             $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$order_id)->value('users_ids'),'Consumer App');
             foreach( $token_fb as $token){
                 if($token['firebase_token'] != NULL){
-                    $notification = $this->mobile_banner->send_notif('Your Order '.$order_id.' Has Been Cancelled','Your Money will be refuned max 1x24','','',$token['firebase_token'],NULL,NULL);
+                    $notification = $this->mobile_banner->send_notif('Your Order '.$order_id.' Has Been Cancelled','Your Money will be refuned max 1x24','','',$token['firebase_token'],'/tabs/tab3',NULL);
                 }
             }
             $refund = wallet::insert([
@@ -1028,7 +1059,7 @@ class OrderserviceController extends Controller
             $token_fb = $this->fb_token->userFirebaseToken( orderservice::where('order_id','like',$order_id)->value('users_ids'),'Consumer App');
             foreach( $token_fb as $token){
                 if($token['firebase_token'] != NULL){
-                    $notification = $this->mobile_banner->send_notif('Your order is now in process','Order '.$order_id.' now on process','','',$token['firebase_token'],NULL,NULL);
+                    $notification = $this->mobile_banner->send_notif('Your order is now in process','Order '.$order_id.' now on process','','',$token['firebase_token'],"/order-detail"."/".$order_id,NULL);
                 }
             }
         } else{
