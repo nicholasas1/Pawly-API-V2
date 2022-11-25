@@ -243,7 +243,7 @@ class RekamMedisController extends Controller
         $checkorder = orderservice::where('order_id',$order_id)->get();
 
         if($checkorder->count()==1){
-            $query = orderservice::where('order_id',$order_id)->update('status','COMPLATE');
+            $query = orderservice::where('order_id',$order_id)->update(['status' => 'ORDER_COMPLATE']);
 
             if($query==1){
                 $status = 'success';
