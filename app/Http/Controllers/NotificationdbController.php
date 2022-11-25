@@ -187,7 +187,7 @@ class NotificationdbController extends Controller
     }
 
     public function readNotifAll(request $request){
-        $query = notificationdb::where('id',$request->id)->update([
+        $query = notificationdb::where('usersids',$request->id)->update([
             'view' => true,
             'updated_at' => Carbon::now()
         ]);
