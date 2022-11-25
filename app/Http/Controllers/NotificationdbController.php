@@ -134,7 +134,7 @@ class NotificationdbController extends Controller
         }
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
-
+        $arr=[];
         if($result['status'] == 200){
             $userid = $result['body']['user_id'];
             $query = notificationdb::where('usersids',$userid)->whereIn('meta_role',$roles);

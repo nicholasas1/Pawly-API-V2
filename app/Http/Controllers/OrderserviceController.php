@@ -485,7 +485,8 @@ class OrderserviceController extends Controller
                 'id'=>$detail->value('id'),
                 'name'=>$detail->value('doctor_name'),
                 'profile_picture'=>$detail->value('profile_picture'),
-                'phone_number'=>User::where('id','like', $detail->value('users_ids'))->value('phone_number')
+                'phone_number'=>User::where('id','like', $detail->value('users_ids'))->value('phone_number'),
+                'address' => $detail->value('address')
             ];
         }else  if($data->value('type') == 'wallet'){
             $res = [
@@ -493,7 +494,8 @@ class OrderserviceController extends Controller
                 'id'=>'',
                 'name'=>'Pawly Admin',
                 'profile_picture'=>'',
-                'phone_number'=> '6288213276665'
+                'phone_number'=> '6288213276665',
+                'address' => ''
             ];
         }
 
