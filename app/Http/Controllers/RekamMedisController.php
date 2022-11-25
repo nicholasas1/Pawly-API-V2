@@ -210,7 +210,7 @@ class RekamMedisController extends Controller
         $query = DB::table('rekam_medis')
         ->join('penanganan','id','=','rm_ids')
         ->select(['id','order_id','pet_id','keluhan','penanganan_sementara','penanganan_lanjut','diagnosa','penanganan.tindakan','penanganan.biaya_tambahan'])
-        ->where('id',$request->id);
+        ->where('order_id',$request->order_id);
 
         $arr = [
             'rm_id' => $query->id,
