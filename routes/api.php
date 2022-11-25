@@ -243,3 +243,5 @@ Route::post('penanganan/update',[RekamMedisController::class,'edit_penanganan'])
 Route::post('penanganan/delete',[RekamMedisController::class,'delete_penanganan']);
 
 Route::get('record/get-detail',[RekamMedisController::class,'get_record_detail']);
+
+Route::post('record/changestatus',[RekamMedisController::class,'changestatus']);
