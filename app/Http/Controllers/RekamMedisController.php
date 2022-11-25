@@ -220,7 +220,7 @@ class RekamMedisController extends Controller
             'penanganan_sementara' => $query->penanganan_sementara,
             'penanganan_lanjut' => $query->penanganan_lanjut,
             'diagnosa' => $query->diagnosa,
-            'obat' => medicine::where('rm_id',$request->id)->get(),
+            'obat' => medicine::where('rm_id',$request->id)->select(['nama_obat','penggunaan'])->get(),
             'tindakan' => $query->tindakan,
             'biaya_tambahan' => $query->biaya_tambahan
 
@@ -235,18 +235,25 @@ class RekamMedisController extends Controller
     public function changestatus(request $request){
         $order_id = $request->order_id;
 
-        $record = rekam_medis::where('order_id', $order_id);
-        $medicine = medicine::where('rm_id',$record->value('id'));
-        $penanganan = medicine::where('rm_ids',$record->value('id'));
+        $checkorder = orderservice::where('order_id',$order_id)->get();
 
-        if($record->count()==1&&$medicine->count()==1&&$penanganan->count()==1){
-            $status = orderservice::where('order_id',$order_id)->update([
-                'status' => 'COMPLATE'
-            ]);
+        if($checkorder->count()==1){
+            $query = orderservice::where('order_id',$order_id)->update('status','COMPLATE');
 
-            return response()->JSON([
-                'status' => 'success'
-            ]);
+            if($query==1){
+                $status = 'success';
+                $msg = '';
+            } else {
+                $status = 'error';
+                $msg = 'Can not Update';
+            }
+        } else {
+            $status = 'error';
+            $msg = 'no order id found';
         }
+        return response()->JSON([
+            'status' => $status,
+            'msg' => $msg
+        ]);
     }
 }
