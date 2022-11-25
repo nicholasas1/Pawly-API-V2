@@ -224,6 +224,8 @@ Route::get('notif/getnotiffilter',[NotificationdbController::class,'getnotiffilt
 
 Route::post('notif/view',[NotificationdbController::class,'viewnotif']);
 
+Route::post('notif/readall',[NotificationdbController::class,'readNotifAll']);
+
 Route::post('record/create',[RekamMedisController::class,'create_rek_med']);
 
 Route::post('record/update',[RekamMedisController::class,'update_rek_med']);

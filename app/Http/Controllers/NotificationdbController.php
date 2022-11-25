@@ -169,15 +169,20 @@ class NotificationdbController extends Controller
     }
 
     public function viewnotif(request $request){
-        $query = notificationdb::where('id',$request->id)->update([
-            'view' => true,
-            'updated_at' => Carbon::now()
-        ]);
-
-        if($query==1){
-            return response()->JSON([
-                'status' => 'success'
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+        $userid = $result['body']['user_id'];
+        if($result['status'] == 200){
+            $query = notificationdb::where('id',$request->id)->where('usersids',$userid)->update([
+                'view' => true,
+                'updated_at' => Carbon::now()
             ]);
+    
+            if($query==1){
+                return response()->JSON([
+                    'status' => 'success'
+                ]);
+            }
         } else{
             return response()->JSON([
                 'status' => 'error',
@@ -187,15 +192,19 @@ class NotificationdbController extends Controller
     }
 
     public function readNotifAll(request $request){
-        $query = notificationdb::where('usersids',$request->id)->update([
-            'view' => true,
-            'updated_at' => Carbon::now()
-        ]);
-
-        if($query==1){
-            return response()->JSON([
-                'status' => 'success'
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+        $userid = $result['body']['user_id'];
+        if($result['status'] == 200){
+            $query = notificationdb::where('usersids',$userid)->update([
+                'view' => true,
+                'updated_at' => Carbon::now()
             ]);
+            if($query>0){
+                return response()->JSON([
+                    'status' => 'success'
+                ]);
+            }
         } else{
             return response()->JSON([
                 'status' => 'error',
