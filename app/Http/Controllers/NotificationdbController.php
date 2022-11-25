@@ -92,7 +92,7 @@ class NotificationdbController extends Controller
         } else{
             $page = ($request->page - 1) * $limit;
         }
-        $query = notificationdb::all();
+        $query = notificationdb::select('id','usersids','meta_role','meta_id','order_ids','notification_data','view','redirect');
 
         foreach($query->limit($limit)->offset($page)->get() as $queries){
             $arr[] = [
