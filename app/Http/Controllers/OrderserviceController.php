@@ -895,13 +895,20 @@ class OrderserviceController extends Controller
             
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
-    
+        
         if($result['status'] == 200){ 
-            // $data = orderservice::leftjoin('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');;
-            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.email','like','%'.$request->email.'%')->wheredate('created_at',$request->order_date)->where('users.nickname','like','%'.$request->name.'%')->where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('orderservices.status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.email','like','%'.$request->email.'%')->where('users.nickname','like','%'.$request->name.'%')->where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('orderservices.status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');;
+            // $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.email','like','%'.$request->email.'%')->wheredate('created_at',$request->order_date)->where('users.nickname','like','%'.$request->name.'%')->where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('orderservices.status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');
             $result=[];
+            $resu = NULL;
+
+            if($request->order_date==NULL){
+                $resu = $data->limit($limit)->offset($page)->get();
+            } else{
+                $resu = $data->wheredate('created_at',$request->order_date)->limit($limit)->offset($page)->get();
+            }
                 
-            foreach($data->limit($limit)->offset($page)->get() as $arr){
+            foreach($resu as $arr){
                 if($arr['coupon_name']==NULL){
                     $payment_allowed = 'a:2:{i:0;s:4:"dana";i:1;s:3:"ovo";}';
                 } else{
