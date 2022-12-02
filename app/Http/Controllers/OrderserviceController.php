@@ -155,8 +155,8 @@ class OrderserviceController extends Controller
                 ];
                 if($insertorderid==1){
                     $this->mailServer->InvoicePendingPayment($details);
-                    $this->notif->createnotif($partner_user_id,$type,$partner_user_id,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif partner
-                    $this->notif->createnotif($userid,'consumer',$partner_user_id,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif user
+                    $this->notif->createnotif($partner_user_id,$type,$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif partner
+                    $this->notif->createnotif($userid,'user',$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif user
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -219,8 +219,8 @@ class OrderserviceController extends Controller
 
                 if($insertorderid==1){
                     $this->mailServer->InvoicePendingPayment($details);
-                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL);
-                    $this->notif->createnotif($userid,'consumer',$partner_user_id,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif user
+                    $this->notif->createnotif($userid,$type,$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL);
+                    $this->notif->createnotif($userid,'user',$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif user
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -895,12 +895,20 @@ class OrderserviceController extends Controller
             
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
-    
+        
         if($result['status'] == 200){ 
-            $data = orderservice::where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.email','like','%'.$request->email.'%')->where('users.nickname','like','%'.$request->name.'%')->where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('orderservices.status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');;
+            // $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.email','like','%'.$request->email.'%')->wheredate('created_at',$request->order_date)->where('users.nickname','like','%'.$request->name.'%')->where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('orderservices.status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');
             $result=[];
+            $resu = NULL;
+
+            if($request->order_date==NULL){
+                $resu = $data->limit($limit)->offset($page)->get();
+            } else{
+                $resu = $data->wheredate('created_at',$request->order_date)->limit($limit)->offset($page)->get();
+            }
                 
-            foreach($data->limit($limit)->offset($page)->get() as $arr){
+            foreach($resu as $arr){
                 if($arr['coupon_name']==NULL){
                     $payment_allowed = 'a:2:{i:0;s:4:"dana";i:1;s:3:"ovo";}';
                 } else{
@@ -915,7 +923,7 @@ class OrderserviceController extends Controller
                     'type'=>$arr['type'],
                     'status'=>$arr['status'],
                     'total'=>$arr['total'],
-                     'diskon'=>$arr['diskon'],
+                    'diskon'=>$arr['diskon'],
                     'coupon_name'=>$arr['coupon_name'],
                     'subtotal'=>$arr['subtotal'],
                     'allowed_payment'=>$payment_allowed,
@@ -928,6 +936,10 @@ class OrderserviceController extends Controller
                     'cancelled_reason'=>$arr['cancelled_reason'],
                     'users_ids'=>$arr['users_ids'],
                     'user_name'=>User::where('id',$arr['users_ids'])->value('nickname'),
+                    'email'=>User::where('id',$arr['users_ids'])->value('email'),
+                    'phone_number'=>User::where('id',$arr['users_ids'])->value('phone_number'),
+                    'gender'=>User::where('id',$arr['users_ids'])->value('gender'),
+                    'profile_picture'=>User::where('id',$arr['users_ids'])->value('profile_picture'),
                     'partner_user_id'=>$arr['partner_user_id'],
                     'comission'=>$arr['comission'],
                     'partner_paid_status'=>$arr['partner_paid_status'],
