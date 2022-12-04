@@ -1085,7 +1085,7 @@ class OrderserviceController extends Controller
         ]);
     }
 
-    public function saasorderlist(request $request){
+    public function userorderlist(request $request){
         $mode = $request->mode;
 
         if($request->limit==NULL){
@@ -1128,6 +1128,86 @@ class OrderserviceController extends Controller
                     'pet_id'=>$arr['pet_id'],
                     'status'=>$arr['status'],
                     'users_ids'=>$arr['users_ids'],
+                    'user_name'=>User::where('id',$arr['users_ids'])->value('nickname'),
+                    'email'=>User::where('id',$arr['users_ids'])->value('email'),
+                    'phone_number'=>User::where('id',$arr['users_ids'])->value('phone_number'),
+                    'gender'=>User::where('id',$arr['users_ids'])->value('gender'),
+                    'profile_picture'=>User::where('id',$arr['users_ids'])->value('profile_picture'),
+                    'partner_user_id'=>$arr['partner_user_id'],
+                    'created_at'=>$arr['created_at'],
+                    'updated_at'=>$arr['updated_at']
+                );
+                if($arr['service']=='vidcall'){
+                    array_push($result,$method);
+                } else if($arr['service']=='chat'){
+                    array_push($orderedchat,$method);
+                } else{
+                    array_push($orderedoff,$method);
+                }
+            }
+            foreach($orderedchat as $chats){
+                array_push($result,$chats);
+            }
+            foreach($orderedoff as $offline){
+                array_push($result,$offline);
+            }
+            return response()->json([
+                'status'=>'success',  
+                'total_data'=>$data->count(),  
+                'total_page'=> ceil($data->count() / $limit),
+                'results'=>$result
+            ]);
+        }else{
+            return $result;
+        }     
+    }
+
+    public function saasorderlist(request $request){
+        $mode = $request->mode;
+        $bookingst = Carbon::create($request->startbookingdate)->todatetimestring();
+        $bookinged = Carbon::create($request->endbookingdate)->addhour(23)->addminutes(59)->addseconds(59)->todatetimestring();
+        if($request->limit==NULL){
+            $limit = 10;
+        } else{
+            $limit = $request->limit;
+        }
+    
+        if($request->page==NULL){
+            $page = 0;
+        } else{
+            $page = ($request->page - 1) * $limit;
+        }
+
+            
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+        
+        if($result['status'] == 200){ 
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('partner_user_id','like', $result['body']['user_id']);
+            
+            $result=[];
+            $orderedchat=[];
+            $orderedoff=[];
+
+            if($mode=='PAST'){
+                $data = $data->where('orderservices.status','ORDER_COMPLATE');
+            } else if($mode=='UPCOMING'&&$request->startbookingdate!=NULL&&$request->endbookingdate!=NULL){
+                // $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
+                $data = $data->wherebetween('booking_date',[$bookingst,$bookinged])->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
+            } else{
+                $data = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
+            }
+                
+            foreach($data->limit($limit)->offset($page)->get() as $arr){
+                $method = array(
+                    'id' => $arr['id'],
+                    'order_id'=>$arr['order_id'],
+                    'service'=>$arr['service'],
+                    'service_id'=>$arr['service_id'],
+                    'pet_id'=>$arr['pet_id'],
+                    'status'=>$arr['status'],
+                    'users_ids'=>$arr['users_ids'],
+                    'Booking_date'=>$arr['booking_date'],
                     'user_name'=>User::where('id',$arr['users_ids'])->value('nickname'),
                     'email'=>User::where('id',$arr['users_ids'])->value('email'),
                     'phone_number'=>User::where('id',$arr['users_ids'])->value('phone_number'),
