@@ -897,7 +897,7 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         
         if($result['status'] == 200){ 
-            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.email','like','%'.$request->email.'%')->where('users.nickname','like','%'.$request->name.'%')->where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('orderservices.status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');;
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.email','like','%'.$request->email.'%')->where('users.nickname','like','%'.$request->name.'%')->where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('orderservices.status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');
             // $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.email','like','%'.$request->email.'%')->wheredate('created_at',$request->order_date)->where('users.nickname','like','%'.$request->name.'%')->where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('orderservices.status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');
             $result=[];
             $resu = NULL;
@@ -1083,5 +1083,82 @@ class OrderserviceController extends Controller
             'status' => $status,
             'msg' => $msg
         ]);
+    }
+
+    public function saasorderlist(request $request){
+        $mode = $request->mode;
+
+        if($request->limit==NULL){
+            $limit = 10;
+        } else{
+            $limit = $request->limit;
+        }
+    
+        if($request->page==NULL){
+            $page = 0;
+        } else{
+            $page = ($request->page - 1) * $limit;
+        }
+
+            
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+        
+        if($result['status'] == 200){ 
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('partner_user_id','like', $result['body']['user_id']);
+            
+            $result=[];
+            $orderedchat=[];
+            $orderedoff=[];
+            $resu = NULL;
+
+            if($mode=='PAST'){
+                $resu = $data->where('orderservices.status','ORDER_COMPLATE');
+            } else if($mode=='UPCOMING'){
+                // $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
+                $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
+            }
+                
+            foreach($resu->limit($limit)->offset($page)->get() as $arr){
+                $method = array(
+                    'id' => $arr['id'],
+                    'order_id'=>$arr['order_id'],
+                    'service'=>$arr['service'],
+                    'service_id'=>$arr['service_id'],
+                    'pet_id'=>$arr['pet_id'],
+                    'status'=>$arr['status'],
+                    'users_ids'=>$arr['users_ids'],
+                    'user_name'=>User::where('id',$arr['users_ids'])->value('nickname'),
+                    'email'=>User::where('id',$arr['users_ids'])->value('email'),
+                    'phone_number'=>User::where('id',$arr['users_ids'])->value('phone_number'),
+                    'gender'=>User::where('id',$arr['users_ids'])->value('gender'),
+                    'profile_picture'=>User::where('id',$arr['users_ids'])->value('profile_picture'),
+                    'partner_user_id'=>$arr['partner_user_id'],
+                    'created_at'=>$arr['created_at'],
+                    'updated_at'=>$arr['updated_at']
+                );
+                if($arr['service']=='vidcall'){
+                    array_push($result,$method);
+                } else if($arr['service']=='chat'){
+                    array_push($orderedchat,$method);
+                } else{
+                    array_push($orderedoff,$method);
+                }
+            }
+            foreach($orderedchat as $chats){
+                array_push($result,$chats);
+            }
+            foreach($orderedoff as $offline){
+                array_push($result,$offline);
+            }
+            return response()->json([
+                'status'=>'success',  
+                'total_data'=>$data->count(),  
+                'total_page'=> ceil($data->count() / $limit),
+                'results'=>$result
+            ]);
+        }else{
+            return $result;
+        }     
     }
 }
