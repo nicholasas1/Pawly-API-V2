@@ -190,6 +190,8 @@ Route::get('saas/newOrder', [OrderserviceController::class,'saasNewOrder']);
 
 Route::get('order/get-detail', [OrderserviceController::class,'getDetail']);
 
+Route::get('order/userapplist',[OrderserviceController::class,'userorderlist']);
+
 Route::get('order/saasorderlist',[OrderserviceController::class,'saasorderlist']);
 
 Route::get('cms/statistic', [statisticcontroller::class,'statistic']);
