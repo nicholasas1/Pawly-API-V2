@@ -1105,9 +1105,11 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         
         if($result['status'] == 200){ 
-            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('partner_user_id','like', $result['body']['user_id'])->orderBy('booking_date','ASC');
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('partner_user_id','like', $result['body']['user_id']);
             
             $result=[];
+            $orderedchat=[];
+            $orderedoff=[];
             $resu = NULL;
 
             if($mode=='PAST'){
@@ -1118,31 +1120,13 @@ class OrderserviceController extends Controller
             }
                 
             foreach($resu->limit($limit)->offset($page)->get() as $arr){
-                if($arr['coupon_name']==NULL){
-                    $payment_allowed = 'a:2:{i:0;s:4:"dana";i:1;s:3:"ovo";}';
-                } else{
-                    $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
-                }
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
                     'service'=>$arr['service'],
                     'service_id'=>$arr['service_id'],
                     'pet_id'=>$arr['pet_id'],
-                    'type'=>$arr['type'],
                     'status'=>$arr['status'],
-                    'total'=>$arr['total'],
-                    'diskon'=>$arr['diskon'],
-                    'coupon_name'=>$arr['coupon_name'],
-                    'subtotal'=>$arr['subtotal'],
-                    'allowed_payment'=>$payment_allowed,
-                    'payment_method'=>$arr['payment_method'],
-                    'payment_id'=>$arr['payment_id'],
-                    'booking_date'=>$arr['booking_date'],
-                    'payed_at'=>$arr['payed_at'],
-                    'payed_untill'=>$arr['payed_untill'],
-                    'cancelled_at'=>$arr['cancelled_at'],
-                    'cancelled_reason'=>$arr['cancelled_reason'],
                     'users_ids'=>$arr['users_ids'],
                     'user_name'=>User::where('id',$arr['users_ids'])->value('nickname'),
                     'email'=>User::where('id',$arr['users_ids'])->value('email'),
@@ -1150,15 +1134,22 @@ class OrderserviceController extends Controller
                     'gender'=>User::where('id',$arr['users_ids'])->value('gender'),
                     'profile_picture'=>User::where('id',$arr['users_ids'])->value('profile_picture'),
                     'partner_user_id'=>$arr['partner_user_id'],
-                    'comission'=>$arr['comission'],
-                    'partner_paid_status'=>$arr['partner_paid_status'],
-                    'partner_paid_ammount'=>$arr['partner_paid_ammount'],
-                    'partner_paid_at'=>$arr['partner_paid_at'],
-                    'refund_at'=>$arr['refund_at'],
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
                 );
-                array_push($result, $method);
+                if($arr['service']=='vidcall'){
+                    array_push($result,$method);
+                } else if($arr['service']=='chat'){
+                    array_push($orderedchat,$method);
+                } else{
+                    array_push($orderedoff,$method);
+                }
+            }
+            foreach($orderedchat as $chats){
+                array_push($result,$chats);
+            }
+            foreach($orderedoff as $offline){
+                array_push($result,$offline);
             }
             return response()->json([
                 'status'=>'success',  
