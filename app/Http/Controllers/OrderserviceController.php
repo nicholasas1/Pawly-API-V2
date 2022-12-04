@@ -155,7 +155,8 @@ class OrderserviceController extends Controller
                 ];
                 if($insertorderid==1){
                     $this->mailServer->InvoicePendingPayment($details);
-                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL);
+                    $this->notif->createnotif($partner_user_id,$type,$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif partner
+                    $this->notif->createnotif($userid,'user',$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif user
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -218,8 +219,8 @@ class OrderserviceController extends Controller
 
                 if($insertorderid==1){
                     $this->mailServer->InvoicePendingPayment($details);
-                    $this->notif->createnotif($userid,$type,$partner_user_id,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL);
-                   
+                    $this->notif->createnotif($userid,$type,$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL);
+                    $this->notif->createnotif($userid,'user',$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif user
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -894,12 +895,20 @@ class OrderserviceController extends Controller
             
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
-    
+        
         if($result['status'] == 200){ 
-            $data = orderservice::where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.email','like','%'.$request->email.'%')->where('users.nickname','like','%'.$request->name.'%')->where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('orderservices.status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');
+            // $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.email','like','%'.$request->email.'%')->wheredate('created_at',$request->order_date)->where('users.nickname','like','%'.$request->name.'%')->where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('orderservices.status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');
             $result=[];
+            $resu = NULL;
+
+            if($request->order_date==NULL){
+                $resu = $data->limit($limit)->offset($page)->get();
+            } else{
+                $resu = $data->wheredate('created_at',$request->order_date)->limit($limit)->offset($page)->get();
+            }
                 
-            foreach($data->limit($limit)->offset($page)->get() as $arr){
+            foreach($resu as $arr){
                 if($arr['coupon_name']==NULL){
                     $payment_allowed = 'a:2:{i:0;s:4:"dana";i:1;s:3:"ovo";}';
                 } else{
@@ -914,7 +923,7 @@ class OrderserviceController extends Controller
                     'type'=>$arr['type'],
                     'status'=>$arr['status'],
                     'total'=>$arr['total'],
-                     'diskon'=>$arr['diskon'],
+                    'diskon'=>$arr['diskon'],
                     'coupon_name'=>$arr['coupon_name'],
                     'subtotal'=>$arr['subtotal'],
                     'allowed_payment'=>$payment_allowed,
@@ -927,6 +936,10 @@ class OrderserviceController extends Controller
                     'cancelled_reason'=>$arr['cancelled_reason'],
                     'users_ids'=>$arr['users_ids'],
                     'user_name'=>User::where('id',$arr['users_ids'])->value('nickname'),
+                    'email'=>User::where('id',$arr['users_ids'])->value('email'),
+                    'phone_number'=>User::where('id',$arr['users_ids'])->value('phone_number'),
+                    'gender'=>User::where('id',$arr['users_ids'])->value('gender'),
+                    'profile_picture'=>User::where('id',$arr['users_ids'])->value('profile_picture'),
                     'partner_user_id'=>$arr['partner_user_id'],
                     'comission'=>$arr['comission'],
                     'partner_paid_status'=>$arr['partner_paid_status'],
@@ -1070,5 +1083,162 @@ class OrderserviceController extends Controller
             'status' => $status,
             'msg' => $msg
         ]);
+    }
+
+    public function userorderlist(request $request){
+        $mode = $request->mode;
+
+        if($request->limit==NULL){
+            $limit = 10;
+        } else{
+            $limit = $request->limit;
+        }
+    
+        if($request->page==NULL){
+            $page = 0;
+        } else{
+            $page = ($request->page - 1) * $limit;
+        }
+
+            
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+        
+        if($result['status'] == 200){ 
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('partner_user_id','like', $result['body']['user_id']);
+            
+            $result=[];
+            $orderedchat=[];
+            $orderedoff=[];
+            $resu = NULL;
+
+            if($mode=='PAST'){
+                $resu = $data->where('orderservices.status','ORDER_COMPLATE');
+            } else if($mode=='UPCOMING'){
+                // $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
+                $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
+            }
+                
+            foreach($resu->limit($limit)->offset($page)->get() as $arr){
+                $method = array(
+                    'id' => $arr['id'],
+                    'order_id'=>$arr['order_id'],
+                    'service'=>$arr['service'],
+                    'service_id'=>$arr['service_id'],
+                    'pet_id'=>$arr['pet_id'],
+                    'status'=>$arr['status'],
+                    'users_ids'=>$arr['users_ids'],
+                    'user_name'=>User::where('id',$arr['users_ids'])->value('nickname'),
+                    'email'=>User::where('id',$arr['users_ids'])->value('email'),
+                    'phone_number'=>User::where('id',$arr['users_ids'])->value('phone_number'),
+                    'gender'=>User::where('id',$arr['users_ids'])->value('gender'),
+                    'profile_picture'=>User::where('id',$arr['users_ids'])->value('profile_picture'),
+                    'partner_user_id'=>$arr['partner_user_id'],
+                    'created_at'=>$arr['created_at'],
+                    'updated_at'=>$arr['updated_at']
+                );
+                if($arr['service']=='vidcall'){
+                    array_push($result,$method);
+                } else if($arr['service']=='chat'){
+                    array_push($orderedchat,$method);
+                } else{
+                    array_push($orderedoff,$method);
+                }
+            }
+            foreach($orderedchat as $chats){
+                array_push($result,$chats);
+            }
+            foreach($orderedoff as $offline){
+                array_push($result,$offline);
+            }
+            return response()->json([
+                'status'=>'success',  
+                'total_data'=>$data->count(),  
+                'total_page'=> ceil($data->count() / $limit),
+                'results'=>$result
+            ]);
+        }else{
+            return $result;
+        }     
+    }
+
+    public function saasorderlist(request $request){
+        $mode = $request->mode;
+        $bookingst = Carbon::create($request->startbookingdate)->todatetimestring();
+        $bookinged = Carbon::create($request->endbookingdate)->addhour(23)->addminutes(59)->addseconds(59)->todatetimestring();
+        if($request->limit==NULL){
+            $limit = 10;
+        } else{
+            $limit = $request->limit;
+        }
+    
+        if($request->page==NULL){
+            $page = 0;
+        } else{
+            $page = ($request->page - 1) * $limit;
+        }
+
+            
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+        
+        if($result['status'] == 200){ 
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('partner_user_id','like', $result['body']['user_id']);
+            
+            $result=[];
+            $orderedchat=[];
+            $orderedoff=[];
+
+            if($mode=='PAST'){
+                $data = $data->where('orderservices.status','ORDER_COMPLATE');
+            } else if($mode=='UPCOMING'&&$request->startbookingdate!=NULL&&$request->endbookingdate!=NULL){
+                // $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
+                $data = $data->wherebetween('booking_date',[$bookingst,$bookinged])->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
+            } else{
+                $data = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
+            }
+                
+            foreach($data->limit($limit)->offset($page)->get() as $arr){
+                $method = array(
+                    'id' => $arr['id'],
+                    'order_id'=>$arr['order_id'],
+                    'service'=>$arr['service'],
+                    'service_id'=>$arr['service_id'],
+                    'pet_id'=>$arr['pet_id'],
+                    'status'=>$arr['status'],
+                    'users_ids'=>$arr['users_ids'],
+                    'Booking_date'=>$arr['booking_date'],
+                    'user_name'=>User::where('id',$arr['users_ids'])->value('nickname'),
+                    'email'=>User::where('id',$arr['users_ids'])->value('email'),
+                    'phone_number'=>User::where('id',$arr['users_ids'])->value('phone_number'),
+                    'gender'=>User::where('id',$arr['users_ids'])->value('gender'),
+                    'profile_picture'=>User::where('id',$arr['users_ids'])->value('profile_picture'),
+                    'partner_user_id'=>$arr['partner_user_id'],
+                    'created_at'=>$arr['created_at'],
+                    'updated_at'=>$arr['updated_at']
+                );
+                if($arr['service']=='vidcall'){
+                    array_push($result,$method);
+                } else if($arr['service']=='chat'){
+                    array_push($orderedchat,$method);
+                } else{
+                    array_push($orderedoff,$method);
+                }
+            }
+            foreach($orderedchat as $chats){
+                array_push($result,$chats);
+            }
+            foreach($orderedoff as $offline){
+                array_push($result,$offline);
+            }
+            return response()->json([
+                'status'=>'success',  
+                'total_data'=>$data->count(),  
+                'total_page'=> ceil($data->count() / $limit),
+                'results'=>$result
+            ]);
+        }else{
+            return $result;
+        }     
     }
 }

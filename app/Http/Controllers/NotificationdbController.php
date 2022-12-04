@@ -16,11 +16,12 @@ class NotificationdbController extends Controller
         $this->JWTValidator = $jWTValidator;
     }
 
-    public function createnotif($user_id,$meta_role,$meta_id,$notif_data,$redirect){
+    public function createnotif($user_id,$meta_role,$meta_id,$order_id,$notif_data,$redirect){
         $query = notificationdb::insert([
             'usersids' => $user_id,
             'meta_role' => $meta_role,
             'meta_id' => $meta_id,
+            'order_ids' => $order_id,
             'notification_data' => $notif_data,
             'redirect' => $redirect,
             'view' => NULL,
@@ -45,6 +46,7 @@ class NotificationdbController extends Controller
             'usersids' => $request->user_id,
             'meta_role' => $request->meta_role,
             'meta_id' => $request->meta_id,
+            'order_ids' => $request->order_id,
             'notification_data' => $request->notif_data,
             'redirect' => $request->redirect,
             'updated_at' => Carbon::now()
@@ -90,7 +92,7 @@ class NotificationdbController extends Controller
         } else{
             $page = ($request->page - 1) * $limit;
         }
-        $query = notificationdb::all();
+        $query = notificationdb::select('id','usersids','meta_role','meta_id','order_ids','notification_data','view','redirect');
 
         foreach($query->limit($limit)->offset($page)->get() as $queries){
             $arr[] = [
@@ -98,6 +100,7 @@ class NotificationdbController extends Controller
                 'user_id' => $queries->usersids,
                 'meta_role' => $queries->meta_role,
                 'meta_id' => $queries->meta_id,
+                'order_id' => $queries->order_ids,
                 'notification_data' => $queries->notification_data,
                 'view' => $queries->view,
                 'redirect' => $queries->redirect
@@ -126,7 +129,7 @@ class NotificationdbController extends Controller
             $page = ($request->page - 1) * $limit;
         }
         $role = $request->role;
-
+        $roles = [];
         if($role=='consumer'){
             $roles[] = ['user'];
         } else if($role=='provider'){
@@ -137,7 +140,7 @@ class NotificationdbController extends Controller
         $arr=[];
         if($result['status'] == 200){
             $userid = $result['body']['user_id'];
-            $query = notificationdb::where('usersids',$userid)->whereIn('meta_role',$roles);
+            $query = notificationdb::where('usersids',$userid)->whereIn('meta_role',$roles)->select('id','usersids','meta_role','meta_id','order_ids','notification_data','view','redirect');
 
             foreach($query->limit($limit)->offset($page)->get() as $queries){
                 $arr[] = [
@@ -145,6 +148,7 @@ class NotificationdbController extends Controller
                     'user_id' => $queries->usersids,
                     'meta_role' => $queries->meta_role,
                     'meta_id' => $queries->meta_id,
+                    'order_id' => $queries->order_ids,
                     'notification_data' => $queries->notification_data,
                     'view' => $queries->view,
                     'redirect' => $queries->redirect
@@ -165,15 +169,20 @@ class NotificationdbController extends Controller
     }
 
     public function viewnotif(request $request){
-        $query = notificationdb::where('id',$request->id)->update([
-            'view' => true,
-            'updated_at' => Carbon::now()
-        ]);
-
-        if($query==1){
-            return response()->JSON([
-                'status' => 'success'
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+        $userid = $result['body']['user_id'];
+        if($result['status'] == 200){
+            $query = notificationdb::where('id',$request->id)->where('usersids',$userid)->update([
+                'view' => true,
+                'updated_at' => Carbon::now()
             ]);
+    
+            if($query==1){
+                return response()->JSON([
+                    'status' => 'success'
+                ]);
+            }
         } else{
             return response()->JSON([
                 'status' => 'error',
@@ -183,15 +192,19 @@ class NotificationdbController extends Controller
     }
 
     public function readNotifAll(request $request){
-        $query = notificationdb::where('id',$request->id)->update([
-            'view' => true,
-            'updated_at' => Carbon::now()
-        ]);
-
-        if($query==1){
-            return response()->JSON([
-                'status' => 'success'
+        $token = $request->header("Authorization");
+        $result = $this->JWTValidator->validateToken($token);
+        $userid = $result['body']['user_id'];
+        if($result['status'] == 200){
+            $query = notificationdb::where('usersids',$userid)->update([
+                'view' => true,
+                'updated_at' => Carbon::now()
             ]);
+            if($query>0){
+                return response()->JSON([
+                    'status' => 'success'
+                ]);
+            }
         } else{
             return response()->JSON([
                 'status' => 'error',

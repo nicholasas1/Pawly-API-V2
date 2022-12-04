@@ -14,13 +14,13 @@ class RekamMedisController extends Controller
 {
     public function create_rek_med(request $request){
         $order = orderservice::where('order_id',$request->order_id)->get();
-        if(rekam_medis::where('order_id',$request->order_id)->count==1){
+        if(rekam_medis::where('order_id',$request->order_id)->count()==1){
             return response()->JSON([
                 'status' => 'error',
                 'msg' => 'duplicate medic record'
             ]);
         }
-        if($order->value('status')=='ON PROCCESS'){
+        if($order->value('status')=='ON PROCESS'){
             $insertrm = rekam_medis::insert([
                 'order_id' => $request->order_id,
                 'pet_id' => $order->value('pet_id'),
@@ -31,7 +31,6 @@ class RekamMedisController extends Controller
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
             ]);
-
             if($insertrm==1){
                 return response()->JSON([
                     'status' => 'success'
@@ -47,7 +46,7 @@ class RekamMedisController extends Controller
 
     public function update_rek_med(request $request){
         $order = orderservice::where('order_id',$request->order_id)->get();
-        if($order->value('status')=='ON PROCCESS'){
+        if($order->value('status')=='ON PROCESS'){
             $updaterm = rekam_medis::where('id',$request->id)->update([
                 'keluhan' => $request->keluhan,
                 'penanganan_sementara'=> $request->penanganan_sementara,
@@ -86,7 +85,7 @@ class RekamMedisController extends Controller
 
     public function add_obat(request $request){
         $order = orderservice::where('order_id',$request->order_id)->get();
-        if($order->value('status')=='ON PROCCESS'){
+        if($order->value('status')=='ON PROCESS'){
     
             $insertmd = medicine::insert([
                 'rm_id' => $request->rm_id,
@@ -109,7 +108,7 @@ class RekamMedisController extends Controller
 
     public function edit_obat(request $request){
         $order = orderservice::where('order_id',$request->order_id)->get();
-        if($order->value('status')=='ON PROCCESS'){
+        if($order->value('status')=='ON PROCESS'){
     
             $updatemd = medicine::insertGetId([
                 'rm_id' => $request->rm_id,
@@ -147,7 +146,7 @@ class RekamMedisController extends Controller
 
     public function add_penanganan(request $request){
         $order = orderservice::where('order_id',$request->order_id)->get();
-        if($order->value('status')=='ON PROCCESS'){
+        if($order->value('status')=='ON PROCESS'){
     
             $insertpn = penanganan::insert([
                 'rm_ids' => $request->rm_id,
@@ -170,7 +169,7 @@ class RekamMedisController extends Controller
 
     public function edit_penanganan(request $request){
         $order = orderservice::where('order_id',$request->order_id)->get();
-        if($order->value('status')=='ON PROCCESS'){
+        if($order->value('status')=='ON PROCESS'){
     
             $updatepn = penanganan::where('id',$request->id)->update([
                 'rm_ids' => $request->rm_id,
@@ -208,22 +207,28 @@ class RekamMedisController extends Controller
 
     public function get_record_detail(request $request){
         $query = DB::table('rekam_medis')
-        ->join('penanganan','id','=','rm_ids')
-        ->select(['id','order_id','pet_id','keluhan','penanganan_sementara','penanganan_lanjut','diagnosa','penanganan.tindakan','penanganan.biaya_tambahan'])
-        ->where('id',$request->id);
+        ->select('id','order_id','pet_id','keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')
+        ->where('order_id',$request->order_id)
+        ->get();
 
+        $obat = [];
+        $penanganan = []; 
+        if(medicine::where('rm_id',$query->value('id'))->get()->count()>0){
+            $obat = medicine::where('rm_id',$query->value('id'))->get();
+        }
+        if(penanganan::where('rm_ids',$query->value('id'))->get()->count()>0){
+            $penanganan = penanganan::where('rm_ids',$query->value('id'))->get();
+        }          
         $arr = [
-            'rm_id' => $query->id,
-            'order_id' => $query->order_id,
-            'pet_id' => $query->pet_id,
-            'keluhan' => $query->keluhan,
-            'penanganan_sementara' => $query->penanganan_sementara,
-            'penanganan_lanjut' => $query->penanganan_lanjut,
-            'diagnosa' => $query->diagnosa,
-            'obat' => medicine::where('rm_id',$request->id)->get(),
-            'tindakan' => $query->tindakan,
-            'biaya_tambahan' => $query->biaya_tambahan
-
+            'rm_id' => $query->value('id'),
+            'order_id' => $query->value('order_id'),
+            'pet_id' => $query->value('pet_id'),
+            'keluhan' => $query->value('keluhan'),
+            'penanganan_sementara' => $query->value('penanganan_sementara'),
+            'penanganan_lanjut' => $query->value('penanganan_lanjut'),
+            'diagnosa' => $query->value('diagnosa'),
+            'obat' => $obat,
+            'penanganan' => $penanganan
         ];
 
         return response()->JSON([
@@ -235,18 +240,25 @@ class RekamMedisController extends Controller
     public function changestatus(request $request){
         $order_id = $request->order_id;
 
-        $record = rekam_medis::where('order_id', $order_id);
-        $medicine = medicine::where('rm_id',$record->value('id'));
-        $penanganan = medicine::where('rm_ids',$record->value('id'));
+        $checkorder = orderservice::where('order_id',$order_id)->get();
 
-        if($record->count()==1&&$medicine->count()==1&&$penanganan->count()==1){
-            $status = orderservice::where('order_id',$order_id)->update([
-                'status' => 'COMPLATE'
-            ]);
+        if($checkorder->count()==1){
+            $query = orderservice::where('order_id',$order_id)->update(['status' => 'ORDER_COMPLATE']);
 
-            return response()->JSON([
-                'status' => 'success'
-            ]);
+            if($query==1){
+                $status = 'success';
+                $msg = '';
+            } else {
+                $status = 'error';
+                $msg = 'Can not Update';
+            }
+        } else {
+            $status = 'error';
+            $msg = 'no order id found';
         }
+        return response()->JSON([
+            'status' => $status,
+            'msg' => $msg
+        ]);
     }
 }
