@@ -537,11 +537,11 @@ class OrderserviceController extends Controller
         $rekammedis = [];
         if(RekamMedis::where('order_id',$data->value('order_id'))->get()->count() > 0){
             $rekammedis = RekamMedis::where('order_id',$data->value('order_id'))->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get(); 
-            if(medicine::where('rm_id',$rekammedis->id)->get()->count()>0){
-                $obat = medicine::where('rm_id',$rekammedis->id)->get();
+            if(medicine::where('rm_id',$rekammedis['id'])->get()->count()>0){
+                $obat = medicine::where('rm_id',$rekammedis['id'])->get();
             }
-            if(penanganan::where('rm_ids',$rekammedis->id)->get()->count()>0){
-                $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
+            if(penanganan::where('rm_ids',$rekammedis['id'])->get()->count()>0){
+                $penanganan = penanganan::where('rm_ids',$rekammedis['id'])->get();
             }          
         }
         $user_detail = User::where('id','like', $data->value('users_ids'));
