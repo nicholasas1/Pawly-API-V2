@@ -532,9 +532,6 @@ class OrderserviceController extends Controller
             $payment_allowed =  couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
         }
 
-        $obat = [];
-        $penanganan = [];
-        $rekammedis = [];
         if(RekamMedis::where('order_id',$data->value('order_id'))->get()->count() > 0){
             $rekammedis = RekamMedis::where('order_id',$data->value('order_id'))->select('id','keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get(); 
             if(medicine::where('rm_id',$rekammedis->value('id'))->get()->count()>0){
@@ -546,7 +543,16 @@ class OrderserviceController extends Controller
         }
         $user_detail = User::where('id','like', $data->value('users_ids'));
 
-       
+       $rekammedis = ['keluhan' => $rekammedis->value('keluhan'),
+                     'penanganan_sementara'=>$rekammedis->value('penanganan_sementara'),
+                     'penanganan_lanjut'=>$rekammedis->value('penanganan_lanjut'),
+                     'diagnosa'=>$rekammedis->value('diagnosa')];
+
+        $obat = ['nama_obat'=>$obat->value('nama_obat'),
+                'penggunaan'=>$obat->value('penggunaan')];
+
+        $penanganan = ['tindakan'=>$penanganan->value('tindakan'),
+                        'biaya_tambahan'=>$penanganan->value('biaya_tambahan')];
 
         $arr = [
             'id' => $data->value('id'),
