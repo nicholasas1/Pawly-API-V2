@@ -20,7 +20,7 @@ class RekamMedisController extends Controller
                 'msg' => 'duplicate medic record'
             ]);
         }
-        if($order->value('status')=='ON PROCESS'){
+        if($order->value('status')=='ON_PROCESS'){
             $insertrm = rekam_medis::insert([
                 'order_id' => $request->order_id,
                 'pet_id' => $order->value('pet_id'),
@@ -46,7 +46,7 @@ class RekamMedisController extends Controller
 
     public function update_rek_med(request $request){
         $order = orderservice::where('order_id',$request->order_id)->get();
-        if($order->value('status')=='ON PROCESS'){
+        if($order->value('status')=='ON_PROCESS'){
             $updaterm = rekam_medis::where('id',$request->id)->update([
                 'keluhan' => $request->keluhan,
                 'penanganan_sementara'=> $request->penanganan_sementara,
@@ -85,7 +85,7 @@ class RekamMedisController extends Controller
 
     public function add_obat(request $request){
         $order = orderservice::where('order_id',$request->order_id)->get();
-        if($order->value('status')=='ON PROCESS'){
+        if($order->value('status')=='ON_PROCESS'){
     
             $insertmd = medicine::insert([
                 'rm_id' => $request->rm_id,
@@ -108,7 +108,7 @@ class RekamMedisController extends Controller
 
     public function edit_obat(request $request){
         $order = orderservice::where('order_id',$request->order_id)->get();
-        if($order->value('status')=='ON PROCESS'){
+        if($order->value('status')=='ON_PROCESS'){
     
             $updatemd = medicine::insertGetId([
                 'rm_id' => $request->rm_id,
@@ -146,7 +146,7 @@ class RekamMedisController extends Controller
 
     public function add_penanganan(request $request){
         $order = orderservice::where('order_id',$request->order_id)->get();
-        if($order->value('status')=='ON PROCESS'){
+        if($order->value('status')=='ON_PROCESS'){
     
             $insertpn = penanganan::insert([
                 'rm_ids' => $request->rm_id,
@@ -169,7 +169,7 @@ class RekamMedisController extends Controller
 
     public function edit_penanganan(request $request){
         $order = orderservice::where('order_id',$request->order_id)->get();
-        if($order->value('status')=='ON PROCESS'){
+        if($order->value('status')=='ON_PROCESS'){
     
             $updatepn = penanganan::where('id',$request->id)->update([
                 'rm_ids' => $request->rm_id,
