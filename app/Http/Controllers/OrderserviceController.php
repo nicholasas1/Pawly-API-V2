@@ -117,6 +117,10 @@ class OrderserviceController extends Controller
                     'profile_picture'=>''
                 ];
             }
+
+            if($type=='wallet'){
+                $partner_user_id=0;
+            }
         
             if($coupon_name==NULL){
                 $total_price = $price;
