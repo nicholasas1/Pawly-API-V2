@@ -544,13 +544,12 @@ class OrderserviceController extends Controller
             if(penanganan::where('rm_ids',$rekammedis->value('id'))->get()->count()>0){
                 $penanganan = penanganan::where('rm_ids',$rekammedis->value('id'))->get();
             }          
+            $rekammedis = ['keluhan' => $rekammedis->value('keluhan'),
+            'penanganan_sementara'=>$rekammedis->value('penanganan_sementara'),
+            'penanganan_lanjut'=>$rekammedis->value('penanganan_lanjut'),
+            'diagnosa'=>$rekammedis->value('diagnosa')];
         }
         $user_detail = User::where('id','like', $data->value('users_ids'));
-
-       $rekammedis = ['keluhan' => $rekammedis->value('keluhan'),
-                     'penanganan_sementara'=>$rekammedis->value('penanganan_sementara'),
-                     'penanganan_lanjut'=>$rekammedis->value('penanganan_lanjut'),
-                     'diagnosa'=>$rekammedis->value('diagnosa')];
 
         $arr = [
             'id' => $data->value('id'),
