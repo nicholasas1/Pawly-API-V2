@@ -548,12 +548,6 @@ class OrderserviceController extends Controller
                      'penanganan_lanjut'=>$rekammedis->value('penanganan_lanjut'),
                      'diagnosa'=>$rekammedis->value('diagnosa')];
 
-        $obat = ['nama_obat'=>$obat->value('nama_obat'),
-                'penggunaan'=>$obat->value('penggunaan')];
-
-        $penanganan = ['tindakan'=>$penanganan->value('tindakan'),
-                        'biaya_tambahan'=>$penanganan->value('biaya_tambahan')];
-
         $arr = [
             'id' => $data->value('id'),
             'order_id'=>$data->value('order_id'),
