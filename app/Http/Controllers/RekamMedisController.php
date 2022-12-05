@@ -150,8 +150,8 @@ class RekamMedisController extends Controller
     
             $insertpn = penanganan::insert([
                 'rm_ids' => $request->rm_id,
-                'tindakan' => $request->nama_obat,
-                'biaya_tambahan' => $request->penggunaan
+                'tindakan' => $request->tindakan,
+                'biaya_tambahan' => $request->biaya_tambahan
             ]);
 
             if($insertpn==1){
