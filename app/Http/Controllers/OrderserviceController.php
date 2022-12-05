@@ -1108,7 +1108,7 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         
         if($result['status'] == 200){ 
-            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('partner_user_id','like', $result['body']['user_id']);
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.id','like', $result['body']['user_id']);
             
             $result=[];
             $orderedchat=[];
@@ -1131,12 +1131,11 @@ class OrderserviceController extends Controller
                     'pet_id'=>$arr['pet_id'],
                     'status'=>$arr['status'],
                     'users_ids'=>$arr['users_ids'],
-                    'user_name'=>User::where('id',$arr['users_ids'])->value('nickname'),
-                    'email'=>User::where('id',$arr['users_ids'])->value('email'),
-                    'phone_number'=>User::where('id',$arr['users_ids'])->value('phone_number'),
-                    'gender'=>User::where('id',$arr['users_ids'])->value('gender'),
-                    'profile_picture'=>User::where('id',$arr['users_ids'])->value('profile_picture'),
-                    'partner_user_id'=>$arr['partner_user_id'],
+                    'user_name'=>User::where('id',$arr['partner_user_id'])->value('nickname'),
+                    'email'=>User::where('id',$arr['partner_user_id'])->value('email'),
+                    'phone_number'=>User::where('id',$arr['partner_user_id'])->value('phone_number'),
+                    'gender'=>User::where('id',$arr['partner_user_id'])->value('gender'),
+                    'profile_picture'=>User::where('id',$arr['partner_user_id'])->value('profile_picture'),
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
                 );
