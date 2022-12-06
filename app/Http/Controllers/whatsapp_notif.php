@@ -9,31 +9,36 @@ use GuzzleHttp\Client;
 
 class whatsapp_notif extends Controller
 {
-    public function sendWaText($phone_number, $text){
-        $url = 'https://whapi.io/api/send';
-        $timestamp = Carbon::now()->timestamp;
-        $data = array(
-            'app' => [
-                'id'=> '6285717105056',
-                'time'=>  $timestamp,
-                "data"=>[
-                    "recipient"=>[
-                        "id"=> $phone_number,
-                    ],
-                    'message' => [
-                        [
-                            "time"=>  $timestamp,
-                            "type"=>"text",
-                            "value"=> $text
-                        ],
-                    ],  
-                ]
-            ]  
-         );
+    public function sendWaText($no_hp,$text){
+        $api_key   = env('wa_key'); // API KEY Anda
+        $id_device = '1753'; // ID DEVICE yang di SCAN (Sebagai pengirim)
+        $url   = 'https://api.watsap.id/send-message'; // URL API
+        $no_hp = $no_hp; // No.HP yang dikirim (No.HP Penerima)
+        $pesan = $text; // Pesan yang dikirim
 
-        $response = Http::post($url, $data);
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_HEADER, 0);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($curl, CURLOPT_MAXREDIRS, 10);
+        curl_setopt($curl, CURLOPT_TIMEOUT, 0); // batas waktu response
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($curl, CURLOPT_POST, 1);
 
-        return $response->json();
+        $data_post = [
+        'id_device' => $id_device,
+        'api-key' => $api_key,
+        'no_hp'   => $no_hp,
+        'pesan'   => $pesan
+        ];
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data_post));
+        curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        $response = curl_exec($curl);
+        curl_close($curl);
+
+        return $response;
       
     }
 }
