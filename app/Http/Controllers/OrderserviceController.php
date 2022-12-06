@@ -1126,7 +1126,31 @@ class OrderserviceController extends Controller
                 $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
             }
                 
+           
+            
             foreach($resu->limit($limit)->offset($page)->get() as $arr){
+                $userDetail = User::where('id',$arr['partner_user_id']);
+                if($arr['type'] == 'doctor'){
+                    $partnerDetail=[
+                        'users_ids'=>$arr['users_ids'],
+                        'partner_name'=>$userDetail->value('nickname'),
+                        'partner_email'=>$userDetail->value('email'),
+                        'partner_phone_number'=>$userDetail->value('phone_number'),
+                        'profile_picture'=> $userDetail->value('profile_picture'),
+                        'address'=> doctor::where('id',$arr['service_id'])
+                    ];
+                }else if($arr['type'] == 'clinic'){
+                    $partnerDetail=[
+                        'users_ids'=>$arr['users_ids'],
+                        'partner_name'=>$userDetail->value('nickname'),
+                        'partner_email'=>$userDetail->value('email'),
+                        'partner_phone_number'=>$userDetail->value('phone_number'),
+                        'profile_picture'=> $userDetail->value('profile_picture'),
+                        'address'=> clinic::where('id',$arr['service_id'])
+                    ];
+                }else{
+                    $partnerDetail=[];
+                }
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
@@ -1134,12 +1158,8 @@ class OrderserviceController extends Controller
                     'service_id'=>$arr['service_id'],
                     'pet_id'=>$arr['pet_id'],
                     'status'=>$arr['status'],
-                    'users_ids'=>$arr['users_ids'],
-                    'user_name'=>User::where('id',$arr['partner_user_id'])->value('nickname'),
-                    'email'=>User::where('id',$arr['partner_user_id'])->value('email'),
-                    'phone_number'=>User::where('id',$arr['partner_user_id'])->value('phone_number'),
-                    'gender'=>User::where('id',$arr['partner_user_id'])->value('gender'),
-                    'profile_picture'=>User::where('id',$arr['partner_user_id'])->value('profile_picture'),
+                    'booking_time'=>$arr['booking_date'],
+                    'partnerDetail'=> $partnerDetail,
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
                 );
