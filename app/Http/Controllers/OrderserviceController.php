@@ -1152,6 +1152,7 @@ class OrderserviceController extends Controller
                     'order_id'=>$arr['order_id'],
                     'service'=>$arr['service'],
                     'service_id'=>$arr['service_id'],
+                    'type'=>$arr['type'],
                     'pet_id'=>$arr['pet_id'],
                     'status'=>$arr['status'],
                     'booking_time'=>$arr['booking_date'],
