@@ -22,6 +22,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserpetsController;
 use App\Http\Controllers\VidcalldetailController;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\whatsapp_notif;
 use App\Models\couponservice;
 use App\Models\fav;
 use Illuminate\Http\Request;
@@ -251,3 +252,5 @@ Route::post('penanganan/delete',[RekamMedisController::class,'delete_penanganan'
 Route::get('record/get-detail',[RekamMedisController::class,'get_record_detail']);
 
 Route::post('record/changestatus',[RekamMedisController::class,'changestatus']);
+
+// Route::post('send/wa',[whatsapp_notif::class,'sendWaText']);

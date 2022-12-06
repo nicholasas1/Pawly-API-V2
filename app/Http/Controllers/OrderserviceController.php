@@ -117,6 +117,10 @@ class OrderserviceController extends Controller
                     'profile_picture'=>''
                 ];
             }
+
+            if($type=='wallet'){
+                $partner_user_id=0;
+            }
         
             if($coupon_name==NULL){
                 $total_price = $price;
@@ -532,21 +536,24 @@ class OrderserviceController extends Controller
             $payment_allowed =  couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
         }
 
+        $rekammedis = [];
         $obat = [];
         $penanganan = [];
-        $rekammedis = [];
+        
         if(RekamMedis::where('order_id',$data->value('order_id'))->get()->count() > 0){
-            $rekammedis = RekamMedis::where('order_id',$data->value('order_id'))->select('keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get(); 
-            if(medicine::where('rm_id',$rekammedis->id)->get()->count()>0){
-                $obat = medicine::where('rm_id',$rekammedis->id)->get();
+            $rekammedis = RekamMedis::where('order_id',$data->value('order_id'))->select('id','keluhan','penanganan_sementara','penanganan_lanjut','diagnosa')->get(); 
+            if(medicine::where('rm_id',$rekammedis->value('id'))->get()->count()>0){
+                $obat = medicine::where('rm_id',$rekammedis->value('id'))->get();
             }
-            if(penanganan::where('rm_ids',$rekammedis->id)->get()->count()>0){
-                $penanganan = penanganan::where('rm_ids',$rekammedis->id)->get();
+            if(penanganan::where('rm_ids',$rekammedis->value('id'))->get()->count()>0){
+                $penanganan = penanganan::where('rm_ids',$rekammedis->value('id'))->get();
             }          
+            $rekammedis = ['keluhan' => $rekammedis->value('keluhan'),
+            'penanganan_sementara'=>$rekammedis->value('penanganan_sementara'),
+            'penanganan_lanjut'=>$rekammedis->value('penanganan_lanjut'),
+            'diagnosa'=>$rekammedis->value('diagnosa')];
         }
         $user_detail = User::where('id','like', $data->value('users_ids'));
-
-       
 
         $arr = [
             'id' => $data->value('id'),
@@ -1105,11 +1112,12 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         
         if($result['status'] == 200){ 
-            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('partner_user_id','like', $result['body']['user_id']);
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.id','like', $result['body']['user_id']);
             
             $result=[];
             $orderedchat=[];
             $orderedoff=[];
+            $walletdump=[];
             $resu = NULL;
 
             if($mode=='PAST'){
@@ -1118,22 +1126,43 @@ class OrderserviceController extends Controller
                 // $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
                 $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
             }
-                
-            foreach($resu->limit($limit)->offset($page)->get() as $arr){
+            $ratings = ratings::where('doctors_ids',$data->value('partner_user_id'));
+            if($ratings->count()==0){
+                $avgratings = 0;
+            } else{
+                $avgratings = round($ratings->avg('ratings'));
+            }
+            foreach($resu->wherenotin('service',['pawly_credit'])->limit($limit)->offset($page)->get() as $arr){
+                $userDetail = doctor::where('id',$arr['service_id']);
+                if($arr['type'] == 'doctor'){
+                    $partnerDetail=[
+                        'users_ids'=>$arr['users_ids'],
+                        'partner_name'=>$userDetail->value('doctor_name'),
+                        'profile_picture'=> $userDetail->value('profile_picture'),
+                        'address'=> $userDetail->value('address'),
+                        'rating' => $avgratings
+                    ];
+                }else if($arr['type'] == 'clinic'){
+                    $partnerDetail=[
+                        'users_ids'=>$arr['users_ids'],
+                        'partner_name'=>$userDetail->value('doctor_name'),
+                        'profile_picture'=> $userDetail->value('profile_picture'),
+                        'address'=> $userDetail->value('address'),
+                        'rating' => $avgratings
+                    ];
+                }else{
+                    $partnerDetail=[];
+                }
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
                     'service'=>$arr['service'],
                     'service_id'=>$arr['service_id'],
+                    'type'=>$arr['type'],
                     'pet_id'=>$arr['pet_id'],
                     'status'=>$arr['status'],
-                    'users_ids'=>$arr['users_ids'],
-                    'user_name'=>User::where('id',$arr['users_ids'])->value('nickname'),
-                    'email'=>User::where('id',$arr['users_ids'])->value('email'),
-                    'phone_number'=>User::where('id',$arr['users_ids'])->value('phone_number'),
-                    'gender'=>User::where('id',$arr['users_ids'])->value('gender'),
-                    'profile_picture'=>User::where('id',$arr['users_ids'])->value('profile_picture'),
-                    'partner_user_id'=>$arr['partner_user_id'],
+                    'booking_time'=>$arr['booking_date'],
+                    'partnerDetail'=> $partnerDetail,
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
                 );
@@ -1141,8 +1170,10 @@ class OrderserviceController extends Controller
                     array_push($result,$method);
                 } else if($arr['service']=='chat'){
                     array_push($orderedchat,$method);
-                } else{
+                } else if($arr['service']=='offline'){
                     array_push($orderedoff,$method);
+                } else{
+                    array_push($walletdump,$method);
                 }
             }
             foreach($orderedchat as $chats){
