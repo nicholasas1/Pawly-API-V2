@@ -1129,24 +1129,20 @@ class OrderserviceController extends Controller
            
             
             foreach($resu->limit($limit)->offset($page)->get() as $arr){
-                $userDetail = User::where('id',$arr['partner_user_id']);
+                $userDetail = doctor::where('id',$arr['service_id']);
                 if($arr['type'] == 'doctor'){
                     $partnerDetail=[
                         'users_ids'=>$arr['users_ids'],
-                        'partner_name'=>$userDetail->value('nickname'),
-                        'partner_email'=>$userDetail->value('email'),
-                        'partner_phone_number'=>$userDetail->value('phone_number'),
+                        'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
-                        'address'=> doctor::where('id',$arr['service_id'])->value('address')
+                        'address'=> $userDetail->value('address')
                     ];
                 }else if($arr['type'] == 'clinic'){
                     $partnerDetail=[
                         'users_ids'=>$arr['users_ids'],
-                        'partner_name'=>$userDetail->value('nickname'),
-                        'partner_email'=>$userDetail->value('email'),
-                        'partner_phone_number'=>$userDetail->value('phone_number'),
+                        'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
-                        'address'=> clinic::where('id',$arr['service_id'])
+                        'address'=> $userDetail->value('address')
                     ];
                 }else{
                     $partnerDetail=[];
