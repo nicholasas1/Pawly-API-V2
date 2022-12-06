@@ -1117,6 +1117,7 @@ class OrderserviceController extends Controller
             $result=[];
             $orderedchat=[];
             $orderedoff=[];
+            $walletdump=[];
             $resu = NULL;
 
             if($mode=='PAST'){
@@ -1125,10 +1126,13 @@ class OrderserviceController extends Controller
                 // $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
                 $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
             }
-                
-           
-            
-            foreach($resu->limit($limit)->offset($page)->get() as $arr){
+            $ratings = ratings::where('doctors_ids',$data->value('partner_user_id'));
+            if($ratings->count()==0){
+                $avgratings = '0.0';
+            } else{
+                $avgratings = round($ratings->avg('ratings'));
+            }
+            foreach($resu->wherenotin('service',['pawly_credit'])->limit($limit)->offset($page)->get() as $arr){
                 $userDetail = doctor::where('id',$arr['service_id']);
                 if($arr['type'] == 'doctor'){
                     $partnerDetail=[
@@ -1136,7 +1140,7 @@ class OrderserviceController extends Controller
                         'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
                         'address'=> $userDetail->value('address'),
-                        'rating' => 5
+                        'rating' => $avgratings
                     ];
                 }else if($arr['type'] == 'clinic'){
                     $partnerDetail=[
@@ -1144,7 +1148,7 @@ class OrderserviceController extends Controller
                         'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
                         'address'=> $userDetail->value('address'),
-                        'rating' => 5
+                        'rating' => $avgratings
                     ];
                 }else{
                     $partnerDetail=[];
@@ -1166,8 +1170,10 @@ class OrderserviceController extends Controller
                     array_push($result,$method);
                 } else if($arr['service']=='chat'){
                     array_push($orderedchat,$method);
-                } else{
+                } else if($arr['service']=='offline'){
                     array_push($orderedoff,$method);
+                } else{
+                    array_push($walletdump,$method);
                 }
             }
             foreach($orderedchat as $chats){
