@@ -1135,14 +1135,16 @@ class OrderserviceController extends Controller
                         'users_ids'=>$arr['users_ids'],
                         'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
-                        'address'=> $userDetail->value('address')
+                        'address'=> $userDetail->value('address'),
+                        'rating' => 5
                     ];
                 }else if($arr['type'] == 'clinic'){
                     $partnerDetail=[
                         'users_ids'=>$arr['users_ids'],
                         'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
-                        'address'=> $userDetail->value('address')
+                        'address'=> $userDetail->value('address'),
+                        'rating' => 5
                     ];
                 }else{
                     $partnerDetail=[];
