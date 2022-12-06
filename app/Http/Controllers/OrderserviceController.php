@@ -1137,7 +1137,7 @@ class OrderserviceController extends Controller
                         'partner_email'=>$userDetail->value('email'),
                         'partner_phone_number'=>$userDetail->value('phone_number'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
-                        'address'=> doctor::where('id',$arr['service_id'])
+                        'address'=> doctor::where('id',$arr['service_id'])->value('address')
                     ];
                 }else if($arr['type'] == 'clinic'){
                     $partnerDetail=[
