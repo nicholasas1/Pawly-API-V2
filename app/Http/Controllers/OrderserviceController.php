@@ -1128,7 +1128,7 @@ class OrderserviceController extends Controller
             }
             $ratings = ratings::where('doctors_ids',$data->value('partner_user_id'));
             if($ratings->count()==0){
-                $avgratings = '0.0';
+                $avgratings = 0;
             } else{
                 $avgratings = round($ratings->avg('ratings'));
             }
