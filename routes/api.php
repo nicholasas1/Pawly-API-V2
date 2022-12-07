@@ -62,6 +62,10 @@ Route::post('profile/sosmedlogin', [UserController::class, 'sosmedlogin']);
 
 Route::post('profile/deleteuser', [UserController::class, 'deleteuser']);
 
+Route::post('profile/setPassword', [UserController::class, 'set_password']);
+
+Route::post('profile/changePassword', [UserController::class, 'change_password']);
+
 Route::get('mobile/getSplash', [SplashscreenMobileController::class, 'getSplash']);
 
 Route::post('mobile/deleteSplash', [SplashscreenMobileController::class, 'deleteSplash']);

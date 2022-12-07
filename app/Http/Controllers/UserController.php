@@ -578,5 +578,102 @@ class UserController extends Controller
         ]);
     }
 
+    public function set_password(request $request){
+        
+        $token = $request->header("Authorization");
+       
+        $result = $this->JWTValidator->validateToken($token);
+        $current_date_time = date('Y-m-d H:i:s');
+        if($result['status'] == 200){
+            $user = $result['body']['user_id'];
+            $uppercase = preg_match('@[A-Z]@', $request->password);
+            $lowercase = preg_match('@[a-z]@', $request->password);
+            $number    = preg_match('@[0-9]@', $request->password);
+            $specialChars = preg_match('@[^\w]@', $request->password);
+            
+            if(!$uppercase || !$lowercase || !$number || strlen($request->password) < 8) {
+                $status ="Pasword setidaknya harus 8 karakter dan harus memiliki huruf besar, huruf kecil, angka, dan spesial karakter.";
+                $error = 1;
+            }else if($request->password != $request->password2){
+                $status ="Password tidak sama";
+                $error = 1;
+            }else{
+                $error = 0;
+            }
+
+            if($error != 1){
+                User::where('id', $user)->update(
+                    [   
+                        'password' => md5($request->password),
+                        'update_at' => $current_date_time
+                    ]);
+                return response()->json([
+                    'status'=>'success', 
+                    'msg'=> "Password berhasil di atur"               
+                ]);
+            }else{
+                return response()->json([
+                    'status'=>'error', 
+                    'msg'=> $status
+                ]);
+            }
+
+           
+                
+        }else{
+            return  $result;
+            
+        }
+    }
    
+    public function change_password(request $request){
+        
+        $token = $request->header("Authorization");
+       
+        $result = $this->JWTValidator->validateToken($token);
+        $current_date_time = date('Y-m-d H:i:s');
+        if($result['status'] == 200){
+            $user = $result['body']['user_id'];
+            if(md5($request->passwordLama) == User::where('id', $user)->value('password')){
+                $uppercase = preg_match('@[A-Z]@', $request->password);
+                $lowercase = preg_match('@[a-z]@', $request->password);
+                $number    = preg_match('@[0-9]@', $request->password);
+                
+                if(!$uppercase || !$lowercase || !$number || strlen($request->password) < 8) {
+                    $status ="Pasword setidaknya harus 8 karakter dan harus memiliki huruf besar, huruf kecil, angka, dan spesial karakter.";
+                    $error = 1;
+                }else if($request->password != $request->password2){
+                    $status ="Password tidak sama";
+                    $error = 1;
+                }else{
+                    $error = 0;
+                }
+    
+                if($error != 1){
+                    User::where('id', $user)->update(
+                        [   
+                            'password' => md5($request->password),
+                            'update_at' => $current_date_time
+                        ]);
+                    return response()->json([
+                        'status'=>'success', 
+                        'msg'=> "Password berhasil di atur"               
+                    ]);
+                }else{
+                    return response()->json([
+                        'status'=>'error', 
+                        'msg'=> $status
+                    ]);
+                }
+            }else{
+                return response()->json([
+                    'status'=>'error', 
+                    'msg'=> 'Password lama anda salah'
+                ]);
+            }     
+        }else{
+            return  $result;
+            
+        }
+    }
 }
