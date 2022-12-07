@@ -31,34 +31,38 @@ class otpController extends Controller
             $user = $result['body']['user_id'];
             $timestamp = Carbon::now()->timestamp;
             $otp = rand(100000, 999999);
-            $query = otp_table::insert([
+            $valid_until = $timestamp + (2*60);
+            $query = otp_table::insertGetId([
                 'user_id' => $user,
                 'otp' => $otp,
                 'phone_number' => $request->code_area.$request->phone_number,
-                'valid_until' =>  $timestamp + (2*60),
+                'valid_until' =>  $valid_until,
                 'created_at' => date("Y-m-d h:i:sa")
             ]);
             $chat = "Kode OTP kamu adalah ".$otp.". Jaga kerahasiaan kode OTP kamu, Jangan berikan kode OTP kepada siapapun.";
             
             $wa = $this->whatsapp->sendWaText($request->code_area.$request->phone_number, $chat);
-            if($query == 1 && $wa['result'] == 'success'){
+            $decode = json_decode($wa, true);
+            if($decode['status'] == true){
                 $status = "success";
                 $msg = "Check your whatsapp and verification before 2 minutes";
+                $id = $query;
+                
             }else{
                 $status = "error";
-                $msg = "Check agin your phone number and please try againt";
+                $msg = "Check your phone number and please try again";
+                $id = null;
             }
         }else{
             $status = "error";
             $msg = $result;
         }
         
-
-
-
         return response()->JSON([
             'status' => $status,
-            'message' => $msg
+            'message' => $msg,
+            'otp_id' => $id,
+            'valid_until' => $valid_until
         ]);
     }
 
