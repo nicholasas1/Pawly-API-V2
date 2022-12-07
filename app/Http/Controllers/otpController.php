@@ -31,7 +31,7 @@ class otpController extends Controller
             $user = $result['body']['user_id'];
             $timestamp = Carbon::now()->timestamp;
             $otp = rand(100000, 999999);
-            $valid_until = $timestamp + (2*60);
+            $valid_until = $timestamp + (10*60);
             $query = otp_table::insertGetId([
                 'user_id' => $user,
                 'otp' => $otp,
@@ -45,7 +45,7 @@ class otpController extends Controller
             $decode = json_decode($wa, true);
             if($decode['status'] == true){
                 $status = "success";
-                $msg = "Check your whatsapp and verification before 2 minutes";
+                $msg = "Check your whatsapp and verification before 5 minutes";
                 $id = $query;
                 
             }else{
@@ -77,7 +77,7 @@ class otpController extends Controller
             $user = $result['body']['user_id'];
 
 
-            $query = otp_table::where('user_id',$user)->where('phone_number',$request->code_area.$request->phone_number)->where('otp',$request->otp);
+            $query = otp_table::where('user_id',$user)->where('phone_number',$request->code_area.$request->phone_number)->where('otp',$request->otp)->where('id',$request->otp_id);
 
             if($query->count() == 1){
                 if($query->value('valid_until') >= Carbon::now()->timestamp){
