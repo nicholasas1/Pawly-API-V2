@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\fav;
 use Illuminate\Http\Request;
+use App\Models\doctor;
+use App\Models\clinic;
+use App\Models\doctor_speciality;
+use Carbon\Carbon;
 
 class FavController extends Controller
 {
@@ -60,12 +64,38 @@ class FavController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         $status = 'error';
         $arr = [];
+        $partner_detail = [];
         if($result['status'] == 200){
             $userid = $result['body']['user_id'];
 
             $query = fav::where('usersids',$userid)->get();
+            
             foreach($query as $fav){
-                $arr = ['service_meta' => $fav->service_meta, 'service_id' => $fav->service_id];
+                if($fav->service_meta == 'doctor'){
+                    $detail = doctor::where('id','like',  $fav->service_id);
+                    $partner_detail = [
+                        'name' => $detail->value('doctor_name'),
+                        'profile_picture' => $detail->value('profile_picture'),
+                        'experience' =>  Carbon::now()->year-$detail->value('worked_since'),
+                        'speciality' => doctor_speciality::where('doctor_id',$query->value('doctors.id'))->get(),
+                        'opening_hour'=> null
+                    ];
+                }else if($fav->service_meta == 'clinic'){
+                    $detail = clinic::where('id','like',  $fav->service_id);
+                    $partner_detail = [
+                        'name' => $detail->value('clinic_name'),
+                        'profile_picture' => $detail->value('profile_picture'),
+                        'experience' =>  null,
+                        'speciality' => null,
+                        'opening_hour'=> null
+                    ];
+                };
+                $data = [
+                    'service_meta' => $fav->service_meta, 
+                    'service_id' => $fav->service_id,
+                    'partner_detail' => $partner_detail
+                ];
+                array_push($arr, $data);
             }
             $status = 'success';
         } 
