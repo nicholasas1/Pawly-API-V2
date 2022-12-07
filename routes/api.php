@@ -16,7 +16,7 @@ use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\schedulersystemcontroller;
 use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\socket_notifController;
+use App\Http\Controllers\socket_notf;
 use App\Http\Controllers\SplashscreenMobileController;
 use App\Http\Controllers\statisticcontroller;
 use App\Http\Controllers\UserController;

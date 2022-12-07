@@ -34,8 +34,8 @@ Route::get('migrate', function () {
 
 Route::get('/sendActivateMail', [MailServer::class, 'index']);
 
-Route::get('/lala', function () {
-    return view('AccountActive');
+Route::get('/thankYouPage', function () {
+    return view('thanksyouPage');
 });
 
 Route::get('profile/ActivateAccount', [UserController::class, 'ActivateEmail']);
