@@ -140,16 +140,16 @@
                             <p style="margin: 0;">We're excited to have you get started. Let's explore Pawly</p>
                             <br><br>
                             <p style="margin: 0;">Follow us on:</p>
-                <div style="margin-top: 15px">
-                    <a style="padding-right:10px" href="https://instagram.com/suraj_vsk"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" width="25"></a>
-                    <a href="https://twitter.com/suraj_vsk"><img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" width="25"></a>
-                </div>
+                            <div style="margin-top: 15px">
+                                <a style="padding-right:10px" href="https://instagram.com/suraj_vsk"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" width="25"></a>
+                                <a href="https://twitter.com/suraj_vsk"><img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" width="25"></a>
+                            </div>
                         </td>
                     </tr>
                 </table>
             </td>
         </tr>
-        <tr>
+        <tr style="display: none">
             <td bgcolor="#f4f4f4" align="center" style="padding: 30px 10px 0px 10px;">
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                     <tr>

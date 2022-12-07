@@ -123,7 +123,7 @@
             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
                 <tr>
                     <td bgcolor="#ffffff" align="center" valign="top" style="padding: 40px 20px 20px 20px; border-radius: 4px 4px 0px 0px; color: #111111; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 48px; font-weight: 400; letter-spacing: 4px; line-height: 48px;">
-                        <h1 style="font-size: 48px; font-weight: 400; margin: 2;">Welcome!</h1> <img src="https://1000logos.net/wp-content/uploads/2016/11/google-logo.jpg" width="125" height="120" style="display: block; border: 0px;" />
+                        <h1 style="font-size: 48px; font-weight: 400; margin: 2;">Welcome!</h1> <img src="https://staging.api.pawly.my.id/LOGO%20WITH%20TEXT%20NO%20BACKGROUND%20(1).png" width="125" height="120" style="display: block; border: 0px;" />
                     </td>
                 </tr>
             </table>
@@ -132,11 +132,11 @@
     <tr>
         <td bgcolor="#f4f4f4" align="center" style="padding: 0px 10px 0px 10px;">
             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;">
-               <!-- <tr>
+               <tr>
                     <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 20px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
-                        <p style="margin: 0; text-align:center">YOUR OPT : *****</p>
+                        <p style="margin: 0; text-align:center">To make the most of Pawly's services, please confirm your email address. By clicking the button below!</p>
                     </td>
-                </tr>-->
+                </tr>
                 <tr>
                     <td bgcolor="#ffffff" align="left">
                         <table width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -152,7 +152,7 @@
                         </table>
                     </td>
                 </tr> <!-- COPY -->
-                <tr>
+                <tr style="display: none">
                     <td bgcolor="#ffffff" align="left" style="padding: 0px 30px 40px 30px; border-radius: 0px 0px 4px 4px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
                         <p style="margin: 0;">Follow us on:</p>
                         <div style="margin-top: 15px">
@@ -170,7 +170,7 @@
                 <tr>
                     <td bgcolor="#65C9D4" align="center" style="padding: 30px 30px 30px 30px; border-radius: 4px 4px 4px 4px; color: #fff; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;">
                         <h2 style="font-size: 20px; font-weight: 400; color: #fff; margin: 0;">Need more help?</h2>
-                        <p style="margin: 0;"><a href="mailto:hello@pawly.my.id" target="_blank" style="color: #fff;">We&rsquo;re here to help you out</a></p>
+                        <p style="margin: 0;"><a href="mailto:cs@pawly.my.id" target="_blank" style="color: #fff;">We&rsquo;re here to help you out</a></p>
                     </td>
                 </tr>
             </table>
