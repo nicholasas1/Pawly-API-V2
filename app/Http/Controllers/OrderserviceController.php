@@ -1145,7 +1145,8 @@ class OrderserviceController extends Controller
                         'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
                         'address'=> $userDetail->value('address'),
-                        'rating' => $avgratings
+                        'rating' => $avgratings,
+                        'total_review' => 10
                     ];
                 }else if($arr['type'] == 'clinic'){
                     $partnerDetail=[
@@ -1153,7 +1154,8 @@ class OrderserviceController extends Controller
                         'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
                         'address'=> $userDetail->value('address'),
-                        'rating' => $avgratings
+                        'rating' => $avgratings,
+                        'total_review' => 10
                     ];
                 }else{
                     $partnerDetail=[];
