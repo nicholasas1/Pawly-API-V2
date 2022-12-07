@@ -41,4 +41,5 @@ class whatsapp_notif extends Controller
         return $response;
       
     }
+    
 }

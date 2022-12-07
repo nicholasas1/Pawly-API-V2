@@ -16,6 +16,7 @@ use App\Http\Controllers\RekamMedisController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\schedulersystemcontroller;
 use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\socket_notifController;
 use App\Http\Controllers\SplashscreenMobileController;
 use App\Http\Controllers\statisticcontroller;
 use App\Http\Controllers\UserController;
@@ -203,7 +204,7 @@ Route::post('order/pay', [OrderserviceController::class,'create_payment']);
 
 Route::post('order/changestatus', [OrderserviceController::class,'changestatus']);
 
-Route::post('haha', [schedulersystemcontroller::class,'orderList']);
+//Route::post('haha', [socket_notf::class,'update_order']);
 
 Route::post('coupon/validate', [CouponserviceController::class,'validate_coupon']);
 
