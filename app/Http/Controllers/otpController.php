@@ -129,20 +129,22 @@ class otpController extends Controller
             $user = $result['body']['user_id'];
 
 
-            $query = otp_table::where('user_id',$user)->where('phone_number',$request->code_area.$request->phone_number)->where('valid_until','<',Carbon::now()->timestamp);
+            $query = otp_table::where('id',$request->otp_id)->where('valid_until','<',Carbon::now()->timestamp);
 
             if($query->count() == 1){
                 $otp = rand(100000, 999999);
-                $UpdateOTP = otp_table::find($query->value('id'))->update(
+                $UpdateOTP = otp_table::find($request->otp_id)->update(
                     [
                         'otp' => $otp,
-                        'valid_until' => Carbon::now()->timestamp + (2*60),
+                        'valid_until' => Carbon::now()->timestamp + (10*60),
                     ]
                 );
                 $chat = "Kode OTP kamu adalah ".$otp.". Jaga kerahasiaan kode OTP kamu, Jangan berikan kode OTP kepada siapapun.";
             
                 $wa = $this->whatsapp->sendWaText($request->code_area.$request->phone_number, $chat);
-                if($UpdateOTP == 1 && $wa['result'] == 'success'){
+                $decode = json_decode($wa, true);
+
+                if($UpdateOTP == 1 && $decode['status'] == true){
                     $status = "succes";
                     $msg = "We send new OTP, Check your whatsapp";
                 }else{
