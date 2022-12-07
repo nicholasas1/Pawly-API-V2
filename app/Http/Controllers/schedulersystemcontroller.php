@@ -23,7 +23,7 @@ class schedulersystemcontroller extends Controller
         $this->orderService = $orderService;
         $this->mailServer = $mailServer;
     }
-
+    // Schedule for cancel order
     public function orderList(){ 
         $current_timestamp = time();
         $query = orderservice::where('status','like','PENDING_PAYMENT')->where('payed_untill','<',$current_timestamp);
@@ -57,6 +57,7 @@ class schedulersystemcontroller extends Controller
         }
     }
 
+    // Schedule for automation close vidcall
     public function vcLinkEnd(){ 
         $current_timestamp = time();
         $query = vidcalldetail::where('status','like','Active')->where('session_done_until','<',$current_timestamp);
@@ -75,7 +76,8 @@ class schedulersystemcontroller extends Controller
             );
         }
     }
-
+    
+    // Schedule for automation give partner payment
     public function paymentPartner(){ 
         $current_timestamp = time();
         $query = orderservice::where('status','like','ORDER_COMPLATE')->where('partner_user_id','!=',NULL)->where('partner_paid_status','=',NULL);
