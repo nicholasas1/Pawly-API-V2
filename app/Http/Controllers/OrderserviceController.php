@@ -32,14 +32,14 @@ use App\Models\ratings;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\whatsapp_notif;
 use App\Models\RekamMedis;
-use App\Http\Controllers\socket_notifController;
+use App\Http\Controllers\socket_notf;
 
 class OrderserviceController extends Controller
 {
     protected $coupons;
     protected $JWTValidator;
     protected $notif;
-    public function __construct(socket_notifController $socket, NotificationdbController $notif,whatsapp_notif $whatsapp,MailServer $mailServer,WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
+    public function __construct(socket_notf $socket, NotificationdbController $notif,whatsapp_notif $whatsapp,MailServer $mailServer,WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
     {
         $this->coupons = $coupons;
         $this->notif = $notif;
@@ -667,7 +667,7 @@ class OrderserviceController extends Controller
                     }
                     return response()->JSON([
                         'status' => 'success',
-                        'payment_url' => 'https://web.pawly.my.id/',
+                        'payment_url' => env('Activate_Account_URL').'/thankYouPage',
                         'success_url' => ''
                     ]);
                 } else{
