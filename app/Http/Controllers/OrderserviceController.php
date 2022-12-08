@@ -32,13 +32,14 @@ use App\Models\ratings;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\whatsapp_notif;
 use App\Models\RekamMedis;
+use App\Http\Controllers\socket_notf;
 
 class OrderserviceController extends Controller
 {
     protected $coupons;
     protected $JWTValidator;
     protected $notif;
-    public function __construct(NotificationdbController $notif,whatsapp_notif $whatsapp,MailServer $mailServer,WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
+    public function __construct(socket_notf $socket, NotificationdbController $notif,whatsapp_notif $whatsapp,MailServer $mailServer,WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
     {
         $this->coupons = $coupons;
         $this->notif = $notif;
@@ -48,6 +49,7 @@ class OrderserviceController extends Controller
         $this->wallet = $wallet;
         $this->mailServer = $mailServer;
         $this->whatsapp = $whatsapp;
+        $this->socket = $socket;
 
     }
 
@@ -659,12 +661,13 @@ class OrderserviceController extends Controller
                         $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
 
                         $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
+                        $this->socket->update_order($orderId, $orderDetail['results']['status'],$orderDetail['results']['users_ids'],$orderDetail['results']['partner_user_id']);
                
                         $this->prosesOrder($orderId);
                     }
                     return response()->JSON([
                         'status' => 'success',
-                        'payment_url' => 'https://web.pawly.my.id/',
+                        'payment_url' => env('Activate_Account_URL').'/thankYouPage',
                         'success_url' => ''
                     ]);
                 } else{
@@ -777,6 +780,8 @@ class OrderserviceController extends Controller
                 $chat = "Hallo, ".$orderDetail['partner_detail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$orderDetail['user_detail']['nickname']."\nBooking Service : ".$orderDetail['type']." - ".$orderDetail['service']."\nBooking Code : ".$orderDetail['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
 
                 $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
+                $this->socket->update_order($invoice, $orderDetail['results']['status'],$orderDetail['results']['users_ids'],$orderDetail['results']['partner_user_id']);
+
                 $this->prosesOrder($invoice);
 
                 return response()->JSON([
@@ -1140,7 +1145,8 @@ class OrderserviceController extends Controller
                         'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
                         'address'=> $userDetail->value('address'),
-                        'rating' => $avgratings
+                        'rating' => $avgratings,
+                        'total_review' => 10
                     ];
                 }else if($arr['type'] == 'clinic'){
                     $partnerDetail=[
@@ -1148,7 +1154,8 @@ class OrderserviceController extends Controller
                         'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
                         'address'=> $userDetail->value('address'),
-                        'rating' => $avgratings
+                        'rating' => $avgratings,
+                        'total_review' => 10
                     ];
                 }else{
                     $partnerDetail=[];
