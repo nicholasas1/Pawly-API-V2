@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::create('penanganans', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->char('rm_ids',10);
-            $table->text('tindakan');
-            $table->char('biaya_tambahan',25);
+            $table->char('rm_ids',10)->nullable();
+            $table->text('tindakan')->nullable();
+            $table->char('biaya_tambahan',25)->nullable();
         });
     }
 
