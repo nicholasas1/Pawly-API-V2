@@ -15,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('mobile_banners', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('index');
-            $table->text('image_url');
-            $table->char('isactive',10);
-            $table->text('url');
-            $table->text('text');
+            $table->integer('index')->nullable();
+            $table->text('image_url')->nullable();
+            $table->char('isactive',10)->nullable();
+            $table->text('url')->nullable();
+            $table->text('text')->nullable();
         });
     }
 
