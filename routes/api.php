@@ -62,6 +62,10 @@ Route::post('profile/sosmedlogin', [UserController::class, 'sosmedlogin']);
 
 Route::post('profile/deleteuser', [UserController::class, 'deleteuser']);
 
+Route::post('profile/setPassword', [UserController::class, 'set_password']);
+
+Route::post('profile/changePassword', [UserController::class, 'change_password']);
+
 Route::get('mobile/getSplash', [SplashscreenMobileController::class, 'getSplash']);
 
 Route::post('mobile/deleteSplash', [SplashscreenMobileController::class, 'deleteSplash']);
@@ -135,6 +139,10 @@ Route::post('mobilebanner/edit', [MobileBannerController::class, 'editbanner']);
 Route::post('mobilebanner/togglebanner', [MobileBannerController::class, 'togglebanner']);
 
 Route::post('mobilebanner/deletebanner', [MobileBannerController::class, 'deletebanner']);
+
+Route::get('mobilebanner/getallbanner', [MobileBannerController::class, 'getbannerlist']);
+
+Route::get('mobilebanner/get-detail-banner', [MobileBannerController::class, 'getbannerdetail']);
 
 Route::post('service/fav/add', [FavController::class, 'addfav']);
 

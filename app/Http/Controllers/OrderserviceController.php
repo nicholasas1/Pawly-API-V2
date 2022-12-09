@@ -1124,20 +1124,22 @@ class OrderserviceController extends Controller
             $orderedoff=[];
             $walletdump=[];
             $resu = NULL;
-
+            $jmlhreview = 0;
             if($mode=='PAST'){
                 $resu = $data->where('orderservices.status','ORDER_COMPLATE');
             } else if($mode=='UPCOMING'){
                 // $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
                 $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
             }
-            $ratings = ratings::where('doctors_ids',$data->value('partner_user_id'));
-            if($ratings->count()==0){
-                $avgratings = 0;
-            } else{
-                $avgratings = round($ratings->avg('ratings'));
-            }
             foreach($resu->wherenotin('service',['pawly_credit'])->limit($limit)->offset($page)->get() as $arr){
+                $ratings = ratings::where('doctors_ids',$arr['partner_user_id']);
+                if($ratings->count()==0){
+                    $avgratings = 0;
+                    $jmlhreview = 0;
+                } else{
+                    $avgratings = round($ratings->avg('ratings'));
+                    $jmlhreview = ratings::where('doctors_ids',$arr['partner_user_id'])->count();
+                }
                 $userDetail = doctor::where('id',$arr['service_id']);
                 if($arr['type'] == 'doctor'){
                     $partnerDetail=[
@@ -1145,7 +1147,8 @@ class OrderserviceController extends Controller
                         'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
                         'address'=> $userDetail->value('address'),
-                        'rating' => $avgratings
+                        'rating' => $avgratings,
+                        'total_review' => $jmlhreview
                     ];
                 }else if($arr['type'] == 'clinic'){
                     $partnerDetail=[
@@ -1153,7 +1156,8 @@ class OrderserviceController extends Controller
                         'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
                         'address'=> $userDetail->value('address'),
-                        'rating' => $avgratings
+                        'rating' => $avgratings,
+                        'total_review' => $jmlhreview
                     ];
                 }else{
                     $partnerDetail=[];
