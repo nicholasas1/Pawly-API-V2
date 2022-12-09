@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::create('medicines', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->char('rm_id',10);
-            $table->char('nama_obat',100);
-            $table->text('penggunaan');
+            $table->char('rm_id',10)->nullable();
+            $table->char('nama_obat',100)->nullable();
+            $table->text('penggunaan')->nullable();
         });
     }
 

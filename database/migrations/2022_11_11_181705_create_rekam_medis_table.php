@@ -15,14 +15,14 @@ return new class extends Migration
     {
         Schema::create('rekam_medis', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->char('order_id',16);
-            $table->char('pet_id',10);
-            $table->text('keluhan');
-            $table->text('penanganan_sementara');
-            $table->text('penanganan_lanjut');
-            $table->text('diagnosa');
-            $table->datetime('created_at');
-            $table->datetime('updated_at');
+            $table->char('order_id',16)->nullable();
+            $table->char('pet_id',10)->nullable();
+            $table->text('keluhan')->nullable();
+            $table->text('penanganan_sementara')->nullable();
+            $table->text('penanganan_lanjut')->nullable();
+            $table->text('diagnosa')->nullable();
+            $table->datetime('created_at')->nullable();
+            $table->datetime('updated_at')->nullable();
         });
     }
 
