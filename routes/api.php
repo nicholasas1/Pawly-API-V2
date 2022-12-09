@@ -140,6 +140,10 @@ Route::post('mobilebanner/togglebanner', [MobileBannerController::class, 'toggle
 
 Route::post('mobilebanner/deletebanner', [MobileBannerController::class, 'deletebanner']);
 
+Route::get('mobilebanner/getallbanner', [MobileBannerController::class, 'getbannerlist']);
+
+Route::get('mobilebanner/get-detail-banner', [MobileBannerController::class, 'getbannerdetail']);
+
 Route::post('service/fav/add', [FavController::class, 'addfav']);
 
 Route::post('service/fav/delete', [FavController::class, 'deletefav']);
