@@ -1223,7 +1223,7 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         
         if($result['status'] == 200){ 
-            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('partner_user_id','like', $result['body']['user_id']);
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('orderservices.users_ids','like', $result['body']['user_id']);
             
             $result=[];
             $orderedchat=[];
