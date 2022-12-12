@@ -1117,21 +1117,25 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         
         if($result['status'] == 200){ 
-            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.id','like', $result['body']['user_id']);
+            if($mode=='PAST'){
+                $status = ['ORDER_COMPLATE'];
+            } else if($mode=='UPCOMING'){
+               $status = ['PENDING_PAYMENT','BOOKING RESERVED'];
+            }
+
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')
+            ->select('users.*','orderservices.*')
+            ->where('users.id','like', $result['body']['user_id'])
+            ->where('orderservices.type','not like','wallet')
+            ->wherein('orderservices.status',$status);
             
             $result=[];
             $orderedchat=[];
             $orderedoff=[];
             $walletdump=[];
-            $resu = NULL;
             $jmlhreview = 0;
-            if($mode=='PAST'){
-                $resu = $data->where('orderservices.status','ORDER_COMPLATE');
-            } else if($mode=='UPCOMING'){
-                // $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
-                $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
-            }
-            foreach($resu->wherenotin('service',['pawly_credit'])->limit($limit)->offset($page)->get() as $arr){
+            
+            foreach($data->limit($limit)->offset($page)->get() as $arr){
                 $ratings = ratings::where('doctors_ids',$arr['partner_user_id']);
                 if($ratings->count()==0){
                     $avgratings = 0;
@@ -1143,7 +1147,7 @@ class OrderserviceController extends Controller
                 $userDetail = doctor::where('id',$arr['service_id']);
                 if($arr['type'] == 'doctor'){
                     $partnerDetail=[
-                        'users_ids'=>$arr['users_ids'],
+                        'users_ids'=>$arr['partner_user_id'],
                         'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
                         'address'=> $userDetail->value('address'),
@@ -1152,7 +1156,7 @@ class OrderserviceController extends Controller
                     ];
                 }else if($arr['type'] == 'clinic'){
                     $partnerDetail=[
-                        'users_ids'=>$arr['users_ids'],
+                        'users_ids'=>$arr['partner_user_id'],
                         'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
                         'address'=> $userDetail->value('address'),
@@ -1191,6 +1195,8 @@ class OrderserviceController extends Controller
             foreach($orderedoff as $offline){
                 array_push($result,$offline);
             }
+            
+
             return response()->json([
                 'status'=>'success',  
                 'total_data'=>$data->count(),  
@@ -1223,21 +1229,22 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         
         if($result['status'] == 200){ 
-            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('orderservices.users_ids','like', $result['body']['user_id']);
+            if($mode=='PAST'){
+                $status = ['ORDER_COMPLATE'];
+            } else if($mode=='UPCOMING'){
+               $status = ['PENDING_PAYMENT','BOOKING RESERVED'];
+            }
+
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')
+            ->select('users.*','orderservices.*')
+            ->where('users.id','like', $result['body']['user_id'])
+            ->where('orderservices.type','not like','wallet')
+            ->wherein('orderservices.status',$status);
             
             $result=[];
             $orderedchat=[];
             $orderedoff=[];
 
-            if($mode=='PAST'){
-                $data = $data->where('orderservices.status','ORDER_COMPLATE');
-            } else if($mode=='UPCOMING'&&$request->startbookingdate!=NULL&&$request->endbookingdate!=NULL){
-                // $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
-                $data = $data->wherebetween('booking_date',[$bookingst,$bookinged])->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
-            } else{
-                $data = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
-            }
-                
             foreach($data->limit($limit)->offset($page)->get() as $arr){
                 $method = array(
                     'id' => $arr['id'],
