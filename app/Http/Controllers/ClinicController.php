@@ -6,17 +6,21 @@ use Illuminate\Http\Request;
 use App\Models\clinic;
 use App\Models\role;
 use App\Models\clinic_doctor;
+use App\Models\clinic_facilities;
+use App\Http\Controllers\JWTValidator;
 
 class ClinicController extends Controller
 {
     //
     private $api_key = '';
+	protected $JWTValidator;
 
-
-  function __construct() {
+  public function __construct(JWTValidator $jWTValidator) {
 	$this->api_key = env('Maps_API_Key');
+	$this->JWTValidator = $jWTValidator;
   }
   
+
   public function autocomplete(request $request){
 
         $place = $request->cityname;
@@ -166,5 +170,63 @@ class ClinicController extends Controller
 	   return response()->JSON([
 		   'status' => $status
 	   ]);
+   }
+
+   public function update_clinic(request $request){
+	if(filter_var($request->clinic_photo, FILTER_VALIDATE_URL) === FALSE){
+
+		$image_parts = explode(";base64,", $request->profile_picture);
+		$image_type_aux = explode("image/", $image_parts[0]);
+		$image_type = $image_type_aux[1];
+		$image_base64 = base64_decode($image_parts[1]);
+		$file = uniqid() . '.'.$image_type;
+
+		file_put_contents(env('Folder_APP').$file, $image_base64);
+		$picture = env('IMAGE_URL') . $file;
+		
+	}else{
+		$picture = $request->clinic_photo;
+	}
+	$query = clinic::where('id',$request->id)->update([
+		   'clinic_name' => $request->clinic_name,
+		   'description' => $request->description,
+		   'lat' => $request->lat,
+		   'long' => $request->long,
+		   'address' => $request->address,
+		   'clinic_photo' => $request->clinic_photo,
+		   'opening_hour' => $request->opening_hour,
+	]);
+
+	if($query==1){
+		$status = "Update Success";
+			return response()->JSON([
+				'status' => $status,
+			]);
+		} else{
+			$status = "Update Failed";
+			return response()->JSON([
+				'status' => $status
+			]);
+		}
+   }
+
+   public function deleteclinic(request $request){
+		$delete_clinic_doctor = clinic_doctor::where('clinic_id',$request->clinic_id)->delete();
+		$delete_clinic_facilities = clinic_facilities::where('clinic_id',$request->clinic_id)->delete();
+		$delete_clinic = clinic::where('id',$request->clinic_id)->delete();
+
+		if($delete_clinic_doctor==1&&$delete_clinic==1&&$delete_clinic_facilities){
+			return response()->JSON([
+				'status' => 'success'
+			]);
+		} else {
+			return response()->JSON([
+				'status' => 'doctor not found'
+			]);
+		}
+   }
+
+   public function getclinic(request $request){
+	
    }
 }
