@@ -8,6 +8,7 @@ use App\Models\role;
 use App\Models\clinic_doctor;
 use App\Models\clinic_facilities;
 use App\Http\Controllers\JWTValidator;
+use App\Models\clinic_service;
 
 class ClinicController extends Controller
 {
@@ -225,6 +226,59 @@ class ClinicController extends Controller
 			]);
 		}
    }
+
+   public function addclinicservices(request $request){
+		$query = clinic_service::insert([
+			'clinic_id' => $request->id,
+			'service' => $request->service,
+			'description' => $request->description,
+			'price' => $request->price,
+			'status' => $request->status
+		]);
+		if($query==1){
+			return response()->JSON([
+				'status' => 'success'
+			]);
+		} else{
+			return response()->JSON([
+				'status' => 'error',
+				'msg' => ''
+			]);
+		}
+   }
+
+   public function updateclinicservice(request $request){
+	$query = clinic_service::where('id',$request->id)->update([
+		'clinic_id' => $request->id,
+		'service' => $request->service,
+		'description' => $request->description,
+		'price' => $request->price,
+		'status' => $request->status
+	]);
+	if($query==1){
+		return response()->JSON([
+			'status' => 'success'
+		]);
+	} else{
+		return response()->JSON([
+			'status' => 'error',
+			'msg' => ''
+		]);
+	}
+}
+public function deleteclinicservices(request $request){
+	$query = clinic_service::where('id',$request->id)->delete();
+	if($query==1){
+		return response()->JSON([
+			'status' => 'success'
+		]);
+	} else{
+		return response()->JSON([
+			'status' => 'error',
+			'msg' => ''
+		]);
+	}
+}
 
    public function getclinic(request $request){
 
