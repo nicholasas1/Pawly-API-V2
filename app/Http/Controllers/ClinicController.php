@@ -227,6 +227,41 @@ class ClinicController extends Controller
    }
 
    public function getclinic(request $request){
-	
+
+	if($request->limit==NULL){
+		$limit = 10;
+	} else{
+		$limit = $request->limit;
+	}
+
+	if($request->page==NULL){
+		$page = 0;
+	} else{
+		$page = ($request->page - 1) * $limit;
+	}
+
+	// $token = $request->header("Authorization");
+	// $result = $this->JWTValidator->validateToken($token);
+	// $userid = $result['body']['user_id'];
+
+	$query = clinic::leftjoin('clinic_doctors','clinics.id','=','clinic_doctors.clinic_id')
+			->select('clinic_doctors.*','clinics.*');
+		
+	$arr = [
+		'id' => $query->value('clinics.id'),
+		'clinic_name' => $query->value('clinics.clinic_name'),
+		'address' => $query->value('clinics.address'),
+		'longtitude' => $query->value('long'),
+		'latitude' => $query->value('lat'),
+		'description' => $query->value('description'),
+		'photo_profile' => $query->value('clinic_photo'),
+		'opening_hour' => $query->value('opening_hour'),
+		'close_hour' => $query->value('close_hour'),
+	];
+
+	return response()->JSON([
+		'status' => 'success',
+		'results' => $arr
+	]);
    }
 }
