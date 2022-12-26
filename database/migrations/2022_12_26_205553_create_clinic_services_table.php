@@ -14,8 +14,12 @@ return new class extends Migration
     public function up()
     {
         Schema::create('clinic_services', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->bigIncrements('id');
+            $table->char('clinic_id',20);
+            $table->char('service',20)->nullable();
+            $table->text('description')->nullable();
+            $table->float('price',20,2)->nullable();
+            $table->char('status',20)->nullable();
         });
     }
 
