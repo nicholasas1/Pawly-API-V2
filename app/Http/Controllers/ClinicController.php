@@ -230,7 +230,7 @@ class ClinicController extends Controller
 
    public function addclinicservices(request $request){
 		$query = clinic_service::insert([
-			'clinic_id' => $request->id,
+			'clinic_id' => $request->clinic_id,
 			'service' => $request->service,
 			'description' => $request->description,
 			'price' => $request->price,
@@ -250,7 +250,7 @@ class ClinicController extends Controller
 
    public function updateclinicservice(request $request){
 	$query = clinic_service::where('id',$request->id)->update([
-		'clinic_id' => $request->id,
+		'clinic_id' => $request->clinic_id,
 		'service' => $request->service,
 		'description' => $request->description,
 		'price' => $request->price,
