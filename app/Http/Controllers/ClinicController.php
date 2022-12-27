@@ -147,7 +147,7 @@ class ClinicController extends Controller
   public function addNewClinic(request $request){
 
 	$checkif = clinic::where('user_id',$request->user_id)->get();
-	if($checkif->count()==1){
+	if($checkif->count()>0){
 		return response()->JSON([
 			'status' => 'error',
 			'msg' => 'can only register once'
