@@ -150,7 +150,7 @@ class ClinicController extends Controller
 	if($checkif->count()==1){
 		return response()->JSON([
 			'status' => 'error',
-			'msg' => 'only 1 clinic at max'
+			'msg' => 'can only register once'
 		]);
 	} else{
 	$query = clinic::insert([
