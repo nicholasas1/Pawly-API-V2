@@ -196,6 +196,7 @@ class ClinicController extends Controller
 		   'address' => $request->address,
 		   'clinic_photo' => $request->clinic_photo,
 		   'opening_hour' => $request->opening_hour,
+		   'close_hour' => $request->close_hour
 	]);
 
 	if($query==1){
