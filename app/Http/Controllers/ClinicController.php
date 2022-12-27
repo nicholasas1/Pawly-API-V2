@@ -350,6 +350,7 @@ public function deleteclinicservices(request $request){
 			->select('clinic_doctors.clinic_id','clinic_doctors.doctor_id','clinics.*');
 
 	$arr = [];
+	$result = [];
 
 	foreach($query->limit($limit)->offset($page)->get() as $queries){
 		$arr = [
@@ -361,6 +362,8 @@ public function deleteclinicservices(request $request){
 		'description' => $queries->description,
 		'photo_profile' => $queries->clinic_photo,
 		];
+
+		array_push($result,$arr);
 	}
 
 	// $arr = [
@@ -377,7 +380,7 @@ public function deleteclinicservices(request $request){
 		
 	return response()->JSON([
 		'status' => 'success',
-		'results' => $arr
+		'results' => $result
 	]);
    }
 }
