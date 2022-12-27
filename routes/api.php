@@ -132,6 +132,12 @@ Route::post('clinic/services/update', [ClinicController::class, 'updateclinicser
 
 Route::post('clinic/services/delete', [ClinicController::class, 'deleteclinicservices']);
 
+Route::post('clinic/opcl/add', [ClinicController::class, 'addopcl']);
+
+Route::post('clinic/opcl/update', [ClinicController::class, 'updateopcl']);
+
+Route::post('clinic/opcl/delete', [ClinicController::class, 'deleteopcl']);
+
 Route::get('clinic/getclinic', [ClinicController::class, 'getclinic']);
 
 Route::post('wallet/addAmount', [WalletController::class, 'TopUpManual']);
