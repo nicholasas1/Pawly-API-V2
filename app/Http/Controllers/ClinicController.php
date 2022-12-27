@@ -146,6 +146,13 @@ class ClinicController extends Controller
 
   public function addNewClinic(request $request){
 
+	$checkif = clinic::where('user_id',$request->user_id)->get();
+	if($checkif->count()==1){
+		return response()->JSON([
+			'status' => 'error',
+			'msg' => 'only 1 clinic at max'
+		]);
+	} else{
 	$query = clinic::insert([
 		   'user_id' => $request->user_id,
 		   'clinic_name' => $request->clinic_name,
@@ -171,6 +178,7 @@ class ClinicController extends Controller
 	   return response()->JSON([
 		   'status' => $status
 	   ]);
+	}
    }
 
    public function updateclinic(request $request){
