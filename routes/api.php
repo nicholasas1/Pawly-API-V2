@@ -122,6 +122,16 @@ Route::get('testing', [DoctorController::class, 'doctorGetList']);
 
 Route::post('clinic/addClinic', [ClinicController::class, 'addNewClinic']);
 
+Route::post('clinic/update', [ClinicController::class, 'updateclinic']);
+
+Route::post('clinic/delete', [ClinicController::class, 'deleteclinic']);
+
+Route::post('clinic/services/add', [ClinicController::class, 'addclinicservices']);
+
+Route::post('clinic/services/update', [ClinicController::class, 'updateclinicservice']);
+
+Route::post('clinic/services/delete', [ClinicController::class, 'deleteclinicservices']);
+
 Route::get('clinic/getclinic', [ClinicController::class, 'getclinic']);
 
 Route::post('wallet/addAmount', [WalletController::class, 'TopUpManual']);

@@ -173,7 +173,7 @@ class ClinicController extends Controller
 	   ]);
    }
 
-   public function update_clinic(request $request){
+   public function updateclinic(request $request){
 	if(filter_var($request->clinic_photo, FILTER_VALIDATE_URL) === FALSE){
 
 		$image_parts = explode(";base64,", $request->profile_picture);
