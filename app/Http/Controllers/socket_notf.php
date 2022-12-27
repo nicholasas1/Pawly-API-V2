@@ -10,7 +10,7 @@ use GuzzleHttp\Client;
 class socket_notf extends Controller
 {
     public function update_order($order_id,$status,$user_id,$partner_user_id){
-        $url = 'https://socket-pawly.onrender.com/newOrder?order_id=2wscd&status=pending_payment&id_user=1&partner_user_id=1';
+        $url = 'https://socket-pawly.onrender.com/newOrder?order_id='.$order_id.'&status='.$status.'&id_user='.$user_id.'&partner_user_id='.$partner_user_id;
         
         $response = Http::get($url);
 
