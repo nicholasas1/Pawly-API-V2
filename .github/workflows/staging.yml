@@ -2,10 +2,10 @@ on:
   push:
     branches:
       - staging
-name: 🚀 Deploy Staging API 
+name: 🚀 Deploy Staging API
 jobs:
   web-deploy:
-    name: 🎉 Deploy Staging 
+    name: 🎉 Deploy Staging
     runs-on: ubuntu-latest
     steps:
       - name: 🚚 Get latest code
@@ -26,7 +26,7 @@ jobs:
             ${{ runner.os }}-php-
 
       - name: Install dependencies
-        run: composer install 
+        run: composer install --prefer-dist --no-progress
 
       - name: Change .env
         run: sudo cp .env.staging .env
