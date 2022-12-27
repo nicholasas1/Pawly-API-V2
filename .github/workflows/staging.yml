@@ -3,8 +3,6 @@ on:
     branches:
       - staging
 name: 🚀 Deploy Staging API 
-runs:
-  using: 'node16'
 jobs:
   web-deploy:
     name: 🎉 Deploy Staging 
