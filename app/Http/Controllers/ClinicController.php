@@ -153,7 +153,6 @@ class ClinicController extends Controller
 		   'long' => $request->long,
 		   'address' => $request->address,
 		   'clinic_photo' => $request->clinic_photo,
-		   'opening_hour' => $request->opening_hour,
 	   ]);
 
 	   $clinic_id = clinic::where('user_id',$request->user_id)->value('id');
@@ -195,8 +194,6 @@ class ClinicController extends Controller
 		   'long' => $request->long,
 		   'address' => $request->address,
 		   'clinic_photo' => $request->clinic_photo,
-		   'opening_hour' => $request->opening_hour,
-		   'close_hour' => $request->close_hour
 	]);
 
 	if($query==1){
@@ -295,25 +292,34 @@ public function deleteclinicservices(request $request){
 		$page = ($request->page - 1) * $limit;
 	}
 
-	// $token = $request->header("Authorization");
-	// $result = $this->JWTValidator->validateToken($token);
-	// $userid = $result['body']['user_id'];
-
 	$query = clinic::leftjoin('clinic_doctors','clinics.id','=','clinic_doctors.clinic_id')
-			->select('clinic_doctors.*','clinics.*');
-		
-	$arr = [
-		'id' => $query->value('clinics.id'),
-		'clinic_name' => $query->value('clinics.clinic_name'),
-		'address' => $query->value('clinics.address'),
-		'longtitude' => $query->value('long'),
-		'latitude' => $query->value('lat'),
-		'description' => $query->value('description'),
-		'photo_profile' => $query->value('clinic_photo'),
-		'opening_hour' => $query->value('opening_hour'),
-		'close_hour' => $query->value('close_hour'),
-	];
+			->select('clinic_doctors.clinic_id','clinic_doctors.doctor_id','clinics.*');
 
+	$arr = [];
+
+	foreach($query->limit($limit)->offset($page) as $queries){
+		$arr = [
+		'clinic_name' => $queries->clinic_name,
+		'address' => $queries->address,
+		'longtitude' => $queries->long,
+		'latitude' => $queries->lat,
+		'description' => $query->description,
+		'photo_profile' => $queries->clinic_photo,
+		];
+	}
+
+	// $arr = [
+	// 	'id' => $query->value('clinics.id'),
+	// 	'clinic_name' => $query->value('clinics.clinic_name'),
+	// 	'address' => $query->value('clinics.address'),
+	// 	'longtitude' => $query->value('long'),
+	// 	'latitude' => $query->value('lat'),
+	// 	'description' => $query->value('description'),
+	// 	'photo_profile' => $query->value('clinic_photo'),
+	// 	'opening_hour' => $query->value('opening_hour'),
+	// 	'close_hour' => $query->value('close_hour'),
+	// ];
+		
 	return response()->JSON([
 		'status' => 'success',
 		'results' => $arr
