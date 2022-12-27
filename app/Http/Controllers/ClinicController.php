@@ -299,6 +299,7 @@ public function deleteclinicservices(request $request){
 
 	foreach($query->limit($limit)->offset($page)->get() as $queries){
 		$arr = [
+		'id' => $queries->id,
 		'clinic_name' => $queries->clinic_name,
 		'address' => $queries->address,
 		'longtitude' => $queries->long,

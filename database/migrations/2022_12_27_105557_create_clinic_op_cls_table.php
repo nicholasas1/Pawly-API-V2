@@ -19,6 +19,7 @@ return new class extends Migration
             $table->char('day',10)->nullable();
             $table->time('opening_hour')->nullable();
             $table->time('close_hour')->nullable();
+            $table->char('status',20)->nullable();
         });
     }
 
