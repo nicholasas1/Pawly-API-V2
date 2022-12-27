@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class clinic_op_cl extends Model
 {
     use HasFactory;
+    public $timestamps = false;
 }
