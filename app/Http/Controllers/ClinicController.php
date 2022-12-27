@@ -7,6 +7,7 @@ use App\Models\clinic;
 use App\Models\role;
 use App\Models\clinic_doctor;
 use App\Models\clinic_facilities;
+use App\Models\clinic_op_cl;
 use App\Http\Controllers\JWTValidator;
 use App\Models\clinic_service;
 
@@ -277,6 +278,59 @@ public function deleteclinicservices(request $request){
 		]);
 	}
 }
+
+	public function addopcl(request $request){
+		$query = clinic_op_cl::insert([
+			'clinic_id' => $request->clinic_id,
+			'day' => $request->day,
+			'opening_hour' => $request->ophour,
+			'close_hour' => $request->clhour,
+			'status' => $request->status
+		]);
+
+		if($query==1){
+			return response()->JSON([
+				'status' => 'success'
+			]);
+		} else{
+			return response()->JSON([
+				'status' => 'error',
+				'msg' => ''
+			]);
+		}
+	}
+
+	public function updateopcl(request $request){
+		$query = clinic_op_cl::where('id',$request->id)->update([
+			'opening_hour' => $request->ophour,
+			'close_hour' => $request->clhour,
+			'status' => $request->status
+		]);
+		if($query==1){
+			return response()->JSON([
+				'status' => 'success'
+			]);
+		} else{
+			return response()->JSON([
+				'status' => 'error',
+				'msg' => ''
+			]);
+		}
+	}
+
+	public function deleteopcl(request $request){
+		$query = clinic_op_cl::where('id',$request->id)->delete();
+		if($query==1){
+			return response()->JSON([
+				'status' => 'success'
+			]);
+		} else{
+			return response()->JSON([
+				'status' => 'error',
+				'msg' => ''
+			]);
+		}
+	}
 
    public function getclinic(request $request){
 
