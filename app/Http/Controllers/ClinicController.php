@@ -10,6 +10,7 @@ use App\Models\clinic_facilities;
 use App\Models\clinic_op_cl;
 use App\Http\Controllers\JWTValidator;
 use App\Models\clinic_service;
+use Illuminate\Support\Facades\DB;
 
 class ClinicController extends Controller
 {
@@ -391,4 +392,67 @@ public function deleteclinicservices(request $request){
 		'results' => $result
 	]);
    }
+
+   public function filterclinic(request $request){
+	if($request->limit==NULL){
+		$limit = 10;
+	} else{
+		$limit = $request->limit;
+	}
+
+	if($request->page==NULL){
+		$page = 0;
+	} else{
+		$page = ($request->page - 1) * $limit;
+	}
+
+	if($request->order == 'a-z'){
+		$order = "clinic_name";
+		$order_val = "ASC";
+	}else if($request->order == 'z-a'){
+		$order = "clinic_name";
+		$order_val = "DESC";
+	}else{
+		$order = "clinic_name";
+		$order_val = "ASC";
+	}
+
+	if($request->lat==NULL||$request->long==NULL){
+		$lat = "-6.171782389823256";
+		$long = "106.82628043498254";
+	} else{
+		$lat = $request->lat;
+		$long = $request->long;
+	}
+
+	$clinic = DB::table('clinics')
+				->join('clinic_op_cls','clinics.id','=','clinic_op_cls.clinic_id')
+				->join('clinic_services','clinics.id','=','clinic_services.clinic_id')
+                ->select('clinics.*','clinic_op_cls.*','clinic_services.*','clinic_op_cls.status as open_status','clinic_services.status as servstatus')
+                ->where('clinic_op_cls.day','like','monday')
+				->orderBy($order,$order_val);
+
+	$arr = [];
+	$result = [];
+
+	foreach($clinic->limit($limit)->offset($page)->get() as $queries){
+		$arr = [
+			'id' => $queries->id,
+			'clinic_name' => $queries->clinic_name,
+			'address' => $queries->address,
+			'latitude' => $queries->lat,
+			'longtitude' => $queries->long,
+			'description' => $queries->description,
+			'profile_picture' => $queries->clinic_photo,
+			'open_status' => $queries->open_status,
+			'service_status' => $queries->servstatus
+		];
+		array_push($result,$arr);
+	}
+		return response()->JSON([
+			'status' => 'success',
+			'results' => $result
+		]);
+    
+	}
 }

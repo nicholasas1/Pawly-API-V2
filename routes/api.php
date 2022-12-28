@@ -140,6 +140,8 @@ Route::post('clinic/opcl/delete', [ClinicController::class, 'deleteopcl']);
 
 Route::get('clinic/getclinic', [ClinicController::class, 'getclinic']);
 
+Route::get('clinic/filter', [ClinicController::class, 'filterclinic']);
+
 Route::post('wallet/addAmount', [WalletController::class, 'TopUpManual']);
 
 Route::get('wallet/transaction', [WalletController::class, 'WaletTransaction']);
