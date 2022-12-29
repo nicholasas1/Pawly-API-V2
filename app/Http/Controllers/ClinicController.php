@@ -16,6 +16,7 @@ use App\Models\doctor;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\ratings;
+use App\Models\orderservice;
 use App\Models\fav;
 
 class ClinicController extends Controller
@@ -597,6 +598,31 @@ class ClinicController extends Controller
 
 		foreach($query->limit($limit)->offset($page)->get() as $queries){
 			$doctorDetail = doctor::where('id',$queries->doctor_id)->get();
+			$orderCheck = orderservice::where('service_id',$request->id)->where('booking_date','LIKE',$request->date);
+			$result2 = [];
+			foreach(clinic_schedule_time::where('schedule_id',$queries->doctor_id)->get() as $ClinicTIme){	
+				foreach($orderCheck->get() as $orderCheck){	
+					if($orderCheck['booking_time'] == $ClinicTIme['start_hour']){
+						$arr2 = [
+							'id' => $ClinicTIme['id'],
+							'schedule_id'  => $ClinicTIme['schedule_id'],
+							'start_hour' => $ClinicTIme['start_hour'],
+							'end_hour' => $ClinicTIme['end_hour'],
+							'can_booking' => false
+						];
+						break;
+					}else{
+						$arr2 = [
+							'id' => $ClinicTIme['id'],
+							'schedule_id'  => $ClinicTIme['schedule_id'],
+							'start_hour' => $ClinicTIme['start_hour'],
+							'end_hour' => $ClinicTIme['end_hour'],
+							'can_booking' => true
+						];
+					}	
+				}
+				array_push($result2,$arr2);
+			}
 			$arr = [
 				'id' => $queries->id,
 				'doctor_id' => $queries->doctor_id,
@@ -607,7 +633,7 @@ class ClinicController extends Controller
 				'day' => $queries->day,
 				'status' => $queries->status,
 				'description' => $queries->description,
-				'time' => clinic_schedule_time::where('schedule_id',$queries->doctor_id)->get()
+				'time' => $result2
 			];
 			array_push($result,$arr);
 		}
