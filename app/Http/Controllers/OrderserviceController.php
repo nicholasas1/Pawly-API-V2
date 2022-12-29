@@ -67,6 +67,7 @@ class OrderserviceController extends Controller
             $type = $request->type;
             $partner_user_id = $request->partner_user_id;
             $booking_time = $request->booking_time;
+            $booking_date = $request->booking_date;
             if($request->partner_commision_type == 'fixed'){
                 $comission = $request->comission;
             }else{
@@ -89,8 +90,10 @@ class OrderserviceController extends Controller
                 $ordercode = 'PWC';
                 $paid_until = time()+ 3600*24;
             } else{
+                $ordercode = 'A';
                 $paid_until = time()+ 3600*24;
             }
+
             $res=[];
             $user=[];
             $user_detail = User::where('id','like', $userid);
@@ -109,8 +112,16 @@ class OrderserviceController extends Controller
                     'phone_number'=>User::where('id','like',$detail->value('users_ids'))->value('phone_number'),
                     'profile_picture'=>$detail->value('profile_picture')
                 ];
+            }else if($type == 'clinic'){
+                $detail = clinic::where('id','like', $service_id);
+                $res = [
+                    'account_id' => $detail->value('user_id'),
+                    'id'=>$detail->value('id'),
+                    'name'=>$detail->value('clinic_name'),
+                    'phone_number'=>User::where('id','like',$detail->value('user_id'))->value('phone_number'),
+                    'profile_picture'=>$detail->value('clinic_photo')
+                ];
             }else{
-                $detail = doctor::where('id','like', $service_id);
                 $res = [
                     'account_id' => '',
                     'id'=>'',
@@ -142,7 +153,8 @@ class OrderserviceController extends Controller
                     'partner_user_id' => $partner_user_id,
                     'comission' => $comission,
                     'payed_untill' => $paid_until,
-                    'booking_date' => $booking_time
+                    'booking_date' => $booking_date,
+                    'booking_time' => $booking_time
                 ]);
                 $orderId = $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 3).$query;
                 $insertorderid = orderservice::where('id',$query)->update([
@@ -196,7 +208,8 @@ class OrderserviceController extends Controller
                     'partner_user_id' => $partner_user_id,
                     'comission' => $comission,
                     'payed_untill' => $paid_until,
-                    'booking_date' => $booking_time
+                    'booking_date' => $booking_date,
+                    'booking_time' => $booking_time
                 ]);
                $orderId = $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query;
                 $insertorderid = orderservice::where('id',$query)->update([
