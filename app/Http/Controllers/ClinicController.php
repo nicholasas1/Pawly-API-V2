@@ -171,7 +171,7 @@ class ClinicController extends Controller
 			'worked_since' => $request->worked_since,
 		]);
 		$clinic_id = clinic::where('user_id',$request->user_id)->value('id');
-		$day = ['Sunday', 'Monday',' Tuesday','Wednesday','Thursday','Friday','Saturday'];
+		$day = ['Sunday', 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 		
 		foreach($day as $hari){
 			$query2 = clinic_op_cl::insert([
