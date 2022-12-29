@@ -445,6 +445,8 @@ public function deleteclinicservices(request $request){
 			'description' => $queries->description,
 			'profile_picture' => $queries->clinic_photo,
 			'open_status' => $queries->open_status,
+			'opening_hour' => $queries->opening_hour,
+			'closing_hour' => $queries->close_hour,
 			'service_status' => $queries->servstatus
 		];
 		array_push($result,$arr);
