@@ -491,8 +491,8 @@ class ClinicController extends Controller
 				}
 			}
 		}
-		$comision = null;
-		$comision_type = null;
+		$comision = 'percent';
+		$comision_type = 12;
 		
 		$status = 'error';
 		$ratings = ratings::where('clinic_ids',$query->value('doctors.id'));
@@ -501,22 +501,24 @@ class ClinicController extends Controller
 		} else{
 			$avgratings = round($ratings->avg('ratings'),1);
 		}
-		if($request->service == 'chat'){
-			$comision = 6000;
-			$comision_type = 'fixed';
-		}else if($request->service == 'vidcall'){
-			$comision = 6000;
-			$comision_type = 'fixed';
-		}else if($request->service == 'onsite'){
-			$comision = 12;
-			$comision_type = 'percent';
-		}
+		
 
 		$year = Carbon::now()->year;
+		$dayName = Carbon::now()->dayName;
+		
+		$clinic_Op_Cl =  clinic_op_cl::where('day',$dayName)->where('clinic_id',$request->id);
+		if($clinic_Op_Cl->value('status') == "open"){
+			$opening = $clinic_Op_Cl->value('opening_hour');
+			$closing = $clinic_Op_Cl->value('close_hour');
+		}else{
+			$opening = 'tutup';
+			$closing = 'tutup';
+		}
+
 		return response()->JSON([
 			'status' => 'success',
 			'results' => [
-				'account_id' => $query->value('users_id'),
+				'account_id' => $query->value('user_id'),
 				'clinic_id' => $query->value('clinics.id'),
 				'clinic_name' => $query->value('clinic_name'),
 				'description' => $query->value('description'),
@@ -525,6 +527,19 @@ class ClinicController extends Controller
 				'worked_since' => $query->value('worked_since'),
 				'lat' => $query->value('lat'),
 				'long' => $query->value('clinics.long'),
+				'opening_hour' => $opening,
+				'close_hour' => $closing,
+				'clinic_opening_closing_detail' => clinic_op_cl::where('clinic_id',$request->id)->orderByRaw(
+					"CASE 
+					WHEN Day = 'Sunday' THEN 1 
+					WHEN Day = 'Monday' THEN 2
+					WHEN Day = 'Tuesday' THEN 3
+					WHEN Day = 'Wednesday' THEN 4
+					WHEN Day = 'Thursday' THEN 5
+					WHEN Day = 'Friday' THEN 6
+					WHEN Day = 'Saturday' THEN 7
+					END ASC"
+			   )->get(),
 				'favourited_by' => fav::where('service_id',$query->value('clinics.id'))->where('service_meta','clinic')->count(),
 				'favourited_by_user' => $isfav,
 				'avg_rating' => $avgratings,
