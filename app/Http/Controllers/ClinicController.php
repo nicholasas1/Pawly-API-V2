@@ -591,7 +591,6 @@ class ClinicController extends Controller
 		$token = $request->header("Authorization");
 		$isfav = '0';
 		$year = Carbon::now()->year;
-		$dayName = Carbon::parse(2022-12-29)->dayName;
 		$query = clinic_schedule::where('clinic_id', $request->id)->where('day',  Carbon::parse($request->date)->dayName);
 
 		$result = [];
@@ -612,14 +611,6 @@ class ClinicController extends Controller
 			];
 			array_push($result,$arr);
 		}
-		
-		$comision = 'percent';
-		$comision_type = 12;
-		
-		$status = 'error';
-		
-
-		
 		
 
 		return response()->JSON([
