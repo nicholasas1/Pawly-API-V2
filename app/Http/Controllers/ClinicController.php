@@ -170,9 +170,20 @@ class ClinicController extends Controller
 			'clinic_photo' => $request->clinic_photo,
 			'worked_since' => $request->worked_since,
 		]);
-
 		$clinic_id = clinic::where('user_id',$request->user_id)->value('id');
-		if($query==1){
+		$day = ['Sunday', 'Monday',' Tuesday','Wednesday','Thursday','Friday','Saturday'];
+		
+		foreach($day as $hari){
+			$query2 = clinic_op_cl::insert([
+				'clinic_id' => $clinic_id,
+				'day' => $hari,
+				'opening_hour' => '00:00:00',
+				'close_hour' => '23:59:59',
+				'status' => 'open'
+			]);
+		}
+		
+		if($query==1&&$query2==1){
 			$queries = role::insert([
 				'userId' => $request->user_id,
 				'meta_role' => 'Clinic',
@@ -231,6 +242,8 @@ class ClinicController extends Controller
 		$delete_clinic_doctor = clinic_doctor::where('clinic_id',$request->clinic_id)->delete();
 		$delete_clinic_facilities = clinic_facilities::where('clinic_id',$request->clinic_id)->delete();
 		$delete_clinic = clinic::where('id',$request->clinic_id)->delete();
+		$delete_service = clinic_service::where('clinic_id',$request->clinic_id)->delete();
+		$delete_op_cl = clinic_op_cl::where('clinic_id',$request->clinic_id)->delete();
 
 		if($delete_clinic_doctor==1&&$delete_clinic==1&&$delete_clinic_facilities){
 			return response()->JSON([
@@ -337,7 +350,7 @@ class ClinicController extends Controller
 	}
 
 	public function deleteopcl(request $request){
-		$query = clinic_op_cl::where('id',$request->id)->delete();
+		$query = clinic_op_cl::where('clinic',$request->clinic_id)->delete();
 		if($query==1){
 			return response()->JSON([
 				'status' => 'success'
@@ -436,11 +449,13 @@ class ClinicController extends Controller
 			$long = $request->long;
 		}
 
+		$today = Carbon::now()->dayName;
+
 		$clinic = DB::table('clinics')
 					->join('clinic_op_cls','clinics.id','=','clinic_op_cls.clinic_id')
 					->join('clinic_services','clinics.id','=','clinic_services.clinic_id')
 					->select('clinics.*','clinic_op_cls.*','clinic_services.*','clinic_op_cls.status as open_status','clinic_services.status as servstatus')
-					->where('clinic_op_cls.day','like','monday')
+					->where('clinic_op_cls.day','like',$today)
 					->orderBy($order,$order_val);
 
 		$arr = [];
