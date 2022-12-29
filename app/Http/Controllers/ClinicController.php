@@ -539,7 +539,9 @@ class ClinicController extends Controller
 					WHEN Day = 'Friday' THEN 6
 					WHEN Day = 'Saturday' THEN 7
 					END ASC"
-			   )->get(),
+			   	)->get(),
+				'facility' => clinic_facilities::where('clinic_id',$request->id)->get(),
+				'service' => clinic_service::where('clinic_id',$request->id)->get(),
 				'favourited_by' => fav::where('service_id',$query->value('clinics.id'))->where('service_meta','clinic')->count(),
 				'favourited_by_user' => $isfav,
 				'avg_rating' => $avgratings,
