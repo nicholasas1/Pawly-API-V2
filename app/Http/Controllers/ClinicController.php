@@ -452,11 +452,19 @@ class ClinicController extends Controller
 
 		$today = Carbon::now()->dayName;
 
+		if($request->service==NULL){
+			$service = ['grooming','vaksin'];
+		} else{
+			$service = $request->service;
+		}
+		
 		$clinic = DB::table('clinics')
 					->join('clinic_op_cls','clinics.id','=','clinic_op_cls.clinic_id')
 					->join('clinic_services','clinics.id','=','clinic_services.clinic_id')
-					->select('clinics.*','clinic_op_cls.*','clinic_services.*','clinic_op_cls.status as open_status','clinic_services.status as servstatus')
+					->select('clinics.*','clinic_op_cls.*','clinic_services.*','clinic_op_cls.status as open_status','clinic_services.status as servstatus', DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))
 					->where('clinic_op_cls.day','like',$today)
+					->wherein('clinic_services.service',$service)
+					->orderby('distance','asc')
 					->orderBy($order,$order_val);
 
 		$arr = [];
@@ -471,6 +479,7 @@ class ClinicController extends Controller
 				'longtitude' => $queries->long,
 				'description' => $queries->description,
 				'profile_picture' => $queries->clinic_photo,
+				'service' => clinic_service::where('clinic_id',$queries->id)->get(),
 				'open_status' => $queries->open_status,
 				'opening_hour' => $queries->opening_hour,
 				'closing_hour' => $queries->close_hour,
