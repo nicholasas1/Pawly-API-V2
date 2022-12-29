@@ -28,7 +28,8 @@ return new class extends Migration
             $table->char('payment_method',50)->nullable();
             $table->char('payment_url',100)->nullable();
             $table->char('payment_id',20)->nullable();
-            $table->char('booking_date',50)->nullable();
+            $table->char('booking_date',11)->nullable();
+            $table->time('booking_time')->nullable();
             $table->char('payed_at')->nullable();
             $table->char('payed_untill')->nullable();
             $table->char('cancelled_at')->nullable();
