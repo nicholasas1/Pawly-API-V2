@@ -165,6 +165,7 @@ class ClinicController extends Controller
 			'long' => $request->long,
 			'address' => $request->address,
 			'clinic_photo' => $request->clinic_photo,
+			'worked_since' => $request->worked_since,
 		]);
 
 		$clinic_id = clinic::where('user_id',$request->user_id)->value('id');
@@ -207,6 +208,7 @@ class ClinicController extends Controller
 		   'long' => $request->long,
 		   'address' => $request->address,
 		   'clinic_photo' => $request->clinic_photo,
+		   'worked_since' => $request->worked_since
 	]);
 
 	if($query==1){
@@ -479,7 +481,7 @@ class ClinicController extends Controller
 
 		$token = $request->header("Authorization");
 		$isfav = '0';
-		$query = clinic::leftJoin('ratings','clinics.id','=','ratings.clinic_ids')->select('user_id','clinics.id', 'clinics.address','clinic_name','description' , 'clinic_photo' , 'lat', 'clinics.long' , DB::raw('AVG(ratings.ratings) as rating'))->groupBy('clinics.id')->where('clinics.id','=',$request->id);
+		$query = clinic::leftJoin('ratings','clinics.id','=','ratings.clinic_ids')->select('worked_since','user_id','clinics.id', 'clinics.address','clinic_name','description' , 'clinic_photo' , 'lat', 'clinics.long' , DB::raw('AVG(ratings.ratings) as rating'))->groupBy('clinics.id')->where('clinics.id','=',$request->id);
 
 		if($token!=NULL){
 			$result = $this->JWTValidator->validateToken($token);
