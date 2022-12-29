@@ -43,6 +43,15 @@ class DoctorController extends Controller
             $picture = $request->profile_picture;
         }
 
+        $checkif = doctor::where('user_ids',$request->id)->get();
+
+        if($checkif->count()>0){
+            return response()->JSON([
+                'status' => 'error',
+                'msg' => 'can only register as once'
+            ]);
+        }
+
      $query = doctor::insert([
             'users_ids' => $request->id,
             'doctor_name' => $request->name,

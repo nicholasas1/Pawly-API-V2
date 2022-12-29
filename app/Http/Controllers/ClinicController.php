@@ -6,17 +6,24 @@ use Illuminate\Http\Request;
 use App\Models\clinic;
 use App\Models\role;
 use App\Models\clinic_doctor;
+use App\Models\clinic_facilities;
+use App\Models\clinic_op_cl;
+use App\Http\Controllers\JWTValidator;
+use App\Models\clinic_service;
+use Illuminate\Support\Facades\DB;
 
 class ClinicController extends Controller
 {
     //
     private $api_key = '';
+	protected $JWTValidator;
 
-
-  function __construct() {
+  public function __construct(JWTValidator $jWTValidator) {
 	$this->api_key = env('Maps_API_Key');
+	$this->JWTValidator = $jWTValidator;
   }
   
+
   public function autocomplete(request $request){
 
         $place = $request->cityname;
@@ -140,6 +147,13 @@ class ClinicController extends Controller
 
   public function addNewClinic(request $request){
 
+	$checkif = clinic::where('user_id',$request->user_id)->get();
+	if($checkif->count()>0){
+		return response()->JSON([
+			'status' => 'error',
+			'msg' => 'can only register once'
+		]);
+	} else{
 	$query = clinic::insert([
 		   'user_id' => $request->user_id,
 		   'clinic_name' => $request->clinic_name,
@@ -148,7 +162,6 @@ class ClinicController extends Controller
 		   'long' => $request->long,
 		   'address' => $request->address,
 		   'clinic_photo' => $request->clinic_photo,
-		   'opening_hour' => $request->opening_hour,
 	   ]);
 
 	   $clinic_id = clinic::where('user_id',$request->user_id)->value('id');
@@ -166,5 +179,282 @@ class ClinicController extends Controller
 	   return response()->JSON([
 		   'status' => $status
 	   ]);
+	}
    }
+
+   public function updateclinic(request $request){
+	if(filter_var($request->clinic_photo, FILTER_VALIDATE_URL) === FALSE){
+
+		$image_parts = explode(";base64,", $request->profile_picture);
+		$image_type_aux = explode("image/", $image_parts[0]);
+		$image_type = $image_type_aux[1];
+		$image_base64 = base64_decode($image_parts[1]);
+		$file = uniqid() . '.'.$image_type;
+
+		file_put_contents(env('Folder_APP').$file, $image_base64);
+		$picture = env('IMAGE_URL') . $file;
+		
+	}else{
+		$picture = $request->clinic_photo;
+	}
+	$query = clinic::where('id',$request->id)->update([
+		   'clinic_name' => $request->clinic_name,
+		   'description' => $request->description,
+		   'lat' => $request->lat,
+		   'long' => $request->long,
+		   'address' => $request->address,
+		   'clinic_photo' => $request->clinic_photo,
+	]);
+
+	if($query==1){
+		$status = "Update Success";
+			return response()->JSON([
+				'status' => $status,
+			]);
+		} else{
+			$status = "Update Failed";
+			return response()->JSON([
+				'status' => $status
+			]);
+		}
+   }
+
+   public function deleteclinic(request $request){
+		$delete_clinic_doctor = clinic_doctor::where('clinic_id',$request->clinic_id)->delete();
+		$delete_clinic_facilities = clinic_facilities::where('clinic_id',$request->clinic_id)->delete();
+		$delete_clinic = clinic::where('id',$request->clinic_id)->delete();
+
+		if($delete_clinic_doctor==1&&$delete_clinic==1&&$delete_clinic_facilities){
+			return response()->JSON([
+				'status' => 'success'
+			]);
+		} else {
+			return response()->JSON([
+				'status' => 'doctor not found'
+			]);
+		}
+   }
+
+   public function addclinicservices(request $request){
+		$query = clinic_service::insert([
+			'clinic_id' => $request->clinic_id,
+			'service' => $request->service,
+			'description' => $request->description,
+			'price' => $request->price,
+			'status' => $request->status
+		]);
+		if($query==1){
+			return response()->JSON([
+				'status' => 'success'
+			]);
+		} else{
+			return response()->JSON([
+				'status' => 'error',
+				'msg' => ''
+			]);
+		}
+   }
+
+   public function updateclinicservice(request $request){
+	$query = clinic_service::where('id',$request->id)->update([
+		'clinic_id' => $request->clinic_id,
+		'service' => $request->service,
+		'description' => $request->description,
+		'price' => $request->price,
+		'status' => $request->status
+	]);
+	if($query==1){
+		return response()->JSON([
+			'status' => 'success'
+		]);
+	} else{
+		return response()->JSON([
+			'status' => 'error',
+			'msg' => ''
+		]);
+	}
+}
+public function deleteclinicservices(request $request){
+	$query = clinic_service::where('id',$request->id)->delete();
+	if($query==1){
+		return response()->JSON([
+			'status' => 'success'
+		]);
+	} else{
+		return response()->JSON([
+			'status' => 'error',
+			'msg' => ''
+		]);
+	}
+}
+
+	public function addopcl(request $request){
+		$query = clinic_op_cl::insert([
+			'clinic_id' => $request->clinic_id,
+			'day' => $request->day,
+			'opening_hour' => $request->ophour,
+			'close_hour' => $request->clhour,
+			'status' => $request->status
+		]);
+
+		if($query==1){
+			return response()->JSON([
+				'status' => 'success'
+			]);
+		} else{
+			return response()->JSON([
+				'status' => 'error',
+				'msg' => ''
+			]);
+		}
+	}
+
+	public function updateopcl(request $request){
+		$query = clinic_op_cl::where('id',$request->id)->update([
+			'opening_hour' => $request->ophour,
+			'close_hour' => $request->clhour,
+			'status' => $request->status
+		]);
+		if($query==1){
+			return response()->JSON([
+				'status' => 'success'
+			]);
+		} else{
+			return response()->JSON([
+				'status' => 'error',
+				'msg' => ''
+			]);
+		}
+	}
+
+	public function deleteopcl(request $request){
+		$query = clinic_op_cl::where('id',$request->id)->delete();
+		if($query==1){
+			return response()->JSON([
+				'status' => 'success'
+			]);
+		} else{
+			return response()->JSON([
+				'status' => 'error',
+				'msg' => ''
+			]);
+		}
+	}
+
+   public function getclinic(request $request){
+
+	if($request->limit==NULL){
+		$limit = 10;
+	} else{
+		$limit = $request->limit;
+	}
+
+	if($request->page==NULL){
+		$page = 0;
+	} else{
+		$page = ($request->page - 1) * $limit;
+	}
+
+	$query = clinic::leftjoin('clinic_doctors','clinics.id','=','clinic_doctors.clinic_id')
+			->select('clinic_doctors.clinic_id','clinic_doctors.doctor_id','clinics.*');
+
+	$arr = [];
+	$result = [];
+
+	foreach($query->limit($limit)->offset($page)->get() as $queries){
+		$arr = [
+		'id' => $queries->id,
+		'clinic_name' => $queries->clinic_name,
+		'address' => $queries->address,
+		'longtitude' => $queries->long,
+		'latitude' => $queries->lat,
+		'description' => $queries->description,
+		'photo_profile' => $queries->clinic_photo,
+		];
+
+		array_push($result,$arr);
+	}
+
+	// $arr = [
+	// 	'id' => $query->value('clinics.id'),
+	// 	'clinic_name' => $query->value('clinics.clinic_name'),
+	// 	'address' => $query->value('clinics.address'),
+	// 	'longtitude' => $query->value('long'),
+	// 	'latitude' => $query->value('lat'),
+	// 	'description' => $query->value('description'),
+	// 	'photo_profile' => $query->value('clinic_photo'),
+	// 	'opening_hour' => $query->value('opening_hour'),
+	// 	'close_hour' => $query->value('close_hour'),
+	// ];
+		
+	return response()->JSON([
+		'status' => 'success',
+		'results' => $result
+	]);
+   }
+
+   public function filterclinic(request $request){
+	if($request->limit==NULL){
+		$limit = 10;
+	} else{
+		$limit = $request->limit;
+	}
+
+	if($request->page==NULL){
+		$page = 0;
+	} else{
+		$page = ($request->page - 1) * $limit;
+	}
+
+	if($request->order == 'a-z'){
+		$order = "clinic_name";
+		$order_val = "ASC";
+	}else if($request->order == 'z-a'){
+		$order = "clinic_name";
+		$order_val = "DESC";
+	}else{
+		$order = "clinic_name";
+		$order_val = "ASC";
+	}
+
+	if($request->lat==NULL||$request->long==NULL){
+		$lat = "-6.171782389823256";
+		$long = "106.82628043498254";
+	} else{
+		$lat = $request->lat;
+		$long = $request->long;
+	}
+
+	$clinic = DB::table('clinics')
+				->join('clinic_op_cls','clinics.id','=','clinic_op_cls.clinic_id')
+				->join('clinic_services','clinics.id','=','clinic_services.clinic_id')
+                ->select('clinics.*','clinic_op_cls.*','clinic_services.*','clinic_op_cls.status as open_status','clinic_services.status as servstatus')
+                ->where('clinic_op_cls.day','like','monday')
+				->orderBy($order,$order_val);
+
+	$arr = [];
+	$result = [];
+
+	foreach($clinic->limit($limit)->offset($page)->get() as $queries){
+		$arr = [
+			'id' => $queries->id,
+			'clinic_name' => $queries->clinic_name,
+			'address' => $queries->address,
+			'latitude' => $queries->lat,
+			'longtitude' => $queries->long,
+			'description' => $queries->description,
+			'profile_picture' => $queries->clinic_photo,
+			'open_status' => $queries->open_status,
+			'opening_hour' => $queries->opening_hour,
+			'closing_hour' => $queries->close_hour,
+			'service_status' => $queries->servstatus
+		];
+		array_push($result,$arr);
+	}
+		return response()->JSON([
+			'status' => 'success',
+			'results' => $result
+		]);
+    
+	}
 }
