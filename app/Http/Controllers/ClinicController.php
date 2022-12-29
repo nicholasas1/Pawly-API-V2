@@ -553,4 +553,37 @@ class ClinicController extends Controller
 	
 	}
 
+
+	public function addClinicFacility(request $request){
+		$query = clinic_facilities::insert([
+			'clinic_id' => $request->clinic_id,
+			'facility' => $request->facility
+		]);
+		if($query==1){
+			return response()->JSON([
+				'status' => 'success'
+			]);
+		} else{
+			return response()->JSON([
+				'status' => 'error',
+				'msg' => ''
+			]);
+		}
+   	}
+
+	public function deleteClinicFacility(request $request){
+		$query = clinic_facilities::where('id',$request->id)->delete();
+		if($query==1){
+			return response()->JSON([
+				'status' => 'success'
+			]);
+		} else{
+			return response()->JSON([
+				'status' => 'error',
+				'msg' => ''
+			]);
+		}
+	}
+
+
 }
