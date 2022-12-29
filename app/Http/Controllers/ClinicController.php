@@ -485,7 +485,7 @@ class ClinicController extends Controller
 			$result = $this->JWTValidator->validateToken($token);
 			if($result['status'] == 200){
 				$userid = $result['body']['user_id'];
-				$favourited = fav::where('usersids',$userid)->where('service_meta', 'clinic')->where('service_id',$query->value($request->id));
+				$favourited = fav::where('usersids',$userid)->where('service_meta', 'clinic')->where('service_id',$query->value('clinics.id'));
 				if($favourited->count()>0){
 					$isfav = '1';
 				}
