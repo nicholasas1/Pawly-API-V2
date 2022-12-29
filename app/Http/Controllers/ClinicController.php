@@ -9,7 +9,10 @@ use App\Models\clinic_doctor;
 use App\Models\clinic_facilities;
 use App\Models\clinic_op_cl;
 use App\Http\Controllers\JWTValidator;
+use App\Models\clinic_schedule;
 use App\Models\clinic_service;
+use App\Models\clinic_schedule_time;
+use App\Models\doctor;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\ratings;
@@ -553,6 +556,60 @@ class ClinicController extends Controller
 				'commision_type' =>  $comision_type,
 				'commision_ammount' => $comision
 			] 
+		]);
+	
+	}
+
+	public function getDetailSchedule(request $request){
+		if($request->limit==NULL){
+			$limit = 10;
+		} else{
+			$limit = $request->limit;
+		}
+
+		if($request->page==NULL){
+			$page = 0;
+		} else{
+			$page = ($request->page - 1) * $limit;
+		}
+
+		$token = $request->header("Authorization");
+		$isfav = '0';
+		$year = Carbon::now()->year;
+		$dayName = Carbon::parse(2022-12-29)->dayName;
+		$query = clinic_schedule::where('clinic_id', $request->id)->where('day',  Carbon::parse($request->date)->dayName);
+
+		$result = [];
+
+		foreach($query->limit($limit)->offset($page)->get() as $queries){
+			$doctorDetail = doctor::where('id',$queries->doctor_id)->get();
+			$arr = [
+				'id' => $queries->id,
+				'doctor_id' => $queries->doctor_id,
+				'doctor_detail' => [
+					'doctor_name' => $doctorDetail[0]['doctor_name'],
+					'doctor_profile_picture' => $doctorDetail[0]['profile_picture'],
+				],
+				'day' => $queries->day,
+				'status' => $queries->status,
+				'description' => $queries->description,
+				'time' => clinic_schedule_time::where('schedule_id',$queries->doctor_id)->get()
+			];
+			array_push($result,$arr);
+		}
+		
+		$comision = 'percent';
+		$comision_type = 12;
+		
+		$status = 'error';
+		
+
+		
+		
+
+		return response()->JSON([
+			'status' => 'success',
+			'results' =>  $result
 		]);
 	
 	}

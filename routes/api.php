@@ -144,6 +144,8 @@ Route::get('clinic/filter', [ClinicController::class, 'filterclinic']);
 
 Route::get('clinic/getDetail', [ClinicController::class, 'getDetail']);
 
+Route::get('clinic/getSchedule', [ClinicController::class, 'getDetailSchedule']);
+
 Route::post('clinic/facility/add', [ClinicController::class, 'addClinicFacility']);
 
 Route::post('clinic/facility/delete', [ClinicController::class, 'deleteClinicFacility']);
