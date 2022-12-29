@@ -11,6 +11,9 @@ use App\Models\clinic_op_cl;
 use App\Http\Controllers\JWTValidator;
 use App\Models\clinic_service;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use App\Models\ratings;
+use App\Models\fav;
 
 class ClinicController extends Controller
 {
@@ -145,41 +148,41 @@ class ClinicController extends Controller
 	}
   }
 
-  public function addNewClinic(request $request){
+	public function addNewClinic(request $request){
 
-	$checkif = clinic::where('user_id',$request->user_id)->get();
-	if($checkif->count()>0){
-		return response()->JSON([
-			'status' => 'error',
-			'msg' => 'can only register once'
+		$checkif = clinic::where('user_id',$request->user_id)->get();
+		if($checkif->count()>0){
+			return response()->JSON([
+				'status' => 'error',
+				'msg' => 'can only register once'
+			]);
+		} else{
+		$query = clinic::insert([
+			'user_id' => $request->user_id,
+			'clinic_name' => $request->clinic_name,
+			'description' => $request->description,
+			'lat' => $request->lat,
+			'long' => $request->long,
+			'address' => $request->address,
+			'clinic_photo' => $request->clinic_photo,
 		]);
-	} else{
-	$query = clinic::insert([
-		   'user_id' => $request->user_id,
-		   'clinic_name' => $request->clinic_name,
-		   'description' => $request->description,
-		   'lat' => $request->lat,
-		   'long' => $request->long,
-		   'address' => $request->address,
-		   'clinic_photo' => $request->clinic_photo,
-	   ]);
 
-	   $clinic_id = clinic::where('user_id',$request->user_id)->value('id');
-	   if($query==1){
-		   $queries = role::insert([
-			   'userId' => $request->user_id,
-			   'meta_role' => 'Clinic',
-			   'meta_id' => $clinic_id
-		   ]);
-		   $status = "Registration Success";
-	   } else{
-		   $status = 'error';
-	   }
-	  
-	   return response()->JSON([
-		   'status' => $status
-	   ]);
-	}
+		$clinic_id = clinic::where('user_id',$request->user_id)->value('id');
+		if($query==1){
+			$queries = role::insert([
+				'userId' => $request->user_id,
+				'meta_role' => 'Clinic',
+				'meta_id' => $clinic_id
+			]);
+			$status = "Registration Success";
+		} else{
+			$status = 'error';
+		}
+		
+		return response()->JSON([
+			'status' => $status
+		]);
+		}
    }
 
    public function updateclinic(request $request){
@@ -255,38 +258,39 @@ class ClinicController extends Controller
 		}
    }
 
-   public function updateclinicservice(request $request){
-	$query = clinic_service::where('id',$request->id)->update([
-		'clinic_id' => $request->clinic_id,
-		'service' => $request->service,
-		'description' => $request->description,
-		'price' => $request->price,
-		'status' => $request->status
-	]);
-	if($query==1){
-		return response()->JSON([
-			'status' => 'success'
+	public function updateclinicservice(request $request){
+		$query = clinic_service::where('id',$request->id)->update([
+			'clinic_id' => $request->clinic_id,
+			'service' => $request->service,
+			'description' => $request->description,
+			'price' => $request->price,
+			'status' => $request->status
 		]);
-	} else{
-		return response()->JSON([
-			'status' => 'error',
-			'msg' => ''
-		]);
+		if($query==1){
+			return response()->JSON([
+				'status' => 'success'
+			]);
+		} else{
+			return response()->JSON([
+				'status' => 'error',
+				'msg' => ''
+			]);
+		}
 	}
-}
-public function deleteclinicservices(request $request){
-	$query = clinic_service::where('id',$request->id)->delete();
-	if($query==1){
-		return response()->JSON([
-			'status' => 'success'
-		]);
-	} else{
-		return response()->JSON([
-			'status' => 'error',
-			'msg' => ''
-		]);
+
+	public function deleteclinicservices(request $request){
+		$query = clinic_service::where('id',$request->id)->delete();
+		if($query==1){
+			return response()->JSON([
+				'status' => 'success'
+			]);
+		} else{
+			return response()->JSON([
+				'status' => 'error',
+				'msg' => ''
+			]);
+		}
 	}
-}
 
 	public function addopcl(request $request){
 		$query = clinic_op_cl::insert([
@@ -393,7 +397,82 @@ public function deleteclinicservices(request $request){
 	]);
    }
 
+   	public function getDetail(request $request){
+		if($request->limit==NULL){
+			$limit = 10;
+		} else{
+			$limit = $request->limit;
+		}
+
+		if($request->page==NULL){
+			$page = 0;
+		} else{
+			$page = ($request->page - 1) * $limit;
+		}
+
+		$token = $request->header("Authorization");
+		$isfav = '0';
+		$query = clinic::leftJoin('ratings','clinics.id','=','ratings.clinic_ids')->select('user_id','clinics.id', 'clinics.address','clinic_name','description' , 'clinic_photo' , 'lat', 'clinics.long' , DB::raw('AVG(ratings.ratings) as rating'))->groupBy('clinics.id')->where('clinics.id','=',$request->id);
+
+		if($token!=NULL){
+			$result = $this->JWTValidator->validateToken($token);
+			if($result['status'] == 200){
+				$userid = $result['body']['user_id'];
+				$favourited = fav::where('usersids',$userid)->where('service_meta', 'clinic')->where('service_id',$query->value($request->id));
+				if($favourited->count()>0){
+					$isfav = '1';
+				}
+			}
+		}
+		$comision = null;
+		$comision_type = null;
+		
+		$status = 'error';
+		$ratings = ratings::where('clinic_ids',$query->value('doctors.id'));
+		if($ratings->count()==0){
+			$avgratings = '0.0';
+		} else{
+			$avgratings = round($ratings->avg('ratings'),1);
+		}
+		if($request->service == 'chat'){
+			$comision = 6000;
+			$comision_type = 'fixed';
+		}else if($request->service == 'vidcall'){
+			$comision = 6000;
+			$comision_type = 'fixed';
+		}else if($request->service == 'onsite'){
+			$comision = 12;
+			$comision_type = 'percent';
+		}
+
+		$year = Carbon::now()->year;
+		return response()->JSON([
+			'status' => 'success',
+			'results' => [
+				'account_id' => $query->value('users_id'),
+				'clinic_id' => $query->value('clinics.id'),
+				'clinic_name' => $query->value('clinic_name'),
+				'description' => $query->value('description'),
+				'profile_picture' => $query->value('clinic_photo'),
+				'address' => $query->value('address'),
+				'worked_since' => $query->value('worked_since'),
+				'lat' => $query->value('lat'),
+				'long' => $query->value('clinics.long'),
+				'favourited_by' => fav::where('service_id',$query->value('clinics.id'))->where('service_meta','clinic')->count(),
+				'favourited_by_user' => $isfav,
+				'avg_rating' => $avgratings,
+				'floor_rating' => floor($query->value('rating')),
+				'total_review' => $ratings->count(),
+				'review' => ratings::leftJoin('users','ratings.users_id','=','users.id')->where('clinic_ids',$query->value('clinics.id'))->select('ratings.id','clinic_ids','username','profile_picture','reviews','ratings','timereviewed','nickname')->limit($limit)->offset($page)->get(),
+				'commision_type' =>  $comision_type,
+				'commision_ammount' => $comision
+			] 
+		]);
+	
+	}
+
    public function filterclinic(request $request){
+
 	if($request->limit==NULL){
 		$limit = 10;
 	} else{
