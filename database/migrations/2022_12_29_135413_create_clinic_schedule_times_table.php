@@ -13,13 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('clinic_schedules', function (Blueprint $table) {
+        Schema::create('clinic_schedule_times', function (Blueprint $table) {
             $table->bigIncrements("id");
-            $table->char("clinic_id",100);
-            $table->char("doctor_id",100);
-            $table->char("day",10);
-            $table->char("status",100);
-            $table->longText("description");
+            $table->char("schedule_id",10);
+            $table->time("start_hour");
+            $table->time("end_hour");
         });
     }
 
@@ -30,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('clinic_schedules');
+        Schema::dropIfExists('clinic_schedule_times');
     }
 };

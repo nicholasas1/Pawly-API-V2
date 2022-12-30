@@ -18,12 +18,12 @@ return new class extends Migration
             $table->char("user_id");
             $table->char("clinic_name",100);
             $table->longText("address");
-            $table->float('long')->nullable();
-            $table->float('lat')->nullable();
+            $table->char('long',20)->nullable();
+            $table->char('lat',20)->nullable();
             $table->longText("description")->nullable();
             $table->char("clinic_photo",250)->nullable();
-            $table->time("opening_hour")->nullable();
-            $table->time("close_hour")->nullable();
+            $table->integer("worked_since")->nullable();
+            
         });
     }
 

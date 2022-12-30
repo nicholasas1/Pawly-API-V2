@@ -67,6 +67,7 @@ class OrderserviceController extends Controller
             $type = $request->type;
             $partner_user_id = $request->partner_user_id;
             $booking_time = $request->booking_time;
+            $booking_date = $request->booking_date;
             if($request->partner_commision_type == 'fixed'){
                 $comission = $request->comission;
             }else{
@@ -89,8 +90,10 @@ class OrderserviceController extends Controller
                 $ordercode = 'PWC';
                 $paid_until = time()+ 3600*24;
             } else{
+                $ordercode = 'A';
                 $paid_until = time()+ 3600*24;
             }
+
             $res=[];
             $user=[];
             $user_detail = User::where('id','like', $userid);
@@ -109,8 +112,16 @@ class OrderserviceController extends Controller
                     'phone_number'=>User::where('id','like',$detail->value('users_ids'))->value('phone_number'),
                     'profile_picture'=>$detail->value('profile_picture')
                 ];
+            }else if($type == 'clinic'){
+                $detail = clinic::where('id','like', $service_id);
+                $res = [
+                    'account_id' => $detail->value('user_id'),
+                    'id'=>$detail->value('id'),
+                    'name'=>$detail->value('clinic_name'),
+                    'phone_number'=>User::where('id','like',$detail->value('user_id'))->value('phone_number'),
+                    'profile_picture'=>$detail->value('clinic_photo')
+                ];
             }else{
-                $detail = doctor::where('id','like', $service_id);
                 $res = [
                     'account_id' => '',
                     'id'=>'',
@@ -142,7 +153,8 @@ class OrderserviceController extends Controller
                     'partner_user_id' => $partner_user_id,
                     'comission' => $comission,
                     'payed_untill' => $paid_until,
-                    'booking_date' => $booking_time
+                    'booking_date' => $booking_date,
+                    'booking_time' => $booking_time
                 ]);
                 $orderId = $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 3).$query;
                 $insertorderid = orderservice::where('id',$query)->update([
@@ -196,7 +208,8 @@ class OrderserviceController extends Controller
                     'partner_user_id' => $partner_user_id,
                     'comission' => $comission,
                     'payed_untill' => $paid_until,
-                    'booking_date' => $booking_time
+                    'booking_date' => $booking_date,
+                    'booking_time' => $booking_time
                 ]);
                $orderId = $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query;
                 $insertorderid = orderservice::where('id',$query)->update([
@@ -1117,21 +1130,29 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         
         if($result['status'] == 200){ 
-            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.id','like', $result['body']['user_id']);
+            if($mode=='PAST'){
+                $status = ['ORDER_COMPLATE'];
+            } else if($mode=='UPCOMING'){
+               $status = ['PENDING_PAYMENT','BOOKING RESERVED'];
+            }
+
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')
+            ->select('users.*','orderservices.*')
+            ->where('users.id','like', $result['body']['user_id'])
+            ->where('orderservices.type','not like','wallet')
+            ->wherein('orderservices.status',$status)
+            ->orderbyraw(
+                "case
+                when orderservices.service = 'vidcall' then 1
+                when orderservices.service = 'chat' then 2
+                when orderservices.service = 'offline' then 3
+                end asc"
+            );
             
             $result=[];
-            $orderedchat=[];
-            $orderedoff=[];
-            $walletdump=[];
-            $resu = NULL;
             $jmlhreview = 0;
-            if($mode=='PAST'){
-                $resu = $data->where('orderservices.status','ORDER_COMPLATE');
-            } else if($mode=='UPCOMING'){
-                // $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
-                $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
-            }
-            foreach($resu->wherenotin('service',['pawly_credit'])->limit($limit)->offset($page)->get() as $arr){
+            
+            foreach($data->limit($limit)->offset($page)->get() as $arr){
                 $ratings = ratings::where('doctors_ids',$arr['partner_user_id']);
                 if($ratings->count()==0){
                     $avgratings = 0;
@@ -1143,7 +1164,7 @@ class OrderserviceController extends Controller
                 $userDetail = doctor::where('id',$arr['service_id']);
                 if($arr['type'] == 'doctor'){
                     $partnerDetail=[
-                        'users_ids'=>$arr['users_ids'],
+                        'users_ids'=>$arr['partner_user_id'],
                         'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
                         'address'=> $userDetail->value('address'),
@@ -1152,7 +1173,7 @@ class OrderserviceController extends Controller
                     ];
                 }else if($arr['type'] == 'clinic'){
                     $partnerDetail=[
-                        'users_ids'=>$arr['users_ids'],
+                        'users_ids'=>$arr['partner_user_id'],
                         'partner_name'=>$userDetail->value('doctor_name'),
                         'profile_picture'=> $userDetail->value('profile_picture'),
                         'address'=> $userDetail->value('address'),
@@ -1175,22 +1196,9 @@ class OrderserviceController extends Controller
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
                 );
-                if($arr['service']=='vidcall'){
-                    array_push($result,$method);
-                } else if($arr['service']=='chat'){
-                    array_push($orderedchat,$method);
-                } else if($arr['service']=='offline'){
-                    array_push($orderedoff,$method);
-                } else{
-                    array_push($walletdump,$method);
-                }
+                array_push($result,$method);
             }
-            foreach($orderedchat as $chats){
-                array_push($result,$chats);
-            }
-            foreach($orderedoff as $offline){
-                array_push($result,$offline);
-            }
+
             return response()->json([
                 'status'=>'success',  
                 'total_data'=>$data->count(),  
@@ -1223,21 +1231,27 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         
         if($result['status'] == 200){ 
-            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('orderservices.users_ids','like', $result['body']['user_id']);
+            if($mode=='PAST'){
+                $status = ['ORDER_COMPLATE'];
+            } else if($mode=='UPCOMING'){
+               $status = ['PENDING_PAYMENT','BOOKING RESERVED'];
+            }
+
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')
+            ->select('users.*','orderservices.*')
+            ->where('users.id','like', $result['body']['user_id'])
+            ->where('orderservices.type','not like','wallet')
+            ->wherein('orderservices.status',$status)
+            ->orderbyraw(
+                "case
+                when orderservices.service = 'vidcall' then 1
+                when orderservices.service = 'chat' then 2
+                when orderservices.service = 'offline' then 3
+                end asc"
+            );
             
             $result=[];
-            $orderedchat=[];
-            $orderedoff=[];
 
-            if($mode=='PAST'){
-                $data = $data->where('orderservices.status','ORDER_COMPLATE');
-            } else if($mode=='UPCOMING'&&$request->startbookingdate!=NULL&&$request->endbookingdate!=NULL){
-                // $resu = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
-                $data = $data->wherebetween('booking_date',[$bookingst,$bookinged])->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
-            } else{
-                $data = $data->where('booking_date','>=',carbon::now())->where('orderservices.status','like','%'.'PENDING_PAYMENT'.'%')->orwhere('orderservices.status','like','%'.'BOOKING RESERVED'.'%');
-            }
-                
             foreach($data->limit($limit)->offset($page)->get() as $arr){
                 $method = array(
                     'id' => $arr['id'],
@@ -1257,20 +1271,9 @@ class OrderserviceController extends Controller
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
                 );
-                if($arr['service']=='vidcall'){
-                    array_push($result,$method);
-                } else if($arr['service']=='chat'){
-                    array_push($orderedchat,$method);
-                } else{
-                    array_push($orderedoff,$method);
-                }
+                array_push($result,$method);
             }
-            foreach($orderedchat as $chats){
-                array_push($result,$chats);
-            }
-            foreach($orderedoff as $offline){
-                array_push($result,$offline);
-            }
+            
             return response()->json([
                 'status'=>'success',  
                 'total_data'=>$data->count(),  

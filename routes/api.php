@@ -122,6 +122,34 @@ Route::get('testing', [DoctorController::class, 'doctorGetList']);
 
 Route::post('clinic/addClinic', [ClinicController::class, 'addNewClinic']);
 
+Route::post('clinic/update', [ClinicController::class, 'updateclinic']);
+
+Route::post('clinic/delete', [ClinicController::class, 'deleteclinic']);
+
+Route::post('clinic/services/add', [ClinicController::class, 'addclinicservices']);
+
+Route::post('clinic/services/update', [ClinicController::class, 'updateclinicservice']);
+
+Route::post('clinic/services/delete', [ClinicController::class, 'deleteclinicservices']);
+
+Route::post('clinic/opcl/add', [ClinicController::class, 'addopcl']);
+
+Route::post('clinic/opcl/update', [ClinicController::class, 'updateopcl']);
+
+Route::post('clinic/opcl/delete', [ClinicController::class, 'deleteopcl']);
+
+Route::get('clinic/getclinic', [ClinicController::class, 'getclinic']);
+
+Route::get('clinic/filter', [ClinicController::class, 'filterclinic']);
+
+Route::get('clinic/getDetail', [ClinicController::class, 'getDetail']);
+
+Route::get('clinic/getSchedule', [ClinicController::class, 'getDetailSchedule']);
+
+Route::post('clinic/facility/add', [ClinicController::class, 'addClinicFacility']);
+
+Route::post('clinic/facility/delete', [ClinicController::class, 'deleteClinicFacility']);
+
 Route::post('wallet/addAmount', [WalletController::class, 'TopUpManual']);
 
 Route::get('wallet/transaction', [WalletController::class, 'WaletTransaction']);
