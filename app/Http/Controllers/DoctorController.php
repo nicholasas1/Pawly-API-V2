@@ -43,7 +43,7 @@ class DoctorController extends Controller
             $picture = $request->profile_picture;
         }
 
-        $checkif = doctor::where('user_ids',$request->id)->get();
+        $checkif = doctor::where('users_ids',$request->id)->get();
 
         if($checkif->count()>0){
             return response()->JSON([

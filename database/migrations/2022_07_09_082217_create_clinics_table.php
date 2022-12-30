@@ -22,6 +22,8 @@ return new class extends Migration
             $table->char('lat',20)->nullable();
             $table->longText("description")->nullable();
             $table->char("clinic_photo",250)->nullable();
+            $table->integer("worked_since")->nullable();
+            
         });
     }
 

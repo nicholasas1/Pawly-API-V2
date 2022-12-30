@@ -142,6 +142,14 @@ Route::get('clinic/getclinic', [ClinicController::class, 'getclinic']);
 
 Route::get('clinic/filter', [ClinicController::class, 'filterclinic']);
 
+Route::get('clinic/getDetail', [ClinicController::class, 'getDetail']);
+
+Route::get('clinic/getSchedule', [ClinicController::class, 'getDetailSchedule']);
+
+Route::post('clinic/facility/add', [ClinicController::class, 'addClinicFacility']);
+
+Route::post('clinic/facility/delete', [ClinicController::class, 'deleteClinicFacility']);
+
 Route::post('wallet/addAmount', [WalletController::class, 'TopUpManual']);
 
 Route::get('wallet/transaction', [WalletController::class, 'WaletTransaction']);
