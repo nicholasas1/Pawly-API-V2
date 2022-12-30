@@ -1252,11 +1252,16 @@ class OrderserviceController extends Controller
             ->select('users.*','orderservices.*')
             ->where('users.id','like', $result['body']['user_id'])
             ->where('orderservices.type','not like','wallet')
-            ->wherein('orderservices.status',$status);
+            ->wherein('orderservices.status',$status)
+            ->orderbyraw(
+                "case
+                when orderservices.service = 'vidcall' then 1
+                when orderservices.service = 'chat' then 2
+                when orderservices.service = 'offline' then 3
+                end asc"
+            );
             
             $result=[];
-            $orderedchat=[];
-            $orderedoff=[];
 
             foreach($data->limit($limit)->offset($page)->get() as $arr){
                 $method = array(
@@ -1277,20 +1282,9 @@ class OrderserviceController extends Controller
                     'created_at'=>$arr['created_at'],
                     'updated_at'=>$arr['updated_at']
                 );
-                if($arr['service']=='vidcall'){
-                    array_push($result,$method);
-                } else if($arr['service']=='chat'){
-                    array_push($orderedchat,$method);
-                } else{
-                    array_push($orderedoff,$method);
-                }
+                array_push($result,$method);
             }
-            foreach($orderedchat as $chats){
-                array_push($result,$chats);
-            }
-            foreach($orderedoff as $offline){
-                array_push($result,$offline);
-            }
+            
             return response()->json([
                 'status'=>'success',  
                 'total_data'=>$data->count(),  
