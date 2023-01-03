@@ -429,7 +429,7 @@ class ClinicController extends Controller
 	$count = DB::table('clinics')->leftjoin('clinic_op_cls','clinics.id','=','clinic_op_cls.clinic_id')->leftjoin('clinic_services','clinics.id','=','clinic_services.clinic_id')->leftJoin('ratings','clinics.id','=','ratings.clinic_ids')->select('clinics.*','clinic_op_cls.*','clinic_services.*','clinic_op_cls.status as open_status','clinic_services.status as servstatus','ratings.*', DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))->where('clinic_op_cls.day','like',$today)->wherein('clinic_services.service',$service)->orderby('distance','asc')->orderBy($order,$order_val)->get();
 	$arr = array();
 	foreach($clinic->limit($limit)->offset($page)->get() as $queries){
-		$totalratings = ratings::where('clinic_ids',$queries->id)->count();
+		$totalratings = ratings::where('clinic_ids',$queries->clinic_id)->count();
 		$arr[] = [
 			'id' => $queries->clinic_id,
 			'clinic_name' => $queries->clinic_name,
@@ -438,12 +438,12 @@ class ClinicController extends Controller
 			'longtitude' => $queries->long,
 			'description' => $queries->description,
 			'profile_picture' => $queries->clinic_photo,
-			'service' => clinic_service::where('clinic_id',$queries->id)->get(),
+			'service' => clinic_service::where('clinic_id',$queries->clinic_id)->get(),
 			'open_status' => $queries->open_status,
 			'opening_hour' => $queries->opening_hour,
 			'closing_hour' => $queries->close_hour,
 			'service_status' => $queries->servstatus,
-			'favourited_by' => fav::where('service_id',$clinic->value('clinics.id'))->where('service_meta','clinic')->count(),
+			'favourited_by' => fav::where('service_id',$queries->clinic_id)->where('service_meta','clinic')->count(),
 			'ratings' => $queries->rating,
 			'floor_rating' => floor($queries->rating),
 			'total_review' => $totalratings,
