@@ -437,7 +437,16 @@ class ClinicController extends Controller
 		}else if($request->order == 'z-a'){
 			$order = "clinic_name";
 			$order_val = "DESC";
-		}else{
+		}else if($request->order == 'distance'){
+			$order = "distance";
+			$order_val = "ASC";
+		}else if($request->order == 'lowest_rating'){
+            $order = "rating";
+            $order_val = "ASC";
+        }else if($request->order == 'highest_rating'){
+            $order = "rating";
+            $order_val = "DESC";
+        }else{
 			$order = "clinic_name";
 			$order_val = "ASC";
 		}
@@ -461,16 +470,19 @@ class ClinicController extends Controller
 		$clinic = DB::table('clinics')
 					->join('clinic_op_cls','clinics.id','=','clinic_op_cls.clinic_id')
 					->join('clinic_services','clinics.id','=','clinic_services.clinic_id')
-					->select('clinics.*','clinic_op_cls.*','clinic_services.*','clinic_op_cls.status as open_status','clinic_services.status as servstatus', DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))
+					->leftJoin('ratings','clinics.id','=','ratings.clinic_ids')
+					->select('clinics.*','clinic_op_cls.*','clinic_services.*','clinic_op_cls.status as open_status','clinic_services.status as servstatus',DB::raw('AVG(ratings.ratings) as rating'), DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))
 					->where('clinic_op_cls.day','like',$today)
 					->wherein('clinic_services.service',$service)
 					->orderby('distance','asc')
 					->orderBy($order,$order_val);
 
+		$count = DB::table('clinics')->join('clinic_op_cls','clinics.id','=','clinic_op_cls.clinic_id')->join('clinic_services','clinics.id','=','clinic_services.clinic_id')->leftJoin('ratings','clinics.id','=','ratings.clinic_ids')->select('clinics.*','clinic_op_cls.*','clinic_services.*','clinic_op_cls.status as open_status','clinic_services.status as servstatus','ratings.*', DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))->where('clinic_op_cls.day','like',$today)->wherein('clinic_services.service',$service)->orderby('distance','asc')->orderBy($order,$order_val)->get();
 		$arr = [];
 		$result = [];
 
 		foreach($clinic->limit($limit)->offset($page)->get() as $queries){
+			$totalratings = ratings::where('clinic_ids',$queries->id)->count();
 			$arr = [
 				'id' => $queries->id,
 				'clinic_name' => $queries->clinic_name,
@@ -483,13 +495,28 @@ class ClinicController extends Controller
 				'open_status' => $queries->open_status,
 				'opening_hour' => $queries->opening_hour,
 				'closing_hour' => $queries->close_hour,
-				'service_status' => $queries->servstatus
+				'service_status' => $queries->servstatus,
+				'favourited_by' => fav::where('service_id',$clinic->value('clinics.id'))->where('service_meta','clinic')->count(),
+				'ratings' => $queries->rating,
+                'floor_rating' => floor($queries->rating),
+                'total_review' => $totalratings,
 			];
 			array_push($result,$arr);
 		}
+
+		if($arr == NULL){
+            $msg = "Data not found";
+        }else{
+            $msg = "";
+        }
+
 		return response()->JSON([
 			'status' => 'success',
-			'results' => $result
+            'msg' => $msg,
+            'total_data' => count($count),
+            'total_page' => ceil(count($count) / $limit),
+            'total_result' => count($arr),
+            'results' => $arr
 		]);
     
 	}
