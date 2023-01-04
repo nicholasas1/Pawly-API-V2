@@ -597,8 +597,8 @@ class ClinicController extends Controller
 				}
 			}
 		}
-		$comision = 'percent';
-		$comision_type = 12;
+		$comision = 12;
+		$comision_type = 'percent';
 		
 		$status = 'error';
 		$ratings = ratings::where('clinic_ids',$query->value('doctors.id'));
