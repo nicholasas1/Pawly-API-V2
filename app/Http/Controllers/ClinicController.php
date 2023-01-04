@@ -420,6 +420,7 @@ class ClinicController extends Controller
 				->leftJoin('ratings','clinics.id','=','ratings.clinic_ids')
 				->select('clinics.*','clinics.id as clinic_id','clinic_op_cls.*','clinic_services.*','ratings.*','clinic_op_cls.status as open_status','clinic_services.status as servstatus',DB::raw('AVG(ratings.ratings) as rating'), DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))
 				->groupby('clinics.id')
+				->where('clinics.clinic_name','like','%'.$request->name.'%')
 				->where('clinic_op_cls.day','like',$today)
 				->wherein('clinic_services.service',$service)
 				->orderBy($order,$order_val);
