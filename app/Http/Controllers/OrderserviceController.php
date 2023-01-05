@@ -16,6 +16,7 @@ use App\Http\Controllers\NotificationdbController;
 use App\Http\Controllers\JWTValidator;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\MailServer;
+use App\Http\Controllers\ClinicController;
 use Carbon\Carbon;
 use App\Models\doctor;
 use App\Models\clinic;
@@ -39,10 +40,11 @@ class OrderserviceController extends Controller
     protected $coupons;
     protected $JWTValidator;
     protected $notif;
-    public function __construct(socket_notf $socket, NotificationdbController $notif,whatsapp_notif $whatsapp,MailServer $mailServer,WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
+    public function __construct(ClinicController $clinics,socket_notf $socket, NotificationdbController $notif,whatsapp_notif $whatsapp,MailServer $mailServer,WalletController $wallet,CouponserviceController $coupons, JWTValidator $jWTValidator,FirebaseTokenController $fb_token,MobileBannerController $mobile_banner)
     {
         $this->coupons = $coupons;
         $this->notif = $notif;
+        $this->clinics = $clinics;
         $this->JWTValidator = $jWTValidator;
         $this->fb_token = $fb_token;
         $this->mobile_banner = $mobile_banner;
@@ -68,6 +70,7 @@ class OrderserviceController extends Controller
             $partner_user_id = $request->partner_user_id;
             $booking_time = $request->booking_time;
             $booking_date = $request->booking_date;
+            
             if($request->partner_commision_type == 'fixed'){
                 $comission = $request->comission;
             }else{
@@ -114,13 +117,21 @@ class OrderserviceController extends Controller
                 ];
             }else if($type == 'clinic'){
                 $detail = clinic::where('id','like', $service_id);
-                $res = [
-                    'account_id' => $detail->value('user_id'),
-                    'id'=>$detail->value('id'),
-                    'name'=>$detail->value('clinic_name'),
-                    'phone_number'=>User::where('id','like',$detail->value('user_id'))->value('phone_number'),
-                    'profile_picture'=>$detail->value('clinic_photo')
-                ];
+                $checkschedule = $this->clinics->checkschedule($booking_date,$booking_time,$detail->value('id'));
+                if($checkschedule == 'NOT AVAIABLE' ){
+                    return response()->JSON([
+                        'status' => 'error',
+                        'msg' => 'Date and Time already Booked'
+                    ]);
+                } else{
+                    $res = [
+                        'account_id' => $detail->value('user_id'),
+                        'id'=>$detail->value('id'),
+                        'name'=>$detail->value('clinic_name'),
+                        'phone_number'=>User::where('id','like',$detail->value('user_id'))->value('phone_number'),
+                        'profile_picture'=>$detail->value('clinic_photo')
+                    ];
+                }
             }else{
                 $res = [
                     'account_id' => '',
