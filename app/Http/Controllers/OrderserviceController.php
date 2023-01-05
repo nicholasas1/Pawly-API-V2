@@ -1153,13 +1153,13 @@ class OrderserviceController extends Controller
             $jmlhreview = 0;
             
             foreach($data->limit($limit)->offset($page)->get() as $arr){
-                $ratings = ratings::where('doctors_ids',$arr['partner_user_id']);
+                $ratings = ratings::where('doctors_ids',$arr['service_id']);
                 if($ratings->count()==0){
                     $avgratings = 0;
                     $jmlhreview = 0;
                 } else{
                     $avgratings = round($ratings->avg('ratings'));
-                    $jmlhreview = ratings::where('doctors_ids',$arr['partner_user_id'])->count();
+                    $jmlhreview = ratings::where('doctors_ids',$arr['service_id'])->count();
                 }
                 $userDetail = doctor::where('id',$arr['service_id']);
                 if($arr['type'] == 'doctor'){
