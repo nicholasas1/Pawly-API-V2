@@ -11,7 +11,7 @@ use App\Models\clinic_op_cl;
 use App\Http\Controllers\JWTValidator;
 use App\Models\clinic_schedule;
 use App\Models\clinic_service;
-use App\Models\clinic_schedule_time;
+use App\Models\clinic_schedule_clock;
 use App\Models\doctor;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -588,7 +588,7 @@ class ClinicController extends Controller
 	public function checkschedule($booking_date,$booking_time,$clinic_id){
 		$query = clinic_schedule::where('clinic_id', $clinic_id)->where('day',  Carbon::parse($booking_date)->dayName)->get();
 		$check = orderservice::where('service_id',$clinic_id)->where('booking_date','LIKE',$booking_date)->where('booking_time','LIKE',$booking_time)->get();
-		$clinictime = clinic_schedule_time::where('schedule_id',$query->value('id'))->where('start_hour',$booking_time)->get();
+		$clinictime = clinic_schedule_clock::where('schedule_id',$query->value('id'))->where('start_hour',$booking_time)->get();
 		if($clinictime->count()==1&&$check->count()>0){
 			$result = 'NOT AVAIABLE';
 		} else{
@@ -621,7 +621,7 @@ class ClinicController extends Controller
 			$doctorDetail = doctor::where('id',$queries->doctor_id)->get();
 			$orderCheck = orderservice::where('service_id',$request->id)->where('booking_date','LIKE',$request->date)->where('status','NOT LIKE','BOOKING_CANCEL');
 			$result2 = [];
-			foreach(clinic_schedule_time::where('schedule_id',$queries->id)->get() as $ClinicTIme){	
+			foreach(clinic_schedule_clock::where('schedule_id',$queries->id)->get() as $ClinicTIme){	
 				if($orderCheck->count()>0){
 					foreach($orderCheck->get() as $orderCheck){	
 						if($orderCheck['booking_time'] == $ClinicTIme['start_hour']){
