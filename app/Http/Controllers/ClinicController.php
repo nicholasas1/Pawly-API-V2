@@ -585,6 +585,18 @@ class ClinicController extends Controller
 	
 	}
 
+	public function checkschedule($booking_date,$booking_time,$clinic_id){
+		$query = clinic_schedule::where('clinic_id', $clinic_id)->where('day',  Carbon::parse($booking_date)->dayName)->get();
+		$check = orderservice::where('service_id',$clinic_id)->where('booking_date','LIKE',$booking_date)->where('booking_time','LIKE',$booking_time)->get();
+		$clinictime = clinic_schedule_time::where('schedule_id',$query->value('id'))->where('start_hour',$booking_time)->get();
+		if($clinictime->count()==1&&$check->count()>0){
+			$result = 'NOT AVAIABLE';
+		} else{
+			$result = "AVAIABLE";
+		}
+		return $result;
+	}
+
 	public function getDetailSchedule(request $request){
 		if($request->limit==NULL){
 			$limit = 10;
@@ -607,9 +619,9 @@ class ClinicController extends Controller
 
 		foreach($query->limit($limit)->offset($page)->get() as $queries){
 			$doctorDetail = doctor::where('id',$queries->doctor_id)->get();
-			$orderCheck = orderservice::where('service_id',$request->id)->where('booking_date','LIKE',$request->date);
+			$orderCheck = orderservice::where('service_id',$request->id)->where('booking_date','LIKE',$request->date)->where('status','NOT LIKE','BOOKING_CANCEL');
 			$result2 = [];
-			foreach(clinic_schedule_time::where('schedule_id',1)->get() as $ClinicTIme){	
+			foreach(clinic_schedule_time::where('schedule_id',$queries->id)->get() as $ClinicTIme){	
 				if($orderCheck->count()>0){
 					foreach($orderCheck->get() as $orderCheck){	
 						if($orderCheck['booking_time'] == $ClinicTIme['start_hour']){
@@ -662,7 +674,7 @@ class ClinicController extends Controller
 
 		return response()->JSON([
 			'status' => 'success',
-			'results' =>  $result
+			'results' => $result
 		]);
 	
 	}
