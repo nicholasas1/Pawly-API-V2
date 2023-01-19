@@ -384,12 +384,6 @@ class ClinicController extends Controller
 	}else if($request->order == 'z-a'){
 		$order = "clinic_name";
 		$order_val = "DESC";
-	}else if($request->order == 'lowest_rating'){
-		$order = "rating";
-		$order_val = "ASC";
-	}else if($request->order == 'highest_rating'){
-		$order = "rating";
-		$order_val = "DESC";
 	}else if($request->order == 'distance'){
 		$order = "distance";
 		$order_val = "ASC";
@@ -417,11 +411,11 @@ class ClinicController extends Controller
 	$clinic = DB::table('clinics')
 				->join('clinic_op_cls','clinics.id','=','clinic_op_cls.clinic_id')
 				->join('clinic_services','clinics.id','=','clinic_services.clinic_id')
-				->select('clinics.*','clinic_op_cls.*','clinic_services.*','clinic_op_cls.status as open_status','clinic_services.status as servstatus', DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))
+				->select('clinics.*','clinics.id as clinic_id','clinic_op_cls.*','clinic_services.*','clinic_op_cls.status as open_status','clinic_services.status as servstatus', DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))
+				->groupby('clinics.id')
 				->where('clinic_op_cls.day','like',$today)
 				->where('clinic_name','like','%'.$request->name.'%')
 				->wherein('clinic_services.service',$service)
-				->orderby('distance','asc')
 				->orderBy($order,$order_val);
 
 	$arr = [];
@@ -429,18 +423,17 @@ class ClinicController extends Controller
 
 	foreach($clinic->limit($limit)->offset($page)->get() as $queries){
 		$arr = [
-			'id' => $queries->id,
+			'id' => $queries->clinic_id,
 			'clinic_name' => $queries->clinic_name,
 			'address' => $queries->address,
 			'latitude' => $queries->lat,
 			'longtitude' => $queries->long,
 			'description' => $queries->description,
 			'profile_picture' => $queries->clinic_photo,
-			'service' => clinic_service::where('clinic_id',$queries->id)->get(),
+			'service' => clinic_service::where('clinic_id','like',$queries->clinic_id)->get(),
 			'open_status' => $queries->open_status,
 			'opening_hour' => $queries->opening_hour,
-			'closing_hour' => $queries->close_hour,
-			'service_status' => $queries->servstatus
+			'closing_hour' => $queries->close_hour
 		];
 		array_push($result,$arr);
 	}
