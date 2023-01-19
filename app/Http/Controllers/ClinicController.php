@@ -161,6 +161,20 @@ class ClinicController extends Controller
 				'msg' => 'can only register once'
 			]);
 		} else{
+			if(filter_var($request->clinic_photo, FILTER_VALIDATE_URL) === FALSE){
+
+				$image_parts = explode(";base64,", $request->profile_picture);
+				$image_type_aux = explode("image/", $image_parts[0]);
+				$image_type = $image_type_aux[1];
+				$image_base64 = base64_decode($image_parts[1]);
+				$file = uniqid() . '.'.$image_type;
+		
+				file_put_contents(env('Folder_APP').$file, $image_base64);
+				$picture = env('IMAGE_URL') . $file;
+				
+			}else{
+				$picture = $request->clinic_photo;
+			}
 		$query = clinic::insert([
 			'user_id' => $request->user_id,
 			'clinic_name' => $request->clinic_name,
@@ -168,7 +182,7 @@ class ClinicController extends Controller
 			'lat' => $request->lat,
 			'long' => $request->long,
 			'address' => $request->address,
-			'clinic_photo' => $request->clinic_photo,
+			'clinic_photo' => $picture,
 			'worked_since' => $request->worked_since,
 		]);
 		$clinic_id = clinic::where('user_id',$request->user_id)->value('id');
