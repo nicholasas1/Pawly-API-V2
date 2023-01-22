@@ -283,6 +283,7 @@ class OrderserviceController extends Controller
         $type = $request->type;
         $service = $request->service;
         $status = $request->status;
+        $partner_id = $request->partner_id;
         if($request->limit==NULL){
             $limit = 10;
         } else{
@@ -296,7 +297,11 @@ class OrderserviceController extends Controller
         }
         
 
-        $data = orderservice::where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%');;
+        $data = orderservice::where('order_id','like','%'.$orderId.'%')
+        ->where('type','like','%'.$type.'%')
+        ->where('service','like','%'.$service.'%')
+        ->where('status','like','%'.$status.'%')
+        ->where('partner_user_id','like','%'.$partner_id.'%');
         $result=[];
         foreach($data->limit($limit)->offset($page)->get() as $arr){
             if($data->value('coupon_name')==NULL){
