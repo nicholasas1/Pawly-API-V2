@@ -16,15 +16,16 @@ return new class extends Migration
         Schema::create('orderservices', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->char('order_id',16);
-            $table->char('service',20);
-            $table->char('service_id',10)->nullable();
             $table->char('pet_id',20)->nullable();
             $table->char('type',20);
-            $table->char('status',20);
-            $table->char('total',20);
-            $table->float('diskon',10,2);
+            $table->char('doctor_id',20)->nullable();
+            $table->char('service_id',20)->nullable();
+            $table->char('status',20)->nullable();
+            $table->char('users_ids',20)->nullable();
+            $table->char('total',20)->nullable();
+            $table->float('diskon',10,2)->nullable();
             $table->char('coupon_name',25)->nullable();
-            $table->float('subtotal',20,2);
+            $table->float('subtotal',20,2)->nullable();
             $table->char('payment_method',50)->nullable();
             $table->char('payment_url',100)->nullable();
             $table->char('payment_id',20)->nullable();
@@ -34,7 +35,6 @@ return new class extends Migration
             $table->char('payed_untill')->nullable();
             $table->char('cancelled_at')->nullable();
             $table->text('cancelled_reason')->nullable();
-            $table->char('users_ids',20);
             $table->char('created_at',50)->nullable();
             $table->char('updated_at',50)->nullable();
             $table->char('partner_user_id',20)->nullable();

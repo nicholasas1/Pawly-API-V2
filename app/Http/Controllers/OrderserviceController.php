@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\orderservice;
 use App\Models\couponusages;
 use App\Models\couponservice;
+use App\Models\order_detail;
 use Illuminate\Http\Request;
 use App\Http\Controllers\CouponserviceController;
 use ReallySimpleJWT\Token;
@@ -65,6 +66,7 @@ class OrderserviceController extends Controller
             $price = $request->price;
             $coupon_name = $request->coupon;
             $service_id = $request->servid;
+            $doctor_id = $request->doctid;
             $pet_id = $request->pet_id;
             $type = $request->type;
             $partner_user_id = $request->partner_user_id;
@@ -107,7 +109,7 @@ class OrderserviceController extends Controller
                     'phone_number'=>$user_detail->value('phone_number')
             ];
             if($type == 'doctor'){
-                $detail = doctor::where('id','like', $service_id);
+                $detail = doctor::where('id','like', $doctor_id);
                 $res = [
                     'account_id' => $detail->value('users_ids'),
                     'id'=>$detail->value('id'),
@@ -147,19 +149,13 @@ class OrderserviceController extends Controller
             }
         
             if($coupon_name==NULL){
-                $total_price = $price;
+                $total_price = 0;
                 $discount = 0;
-                $subtotal = $total_price-$discount;
                 $query = orderservice::insertGetId([
-                    'service' => $service,
-                    'service_id' => $service_id,
                     'type' => $type,
                     'pet_id' => $pet_id,
                     'users_ids' => $userid,
                     'status' => 'PENDING_PAYMENT',
-                    'total' => $total_price,
-                    'diskon' => $discount,
-                    'subtotal' => $subtotal,
                     'created_at' => Carbon::now(),
                     'partner_user_id' => $partner_user_id,
                     'comission' => $comission,
@@ -167,11 +163,31 @@ class OrderserviceController extends Controller
                     'booking_date' => $booking_date,
                     'booking_time' => $booking_time
                 ]);
-                $orderId = $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 3).$query;
-                $insertorderid = orderservice::where('id',$query)->update([
-                    'order_id' => $orderId
-                ]);
 
+                $serv=[];
+                $orderId = $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 3).$query;
+                foreach($service as $orderlist){
+                    $orderinsert = order_detail::insert([
+                        'order_id' => $orderId,
+                        'service_id' => $orderlist['service_id'],
+                        'service_name' => $orderlist['service_name'],
+                        'order_price' => $orderlist['order_price']
+                    ]);
+                    $temps = [
+                        'service_name'=> $orderlist['service_name'],
+                        'service_name' => $orderlist['order_price']
+                      ];
+                      array_push($serv,$temps);
+                    $total_price = $total_price+$orderlist['order_price'];
+                }
+                $discount = 0;
+                $subtotal = $total_price-$discount;
+                $insertorderid = orderservice::where('id',$query)->update([
+                    'order_Id' => $orderId,
+                    'total' => $total_price,
+                    'subtotal' => $subtotal,
+                    'diskon' => $discount
+                ]);
                 $details = [
                     'user_detail' =>$user,
                     'order_id' =>$orderId,
@@ -183,9 +199,9 @@ class OrderserviceController extends Controller
                     'partnerDetail' => $res
                 ];
                 if($insertorderid==1){
-                    $this->mailServer->InvoicePendingPayment($details);
-                    $this->notif->createnotif($partner_user_id,$type,$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif partner
-                    $this->notif->createnotif($userid,'user',$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif user
+                    // $this->mailServer->InvoicePendingPayment($details);
+                    // $this->notif->createnotif($partner_user_id,$type,$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif partner
+                    // $this->notif->createnotif($userid,'user',$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif user
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
