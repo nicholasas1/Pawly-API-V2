@@ -435,6 +435,15 @@ class ClinicController extends Controller
 	$arr = [];
 	$result = [];
 
+	$count = DB::table('clinics')
+	->join('clinic_op_cls','clinics.id','=','clinic_op_cls.clinic_id')
+	->join('clinic_services','clinics.id','=','clinic_services.clinic_id')
+	->select('clinics.*','clinics.id as clinic_id','clinic_op_cls.*','clinic_services.*','clinic_op_cls.status as open_status','clinic_services.status as servstatus', DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))
+	->groupby('clinics.id')
+	->where('clinic_op_cls.day','like',$today)
+	->where('clinic_name','like','%'.$request->name.'%')
+	->wherein('clinic_services.service',$service)->get();
+
 	foreach($clinic->limit($limit)->offset($page)->get() as $queries){
 		$arr = [
 			'id' => $queries->clinic_id,
@@ -453,6 +462,8 @@ class ClinicController extends Controller
 	}
 	return response()->JSON([
 		'status' => 'success',
+		'total_data' => count($count),
+        'total_page' => ceil(count($count) / $limit),
 		'results' => $result
 	]);
    }
