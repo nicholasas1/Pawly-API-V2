@@ -15,8 +15,6 @@ return new class extends Migration
     {
         Schema::table('orderservices', function (Blueprint $table) {
             //
-            $table->char('doctor_id',20)->nullable()->after('type');
-            $table->char('service_id',20)->nullable()->after('type');
         });
     }
 

@@ -154,6 +154,8 @@ class OrderserviceController extends Controller
                 $query = orderservice::insertGetId([
                     'type' => $type,
                     'pet_id' => $pet_id,
+                    'service_id' => $service_id,
+                    'doctor_id' => $doctor_id,
                     'users_ids' => $userid,
                     'status' => 'PENDING_PAYMENT',
                     'created_at' => Carbon::now(),
@@ -191,7 +193,7 @@ class OrderserviceController extends Controller
                 $details = [
                     'user_detail' =>$user,
                     'order_id' =>$orderId,
-                    'service' => $service,
+                    'service' => order_detail::where('order_id','like',$orderId)->select('service_name')->get(),
                     'type' => $type,
                     'booking_date' => $booking_time,
                     'total_price' => $total_price,
@@ -199,9 +201,9 @@ class OrderserviceController extends Controller
                     'partnerDetail' => $res
                 ];
                 if($insertorderid==1){
-                    // $this->mailServer->InvoicePendingPayment($details);
-                    // $this->notif->createnotif($partner_user_id,$type,$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif partner
-                    // $this->notif->createnotif($userid,'user',$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif user
+                    $this->mailServer->InvoicePendingPayment($details);
+                    $this->notif->createnotif($partner_user_id,$type,$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif partner
+                    $this->notif->createnotif($userid,'user',$partner_user_id,$orderId,'New Order '.$orderId.' from '.$user_detail->value('nickname'),NULL); //notif user
                     return response()->JSON([
                         'status' => 'success',
                         'results' => orderservice::where('id',$query)->get()
@@ -214,7 +216,7 @@ class OrderserviceController extends Controller
                 }
                 
             } else{
-                $coupons_respond = $this->coupons->coupon_service($coupon_name,$userid,$service,$price);
+                $coupons_respond = $this->coupons->coupon_service($coupon_name,$userid,$service);
               
                 if($coupons_respond['status']=='success'){
                     $total_price = $price;
