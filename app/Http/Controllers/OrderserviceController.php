@@ -66,7 +66,7 @@ class OrderserviceController extends Controller
             $price = $request->price;
             $coupon_name = $request->coupon;
             $service_id = $request->servid;
-            $doctor_id = $request->doctid;
+            $clinic_id = $request->clinic_id;
             $pet_id = $request->pet_id;
             $type = $request->type;
             $partner_user_id = $request->partner_user_id;
@@ -109,7 +109,7 @@ class OrderserviceController extends Controller
                     'phone_number'=>$user_detail->value('phone_number')
             ];
             if($type == 'doctor'){
-                $detail = doctor::where('id','like', $doctor_id);
+                $detail = doctor::where('id','like', $service_id);
                 $res = [
                     'account_id' => $detail->value('users_ids'),
                     'id'=>$detail->value('id'),
@@ -155,7 +155,7 @@ class OrderserviceController extends Controller
                     'type' => $type,
                     'pet_id' => $pet_id,
                     'service_id' => $service_id,
-                    'doctor_id' => $doctor_id,
+                    'clinic_id' => $clinic_id,
                     'users_ids' => $userid,
                     'status' => 'PENDING_PAYMENT',
                     'created_at' => Carbon::now(),
@@ -219,20 +219,15 @@ class OrderserviceController extends Controller
                 $coupons_respond = $this->coupons->coupon_service($coupon_name,$userid,$service);
               
                 if($coupons_respond['status']=='success'){
-                    $total_price = $price;
-                    $discount = $coupons_respond['value'];
-                    $subtotal = $total_price-$discount;
-                    $query = orderservice::insertGetId([
-                    'service' => $service,
-                    'service_id' => $service_id,
+                $total_price = 0;
+                $discount = 0;
+                $query = orderservice::insertGetId([
                     'type' => $type,
                     'pet_id' => $pet_id,
-                    'status' => 'PENDING_PAYMENT',
+                    'service_id' => $service_id,
+                    'clinic_id' => $clinic_id,
                     'users_ids' => $userid,
-                    'coupon_name' => $coupon_name,
-                    'total' => $total_price,
-                    'diskon' => $discount,
-                    'subtotal' => $subtotal,
+                    'status' => 'PENDING_PAYMENT',
                     'created_at' => Carbon::now(),
                     'partner_user_id' => $partner_user_id,
                     'comission' => $comission,
@@ -240,24 +235,35 @@ class OrderserviceController extends Controller
                     'booking_date' => $booking_date,
                     'booking_time' => $booking_time
                 ]);
-               $orderId = $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 8).$query;
-                $insertorderid = orderservice::where('id',$query)->update([
-                    'order_id' => $orderId
-                ]);
-                $query2 = couponusages::insert([
-                    'coupon_name' => $coupon_name,
-                    'user_id' => $userid,
-                    'service' => $service,
-                    'type' => $type,
-                    'date' => Carbon::today()->toDateString(),
-                    'order_id' => $orderId
-                ]);
 
-                 
+                $serv=[];
+                $orderId = $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 3).$query;
+                foreach($service as $orderlist){
+                    $orderinsert = order_detail::insert([
+                        'order_id' => $orderId,
+                        'service_id' => $orderlist['service_id'],
+                        'service_name' => $orderlist['service_name'],
+                        'order_price' => $orderlist['order_price']
+                    ]);
+                    $temps = [
+                        'service_name'=> $orderlist['service_name'],
+                        'service_name' => $orderlist['order_price']
+                      ];
+                      array_push($serv,$temps);
+                    $total_price = $total_price+$orderlist['order_price'];
+                }
+                $discount = 0;
+                $subtotal = $total_price-$discount;
+                $insertorderid = orderservice::where('id',$query)->update([
+                    'order_Id' => $orderId,
+                    'total' => $total_price,
+                    'subtotal' => $subtotal,
+                    'diskon' => $discount
+                ]);
                 $details = [
                     'user_detail' =>$user,
                     'order_id' =>$orderId,
-                    'service' => $service,
+                    'service' => order_detail::where('order_id','like',$orderId)->select('service_name')->get(),
                     'type' => $type,
                     'booking_date' => $booking_time,
                     'total_price' => $total_price,
