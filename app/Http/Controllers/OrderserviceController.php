@@ -320,10 +320,14 @@ class OrderserviceController extends Controller
             $page = ($request->page - 1) * $limit;
         }
         
+        if($service==NULL){
+            $service = ['umum','vaksin','grooming'];
+        }
 
         $data = orderservice::where('order_id','like','%'.$orderId.'%')
+        ->join('order_details','orderservices.order_id','=','order_details.order_id')
         ->where('type','like','%'.$type.'%')
-        ->where('service','like','%'.$service.'%')
+        ->wherein('order_details.service_name',$service)
         ->where('status','like','%'.$status.'%')
         ->where('partner_user_id','like','%'.$partner_id.'%');
         $result=[];
@@ -337,8 +341,9 @@ class OrderserviceController extends Controller
             $method = array(
                 'id' => $arr['id'],
                 'order_id'=>$arr['order_id'],
-                'service'=>$arr['service'],
+                'service'=>order_detail::where('order_id','like',$orderId)->select('service_name')->get(),
                 'service_id'=>$arr['service_id'],
+                'clinic_id'=>$arr['clinic_id'],
                 'pet_id'=>$arr['pet_id'],
                 'type'=>$arr['type'],
                 'status'=>$arr['status'],
@@ -409,8 +414,9 @@ class OrderserviceController extends Controller
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
-                    'service'=>$arr['service'],
+                    'service'=>order_detail::where('order_id','like',$orderId)->select('service_name')->get(),
                     'service_id'=>$arr['service_id'],
+                    'clinic_id'=>$arr['clinic_id'],
                     'pet_id'=>$arr['pet_id'],
                     'type'=>$arr['type'],
                     'status'=>$arr['status'],
@@ -488,8 +494,9 @@ class OrderserviceController extends Controller
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
-                    'service'=>$arr['service'],
+                    'service'=>order_detail::where('order_id','like',$orderId)->select('service_name')->get(),
                     'service_id'=>$arr['service_id'],
+                    'clinic_id'=>$arr['clinic_id'],
                     'pet_id'=>$arr['pet_id'],
                     'type'=>$arr['type'],
                     'status'=>$arr['status'],
