@@ -436,6 +436,7 @@ class ClinicController extends Controller
 	$result = [];
 
 	foreach($clinic->limit($limit)->offset($page)->get() as $queries){
+		$ratings = ratings::where('clinic_ids',$queries->clinic_id);
 		$arr = [
 			'id' => $queries->clinic_id,
 			'clinic_name' => $queries->clinic_name,
@@ -447,7 +448,10 @@ class ClinicController extends Controller
 			'service' => clinic_service::where('clinic_id','like',$queries->clinic_id)->get(),
 			'open_status' => $queries->open_status,
 			'opening_hour' => $queries->opening_hour,
-			'closing_hour' => $queries->close_hour
+			'closing_hour' => $queries->close_hour,
+			'total_review' => $ratings->count(),
+			'rating' => round($ratings->avg('ratings'),1),
+			'floor_rating' => floor($ratings->avg('ratings'))
 		];
 		array_push($result,$arr);
 	}
