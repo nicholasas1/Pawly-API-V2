@@ -397,12 +397,28 @@ class OrderserviceController extends Controller
             $page = ($request->page - 1) * $limit;
         }
        
-        
+        if($service==NULL){
+            $service = ['umum','vaksin','grooming'];
+        }
+
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
 
         if($result['status'] == 200){
-            $data = orderservice::where('users_ids','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%') ->orderBy('created_at','DESC');
+            $data = orderservice::where('order_id','like','%'.$orderId.'%')
+            ->join('order_details','orderservices.order_id','=','order_details.order_id')
+            ->where('type','like','%'.$type.'%')
+            ->wherein('order_details.service_name',$service)
+            ->where('status','like','%'.$status.'%')
+            ->where('partner_user_id','like','%'.$partner_id.'%');
+
+            $data = orderservice::where('users_ids','like', $result['body']['user_id'])
+            ->join('order_details','orderservices.order_id','=','order_details.order_id')
+            ->where('orderservices.order_id','like','%'.$orderId.'%')
+            ->where('type','like','%'.$type.'%')
+            ->wherein('order_details.service_name',$service)
+            ->where('status','like','%'.$status.'%')
+            ->orderBy('created_at','DESC');
             $result=[];
             
             foreach($data->limit($limit)->offset($page)->get() as $arr){
@@ -472,15 +488,30 @@ class OrderserviceController extends Controller
         } else{
             $page = ($request->page - 1) * $limit;
         }
-       
+        
+        if($service==NULL){
+            $service = ['umum','vaksin','grooming'];
+        }
         
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
 
         if($result['status'] == 200){
-            $data2 = orderservice::where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%') ->orderBy('created_at','DESC');
+            $data2 = orderservice::where('partner_user_id','like', $result['body']['user_id'])
+            ->join('order_details','orderservices.order_id','=','order_details.order_id')
+            ->where('orderservices.order_id','like','%'.$orderId.'%')
+            ->where('type','like','%'.$type.'%')
+            ->wherein('order_details.service_name',$service)
+            ->where('status','like','%'.$status.'%')
+            ->orderBy('created_at','DESC');
 
-            $data = orderservice::where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%') ->orderBy('created_at','DESC');
+            $data = orderservice::where('partner_user_id','like', $result['body']['user_id'])
+            ->join('order_details','orderservices.order_id','=','order_details.order_id')
+            ->where('orderservices.order_id','like','%'.$orderId.'%')
+            ->where('type','like','%'.$type.'%')
+            ->wherein('order_details.service_name',$service)
+            ->where('status','like','%'.$status.'%')
+            ->orderBy('created_at','DESC');
             $result=[];
             
             foreach($data->limit($limit)->offset($page)->get() as $arr){
@@ -586,7 +617,9 @@ class OrderserviceController extends Controller
             $is_rating = false;
         }
 
-        if($data->value('status') == 'ORDER_COMPLATE' && $is_rating == false && $data->value('service') != 'pawly_credit'){
+        $pawlycheck = order_detail::where('order_id','like',$orderId)->wherenotin('service',['pawly_credit'])->get();
+
+        if($data->value('status') == 'ORDER_COMPLATE' && $is_rating == false &&  $pawlycheck->count()!=0){
             $can_rating = true;
         }else{
             $can_rating = false;
@@ -621,7 +654,7 @@ class OrderserviceController extends Controller
             'id' => $data->value('id'),
             'order_id'=>$data->value('order_id'),
             'type'=>$data->value('type'),
-            'service'=>$data->value('service'),
+            'service'=>order_detail::where('order_id',$data->value('order_id'))->select('service_name'),
             'service_id'=>$data->value('service_id'),
             'video_call_detail'=>$vcDetail,
             'pet_id'=>$data->value('pet_id'),
@@ -968,8 +1001,22 @@ class OrderserviceController extends Controller
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
         
+        if($service==NULL){
+            $service = ['grooming','vaksin','umum'];
+        }
         if($result['status'] == 200){ 
-            $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.email','like','%'.$request->email.'%')->where('users.nickname','like','%'.$request->name.'%')->where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('orderservices.status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');
+            $data = orderservice::join('users','orderservices.users_ids','=','users.id')
+            ->join('order_details','orderservices.order_id','=','order_details.order_id')
+            ->select('users.*','orderservices.*')
+            ->where('users.email','like','%'.$request->email.'%')
+            ->where('users.nickname','like','%'.$request->name.'%')
+            ->where('partner_user_id','like', $result['body']['user_id'])
+            ->where('orderservices.order_id','like','%'.$orderId.'%')
+            ->where('type','like','%'.$type.'%')
+            ->wherein('order_details.service_name','like','%'.$service.'%')
+            ->where('orderservices.status','like','%'.$status.'%')
+            ->where('booking_date','like','%'.$date.'%')
+            ->orderBy('booking_date','ASC');
             // $data = orderservice::join('users','orderservices.users_ids','=','users.id')->select('users.*','orderservices.*')->where('users.email','like','%'.$request->email.'%')->wheredate('created_at',$request->order_date)->where('users.nickname','like','%'.$request->name.'%')->where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('orderservices.status','like','%'.$status.'%')->where('booking_date','like','%'.$date.'%')->orderBy('booking_date','ASC');
             $result=[];
             $resu = NULL;
@@ -989,7 +1036,7 @@ class OrderserviceController extends Controller
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
-                    'service'=>$arr['service'],
+                    'service'=>order_detail::where('order_id','like','%'.$arr['order_id'].'%')->select('service_name')->get(),
                     'service_id'=>$arr['service_id'],
                     'pet_id'=>$arr['pet_id'],
                     'type'=>$arr['type'],
@@ -1054,15 +1101,23 @@ class OrderserviceController extends Controller
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
     
+        if($service==NULL){
+            $service = ['vaksin','grooming','umum'];
+        }
         if($result['status'] == 200){ 
-            $data = orderservice::where('partner_user_id','like', $result['body']['user_id'])->where('order_id','like','%'.$orderId.'%')->where('type','like','%'.$type.'%')->where('service','like','%'.$service.'%')->where('status','like','%'.$status.'%')->orderBy('booking_date','ASC');
+            $data = orderservice::where('partner_user_id','like', $result['body']['user_id'])
+            ->where('orderservices.order_id','like','%'.$orderId.'%')
+            ->where('type','like','%'.$type.'%')
+            ->where('service','like','%'.$service.'%')
+            ->where('status','like','%'.$status.'%')
+            ->orderBy('booking_date','ASC');
             $result=[];
                 
             foreach($data->limit($limit)->offset($page)->get() as $arr){
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
-                    'service'=>$arr['service'],
+                    'service'=>order_detail::where('order_id','like','%'.$arr['order_id'].'%')->select('service_name')->get(),
                     'service_id'=>$arr['service_id'],
                     'pet_id'=>$arr['pet_id'],
                     'type'=>$arr['type'],
@@ -1233,7 +1288,7 @@ class OrderserviceController extends Controller
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
-                    'service'=>$arr['service'],
+                    'service'=>order_detail::where('order_id','like','%'.$arr['order_id'].'%')->select('service_name')->get(),
                     'service_id'=>$arr['service_id'],
                     'type'=>$arr['type'],
                     'pet_id'=>$arr['pet_id'],
@@ -1303,7 +1358,7 @@ class OrderserviceController extends Controller
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
-                    'service'=>$arr['service'],
+                    'service'=>order_detail::where('order_id','like','%'.$arr['order_id'].'%')->select('service_name')->get(),
                     'service_id'=>$arr['service_id'],
                     'pet_id'=>$arr['pet_id'],
                     'status'=>$arr['status'],
