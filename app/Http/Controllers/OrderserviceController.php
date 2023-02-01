@@ -1247,6 +1247,7 @@ class OrderserviceController extends Controller
             ->where('users.id','like', $result['body']['user_id'])
             ->where('orderservices.type','not like','wallet')
             ->wherein('orderservices.status',$status)
+            ->groupby('orderservices.order_id')
             ->orderbyraw(
                 "case
                 when order_details.service_name = 'vidcall' then 1
