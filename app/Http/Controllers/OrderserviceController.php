@@ -657,7 +657,7 @@ class OrderserviceController extends Controller
             'id' => $data->value('id'),
             'order_id'=>$data->value('order_id'),
             'type'=>$data->value('type'),
-            'service'=>order_detail::where('order_id','like',$data->value('order_id'))->select('service_name')->get(),
+            'service'=>order_detail::where('order_id','like',$data->value('order_id'))->get(),
             'service_id'=>$data->value('service_id'),
             'video_call_detail'=>$vcDetail,
             'pet_id'=>$data->value('pet_id'),
