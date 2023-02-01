@@ -385,6 +385,7 @@ class OrderserviceController extends Controller
         $type = $request->type;
         $service = $request->service;
         $status = $request->status;
+    
         if($request->limit==NULL){
             $limit = 10;
         } else{
@@ -396,21 +397,21 @@ class OrderserviceController extends Controller
         } else{
             $page = ($request->page - 1) * $limit;
         }
-       
-        if($service==NULL){
-            $service = ['umum','vaksin','grooming'];
-        }
 
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
 
+        if($service == NULL){
+            $service = ['grooming','umum','vaksin'];
+        }
+
         if($result['status'] == 200){
-            $data = orderservice::where('order_id','like','%'.$orderId.'%')
-            ->join('order_details','orderservices.order_id','=','order_details.order_id')
-            ->where('type','like','%'.$type.'%')
-            ->wherein('order_details.service_name',$service)
-            ->where('status','like','%'.$status.'%')
-            ->where('partner_user_id','like','%'.$partner_id.'%');
+            // $data = orderservice::where('order_id','like','%'.$orderId.'%')
+            // ->join('order_details','orderservices.order_id','=','order_details.order_id')
+            // ->where('type','like','%'.$type.'%')
+            // ->wherein('order_details.service_name',$service)
+            // ->where('status','like','%'.$status.'%')
+            // ->where('partner_user_id','like','%'.$partner_id.'%');
 
             $data = orderservice::where('users_ids','like', $result['body']['user_id'])
             ->join('order_details','orderservices.order_id','=','order_details.order_id')
@@ -419,6 +420,7 @@ class OrderserviceController extends Controller
             ->wherein('order_details.service_name',$service)
             ->where('status','like','%'.$status.'%')
             ->orderBy('created_at','DESC');
+
             $result=[];
             
             foreach($data->limit($limit)->offset($page)->get() as $arr){
@@ -427,10 +429,11 @@ class OrderserviceController extends Controller
                 } else{
                     $payment_allowed = couponservice::where('coupon_name',$data->value('coupon_name'))->value('allowed_payment');
                 }
+            
                 $method = array(
                     'id' => $arr['id'],
                     'order_id'=>$arr['order_id'],
-                    'service'=>order_detail::where('order_id','like',$orderId)->select('service_name')->get(),
+                    'service'=>order_detail::where('order_id','like',$arr['order_id'])->select('service_name')->get(),
                     'service_id'=>$arr['service_id'],
                     'clinic_id'=>$arr['clinic_id'],
                     'pet_id'=>$arr['pet_id'],
@@ -597,7 +600,7 @@ class OrderserviceController extends Controller
             ];
         }
 
-        if($data->value('service') == 'vidcall'){
+        if(order_detail::where('order_id','like','%'.$orderId.'%')->select('service_name')->get() == 'vidcall'){
             $detail = vidcalldetail::where('booking_id','like',$data->value('order_id'));
             $vcDetail = [
                 'status'=>$detail->value('status'),
@@ -617,7 +620,7 @@ class OrderserviceController extends Controller
             $is_rating = false;
         }
 
-        $pawlycheck = order_detail::where('order_id','like',$orderId)->wherenotin('service',['pawly_credit'])->get();
+        $pawlycheck = order_detail::where('order_id','like',$orderId)->where('service_name','not like','pawly_credit')->get();
 
         if($data->value('status') == 'ORDER_COMPLATE' && $is_rating == false &&  $pawlycheck->count()!=0){
             $can_rating = true;
@@ -654,7 +657,7 @@ class OrderserviceController extends Controller
             'id' => $data->value('id'),
             'order_id'=>$data->value('order_id'),
             'type'=>$data->value('type'),
-            'service'=>order_detail::where('order_id',$data->value('order_id'))->select('service_name'),
+            'service'=>order_detail::where('order_id','like',$data->value('order_id'))->select('service_name')->get(),
             'service_id'=>$data->value('service_id'),
             'video_call_detail'=>$vcDetail,
             'pet_id'=>$data->value('pet_id'),
@@ -1013,7 +1016,7 @@ class OrderserviceController extends Controller
             ->where('partner_user_id','like', $result['body']['user_id'])
             ->where('orderservices.order_id','like','%'.$orderId.'%')
             ->where('type','like','%'.$type.'%')
-            ->wherein('order_details.service_name','like','%'.$service.'%')
+            ->wherein('order_details.service_name','like',$service)
             ->where('orderservices.status','like','%'.$status.'%')
             ->where('booking_date','like','%'.$date.'%')
             ->orderBy('booking_date','ASC');
@@ -1108,7 +1111,7 @@ class OrderserviceController extends Controller
             $data = orderservice::where('partner_user_id','like', $result['body']['user_id'])
             ->where('orderservices.order_id','like','%'.$orderId.'%')
             ->where('type','like','%'.$type.'%')
-            ->where('service','like','%'.$service.'%')
+            ->wherein('service','like',$service)
             ->where('status','like','%'.$status.'%')
             ->orderBy('booking_date','ASC');
             $result=[];
@@ -1239,15 +1242,16 @@ class OrderserviceController extends Controller
             }
 
             $data = orderservice::join('users','orderservices.users_ids','=','users.id')
+            ->join('order_details','orderservices.order_id','=','order_details.order_id')
             ->select('users.*','orderservices.*')
             ->where('users.id','like', $result['body']['user_id'])
             ->where('orderservices.type','not like','wallet')
             ->wherein('orderservices.status',$status)
             ->orderbyraw(
                 "case
-                when orderservices.service = 'vidcall' then 1
-                when orderservices.service = 'chat' then 2
-                when orderservices.service = 'offline' then 3
+                when order_details.service_name = 'vidcall' then 1
+                when order_details.service_name = 'chat' then 2
+                when order_details.service_name = 'offline' then 3
                 end asc"
             );
             
