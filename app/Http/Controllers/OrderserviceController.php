@@ -877,7 +877,11 @@ class OrderserviceController extends Controller
                     'partnerDetail' => $orderDetail['results']['partner_detail'],
                 ];
                 $this->mailServer->InvoicePaymentSuccessCusttomer($details);
-                $chat = "Hallo, ".$orderDetail['partner_detail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$orderDetail['user_detail']['nickname']."\nBooking Service : ".$orderDetail['type']." - ".$orderDetail['service']."\nBooking Code : ".$orderDetail['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
+                $serviceData=[];
+                        foreach($details['service'] as $service){ 
+                            array_push($serviceData,$service['service_name']);
+                        };
+                        $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ". implode(" ",$serviceData)  ."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
 
                 $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
                 $this->socket->update_order($invoice, $orderDetail['results']['status'],$orderDetail['results']['users_ids'],$orderDetail['results']['partner_user_id']);
