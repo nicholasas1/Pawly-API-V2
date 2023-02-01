@@ -321,7 +321,7 @@ class OrderserviceController extends Controller
         }
         
         if($service==NULL){
-            $service = ['umum','vaksin','grooming'];
+            $service = ['grooming','umum','vaksin','vidcall','chat','offline'];
         }
 
         $data = orderservice::where('order_id','like','%'.$orderId.'%')
@@ -402,7 +402,7 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
 
         if($service == NULL){
-            $service = ['grooming','umum','vaksin'];
+            $service = ['grooming','umum','vaksin','vidcall','chat','offline'];
         }
 
         if($result['status'] == 200){
@@ -493,7 +493,7 @@ class OrderserviceController extends Controller
         }
         
         if($service==NULL){
-            $service = ['umum','vaksin','grooming'];
+            $service = ['grooming','umum','vaksin','vidcall','chat','offline'];
         }
         
         $token = $request->header("Authorization");
@@ -1005,7 +1005,7 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         
         if($service==NULL){
-            $service = ['grooming','vaksin','umum'];
+            $service = ['grooming','umum','vaksin','vidcall','chat','offline'];
         }
         if($result['status'] == 200){ 
             $data = orderservice::join('users','orderservices.users_ids','=','users.id')
@@ -1105,7 +1105,7 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
     
         if($service==NULL){
-            $service = ['vaksin','grooming','umum'];
+            $service = ['grooming','umum','vaksin','vidcall','chat','offline'];
         }
         if($result['status'] == 200){ 
             $data = orderservice::where('partner_user_id','like', $result['body']['user_id'])
@@ -1238,7 +1238,7 @@ class OrderserviceController extends Controller
             if($mode=='PAST'){
                 $status = ['ORDER_COMPLATE'];
             } else if($mode=='UPCOMING'){
-               $status = ['PENDING_PAYMENT','BOOKING RESERVED'];
+               $status = ['BOOKING RESERVED'];
             }
 
             $data = orderservice::join('users','orderservices.users_ids','=','users.id')
@@ -1341,7 +1341,7 @@ class OrderserviceController extends Controller
             if($mode=='PAST'){
                 $status = ['ORDER_COMPLATE'];
             } else if($mode=='UPCOMING'){
-               $status = ['PENDING_PAYMENT','BOOKING RESERVED'];
+               $status = ['BOOKING RESERVED'];
             }
 
             $data = orderservice::join('users','orderservices.users_ids','=','users.id')
