@@ -19,7 +19,7 @@ class CouponserviceController extends Controller
     public function validate_coupon(request $request){
         $token = $request->header("Authorization");
         $result = $this->JWTValidator->validateToken($token);
-        $response =  $this->coupon_service($request->coupon_name, $result['body']['user_id'],$request->service,$request->price);
+        $response =  $this->coupon_service($request->coupon_name, $result['body']['user_id'],$request->service);
 
         if($result['status'] == 200){
             return $response;
@@ -28,7 +28,7 @@ class CouponserviceController extends Controller
         }
     }
 
-    public function coupon_service($coupon_name,$user_id,$service,$price){
+    public function coupon_service($coupon_name,$user_id,$service){
         $coupon = couponservice::where('coupon_name',$coupon_name)->where('coupon_service',$service);
 
         if($coupon->count()==0){
@@ -44,6 +44,10 @@ class CouponserviceController extends Controller
                 $timestamp = Carbon::parse($date)->timestamp;
                 $coupon_end_timestamp = Carbon::parse($coupon->value('end_date_time'))->timestamp;
                 $coupon_start_timestamp = Carbon::parse($coupon->value('start_date_time'))->timestamp;
+                $price = 0;
+                foreach($service as $serv){
+                    $price += $price + $service['order_price'];
+                }
                 if($date>$coupon_end_timestamp||$date<$coupon_start_timestamp){
                     return response()->JSON([
                         'status' => 'error',
