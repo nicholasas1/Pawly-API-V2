@@ -746,7 +746,7 @@ class OrderserviceController extends Controller
                         $details = [
                             'user_detail' =>$orderDetail['results']['user_detail'],
                             'order_id' =>$orderDetail['results']['order_id'],
-                            'service' => orderservice::where('order_id','like','%'.$orderId.'%')->select('service_name')->get(),
+                            'service' => order_detail::where('order_id','like','%'.$orderId.'%')->select('service_name')->get(),
                             'type' => $orderDetail['results']['type'],
                             'booking_date' => $orderDetail['results']['booking_date'],
                             'total_price' => $orderDetail['results']['total'],
