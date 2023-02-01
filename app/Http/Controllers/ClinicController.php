@@ -11,7 +11,7 @@ use App\Models\clinic_op_cl;
 use App\Http\Controllers\JWTValidator;
 use App\Models\clinic_schedule;
 use App\Models\clinic_service;
-use App\Models\clinic_schedule_time;
+use App\Models\clinic_schedule_clock;
 use App\Models\doctor;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -161,6 +161,20 @@ class ClinicController extends Controller
 				'msg' => 'can only register once'
 			]);
 		} else{
+			if(filter_var($request->clinic_photo, FILTER_VALIDATE_URL) === FALSE){
+
+				$image_parts = explode(";base64,", $request->profile_picture);
+				$image_type_aux = explode("image/", $image_parts[0]);
+				$image_type = $image_type_aux[1];
+				$image_base64 = base64_decode($image_parts[1]);
+				$file = uniqid() . '.'.$image_type;
+		
+				file_put_contents(env('Folder_APP').$file, $image_base64);
+				$picture = env('IMAGE_URL') . $file;
+				
+			}else{
+				$picture = $request->clinic_photo;
+			}
 		$query = clinic::insert([
 			'user_id' => $request->user_id,
 			'clinic_name' => $request->clinic_name,
@@ -168,7 +182,7 @@ class ClinicController extends Controller
 			'lat' => $request->lat,
 			'long' => $request->long,
 			'address' => $request->address,
-			'clinic_photo' => $request->clinic_photo,
+			'clinic_photo' => $picture,
 			'worked_since' => $request->worked_since,
 		]);
 		$clinic_id = clinic::where('user_id',$request->user_id)->value('id');
@@ -378,38 +392,69 @@ class ClinicController extends Controller
 		$page = ($request->page - 1) * $limit;
 	}
 
-	$query = clinic::leftjoin('clinic_doctors','clinics.id','=','clinic_doctors.clinic_id')
-			->select('clinic_doctors.clinic_id','clinic_doctors.doctor_id','clinics.*');
+	if($request->order == 'a-z'){
+		$order = "clinic_name";
+		$order_val = "ASC";
+	}else if($request->order == 'z-a'){
+		$order = "clinic_name";
+		$order_val = "DESC";
+	}else if($request->order == 'distance'){
+		$order = "distance";
+		$order_val = "ASC";
+	}else{
+		$order = "clinic_name";
+		$order_val = "ASC";
+	}
+
+	if($request->lat==NULL||$request->long==NULL){
+		$lat = "-6.171782389823256";
+		$long = "106.82628043498254";
+	} else{
+		$lat = $request->lat;
+		$long = $request->long;
+	}
+
+	$today = Carbon::now()->dayName;
+
+	if($request->service==NULL){
+		$service = ['grooming','vaksin'];
+	} else{
+		$service = $request->service;
+	}
+	
+	$clinic = DB::table('clinics')
+				->join('clinic_op_cls','clinics.id','=','clinic_op_cls.clinic_id')
+				->join('clinic_services','clinics.id','=','clinic_services.clinic_id')
+				->select('clinics.*','clinics.id as clinic_id','clinic_op_cls.*','clinic_services.*','clinic_op_cls.status as open_status','clinic_services.status as servstatus', DB::raw(" (((acos(sin(('".$lat."'*pi()/180)) * sin((`lat`*pi()/180))+cos(('".$lat."'*pi()/180)) * cos((`lat`*pi()/180)) * cos((('".$long."'- `long`)*pi()/180))))*180/pi())*60*1.1515) AS distance"))
+				->groupby('clinics.id')
+				->where('clinic_op_cls.day','like',$today)
+				->where('clinic_name','like','%'.$request->name.'%')
+				->wherein('clinic_services.service',$service)
+				->orderBy($order,$order_val);
 
 	$arr = [];
 	$result = [];
 
-	foreach($query->limit($limit)->offset($page)->get() as $queries){
+	foreach($clinic->limit($limit)->offset($page)->get() as $queries){
+		$ratings = ratings::where('clinic_ids',$queries->clinic_id);
 		$arr = [
-		'id' => $queries->id,
-		'clinic_name' => $queries->clinic_name,
-		'address' => $queries->address,
-		'longtitude' => $queries->long,
-		'latitude' => $queries->lat,
-		'description' => $queries->description,
-		'photo_profile' => $queries->clinic_photo,
+			'id' => $queries->clinic_id,
+			'clinic_name' => $queries->clinic_name,
+			'address' => $queries->address,
+			'latitude' => $queries->lat,
+			'longtitude' => $queries->long,
+			'description' => $queries->description,
+			'profile_picture' => $queries->clinic_photo,
+			'service' => clinic_service::where('clinic_id','like',$queries->clinic_id)->get(),
+			'open_status' => $queries->open_status,
+			'opening_hour' => $queries->opening_hour,
+			'closing_hour' => $queries->close_hour,
+			'total_review' => $ratings->count(),
+			'rating' => round($ratings->avg('ratings'),1),
+			'floor_rating' => floor($ratings->avg('ratings'))
 		];
-
 		array_push($result,$arr);
 	}
-
-	// $arr = [
-	// 	'id' => $query->value('clinics.id'),
-	// 	'clinic_name' => $query->value('clinics.clinic_name'),
-	// 	'address' => $query->value('clinics.address'),
-	// 	'longtitude' => $query->value('long'),
-	// 	'latitude' => $query->value('lat'),
-	// 	'description' => $query->value('description'),
-	// 	'photo_profile' => $query->value('clinic_photo'),
-	// 	'opening_hour' => $query->value('opening_hour'),
-	// 	'close_hour' => $query->value('close_hour'),
-	// ];
-		
 	return response()->JSON([
 		'status' => 'success',
 		'results' => $result
@@ -585,6 +630,18 @@ class ClinicController extends Controller
 	
 	}
 
+	public function checkschedule($booking_date,$booking_time,$clinic_id){
+		$query = clinic_schedule::where('clinic_id', $clinic_id)->where('day',  Carbon::parse($booking_date)->dayName)->get();
+		$check = orderservice::where('service_id',$clinic_id)->where('booking_date','LIKE',$booking_date)->where('booking_time','LIKE',$booking_time)->get();
+		$clinictime = clinic_schedule_clock::where('schedule_id',$query->value('id'))->where('start_hour',$booking_time)->get();
+		if($clinictime->count()==1&&$check->count()>0){
+			$result = 'NOT AVAIABLE';
+		} else{
+			$result = "AVAIABLE";
+		}
+		return $result;
+	}
+
 	public function getDetailSchedule(request $request){
 		if($request->limit==NULL){
 			$limit = 10;
@@ -607,9 +664,9 @@ class ClinicController extends Controller
 
 		foreach($query->limit($limit)->offset($page)->get() as $queries){
 			$doctorDetail = doctor::where('id',$queries->doctor_id)->get();
-			$orderCheck = orderservice::where('service_id',$request->id)->where('booking_date','LIKE',$request->date);
+			$orderCheck = orderservice::where('service_id',$request->id)->where('booking_date','LIKE',$request->date)->where('status','NOT LIKE','BOOKING_CANCEL');
 			$result2 = [];
-			foreach(clinic_schedule_time::where('schedule_id',1)->get() as $ClinicTIme){	
+			foreach(clinic_schedule_clock::where('schedule_id',$queries->id)->get() as $ClinicTIme){	
 				if($orderCheck->count()>0){
 					foreach($orderCheck->get() as $orderCheck){	
 						if($orderCheck['booking_time'] == $ClinicTIme['start_hour']){
@@ -662,7 +719,7 @@ class ClinicController extends Controller
 
 		return response()->JSON([
 			'status' => 'success',
-			'results' =>  $result
+			'results' => $result
 		]);
 	
 	}
