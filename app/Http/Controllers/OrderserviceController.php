@@ -758,12 +758,12 @@ class OrderserviceController extends Controller
                         foreach($details['service'] as $service){ 
                             array_push($serviceData,$service['service_name']);
                         };
-                        $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ". implode(" ",$serviceData)  ."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
+                        $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ". implode(" ,",$serviceData)  ."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
 
                         $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
                         $this->socket->update_order($orderId, $orderDetail['results']['status'],$orderDetail['results']['users_ids'],$orderDetail['results']['partner_user_id']);
                
-                        //$this->prosesOrder($orderId);
+                        $this->prosesOrder($orderId);
                     }
                     return response()->JSON([
                         'status' => 'success',
@@ -910,7 +910,7 @@ class OrderserviceController extends Controller
         $query = orderservice::where('order_id','like',$order_id);
 
         if($query->value('type')== 'doctor'){
-            foreach(order_detail::where('order_id','like','%'.$orderId.'%')->get() as $order_detail){
+            foreach(order_detail::where('order_id','like','%'.$order_id.'%')->get() as $order_detail){
                 if( $order_detail['service_name'] == 'vidcall'){
                     $this->createVcLink();
                 }
