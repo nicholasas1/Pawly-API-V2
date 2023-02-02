@@ -912,7 +912,7 @@ class OrderserviceController extends Controller
         if($query->value('type')== 'doctor'){
             foreach(order_detail::where('order_id','like','%'.$order_id.'%')->get() as $order_detail){
                 if( $order_detail['service_name'] == 'vidcall'){
-                    $this->createVcLink();
+                    $this->createVcLink($order_id);
                 }
             }
            
@@ -926,14 +926,14 @@ class OrderserviceController extends Controller
     }
 
        
-    public function createVcLink(request $request){
-        $query2 = orderservice::where('order_id','like',$request->order_id);
+    public function createVcLink($order_id){
+        $query2 = orderservice::where('order_id','like',$order_id);
         $url = env('Whereby_URL');
         $newDateTime = Carbon::now()->addMinute(20)->toISOString();
         //$timestamp = Carbon::now()->timestamp;
         $data = array(
                 'isLocked' => false,
-                'roomNamePrefix' =>  $request->order_id,
+                'roomNamePrefix' =>  $order_id,
                 'roomNamePattern' => 'uuid',
                 'roomMode' => 'normal',
                 'endDate' => $newDateTime,
@@ -960,7 +960,7 @@ class OrderserviceController extends Controller
         ])->post($url, $data);
         $saveddata = $response->json();
         $query = vidcalldetail::insert([
-            'booking_id' =>  $request->order_id, 
+            'booking_id' =>  $order_id, 
             'link_partner' =>  $saveddata['hostRoomUrl'] ,
             'link_user' => $saveddata['roomUrl'],
             'session_done_until' => strtotime($saveddata['endDate']),
