@@ -763,7 +763,7 @@ class OrderserviceController extends Controller
                         $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
                         $this->socket->update_order($orderId, $orderDetail['results']['status'],$orderDetail['results']['users_ids'],$orderDetail['results']['partner_user_id']);
                
-                        $this->prosesOrder($orderId);
+                        //$this->prosesOrder($orderId);
                     }
                     return response()->JSON([
                         'status' => 'success',
@@ -910,9 +910,12 @@ class OrderserviceController extends Controller
         $query = orderservice::where('order_id','like',$order_id);
 
         if($query->value('type')== 'doctor'){
-            if($query->value('service')== 'vidcall'){
-                //$this->createVcLink();
+            foreach(order_detail::where('order_id','like','%'.$orderId.'%')->get() as $order_detail){
+                if( $order_detail['service_name'] == 'vidcall'){
+                    $this->createVcLink();
+                }
             }
+           
         }else if($query->value('type')== 'wallet'){
             $this->wallet->AddAmmount($query->value('users_ids'),$query->value('total'),null,'pawly_credit','Top Up Saldo '.$order_id);
             $query->update([
