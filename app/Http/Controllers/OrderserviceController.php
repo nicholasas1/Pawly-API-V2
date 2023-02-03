@@ -321,7 +321,7 @@ class OrderserviceController extends Controller
         }
         
         if($service==NULL){
-            $service = ['umum','vaksin','grooming'];
+            $service = ['grooming','umum','vaksin','vidcall','chat','offline'];
         }
 
         $data = orderservice::where('order_id','like','%'.$orderId.'%')
@@ -402,7 +402,7 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
 
         if($service == NULL){
-            $service = ['grooming','umum','vaksin'];
+            $service = ['grooming','umum','vaksin','vidcall','chat','offline'];
         }
 
         if($result['status'] == 200){
@@ -493,7 +493,7 @@ class OrderserviceController extends Controller
         }
         
         if($service==NULL){
-            $service = ['umum','vaksin','grooming'];
+            $service = ['grooming','umum','vaksin','vidcall','chat','offline'];
         }
         
         $token = $request->header("Authorization");
@@ -657,7 +657,7 @@ class OrderserviceController extends Controller
             'id' => $data->value('id'),
             'order_id'=>$data->value('order_id'),
             'type'=>$data->value('type'),
-            'service'=>order_detail::where('order_id','like',$data->value('order_id'))->select('service_name')->get(),
+            'service'=>order_detail::where('order_id','like',$data->value('order_id'))->get(),
             'service_id'=>$data->value('service_id'),
             'video_call_detail'=>$vcDetail,
             'pet_id'=>$data->value('pet_id'),
@@ -746,7 +746,7 @@ class OrderserviceController extends Controller
                         $details = [
                             'user_detail' =>$orderDetail['results']['user_detail'],
                             'order_id' =>$orderDetail['results']['order_id'],
-                            'service' => $orderDetail['results']['service'],
+                            'service' => order_detail::where('order_id','like','%'.$orderId.'%')->select('service_name')->get(),
                             'type' => $orderDetail['results']['type'],
                             'booking_date' => $orderDetail['results']['booking_date'],
                             'total_price' => $orderDetail['results']['total'],
@@ -754,7 +754,11 @@ class OrderserviceController extends Controller
                             'partnerDetail' => $orderDetail['results']['partner_detail'],
                         ];
                         $this->mailServer->InvoicePaymentSuccessCusttomer($details);
-                        $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ".$details['service']."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
+                        $serviceData=[];
+                        foreach($details['service'] as $service){ 
+                            array_push($serviceData,$service['service_name']);
+                        };
+                        $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ". implode(" ,",$serviceData)  ."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
 
                         $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
                         $this->socket->update_order($orderId, $orderDetail['results']['status'],$orderDetail['results']['users_ids'],$orderDetail['results']['partner_user_id']);
@@ -865,7 +869,7 @@ class OrderserviceController extends Controller
                 $details = [
                     'user_detail' =>$orderDetail['results']['user_detail'],
                     'order_id' =>$orderDetail['results']['order_id'],
-                    'service' => $orderDetail['results']['service'],
+                    'service' => order_detail::where('order_id','like','%'.$orderId.'%')->select('service_name')->get(),
                     'type' => $orderDetail['results']['type'],
                     'booking_date' => $orderDetail['results']['booking_date'],
                     'total_price' => $orderDetail['results']['total'],
@@ -873,7 +877,11 @@ class OrderserviceController extends Controller
                     'partnerDetail' => $orderDetail['results']['partner_detail'],
                 ];
                 $this->mailServer->InvoicePaymentSuccessCusttomer($details);
-                $chat = "Hallo, ".$orderDetail['partner_detail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$orderDetail['user_detail']['nickname']."\nBooking Service : ".$orderDetail['type']." - ".$orderDetail['service']."\nBooking Code : ".$orderDetail['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
+                $serviceData=[];
+                        foreach($details['service'] as $service){ 
+                            array_push($serviceData,$service['service_name']);
+                        };
+                        $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ". implode(" ",$serviceData)  ."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
 
                 $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
                 $this->socket->update_order($invoice, $orderDetail['results']['status'],$orderDetail['results']['users_ids'],$orderDetail['results']['partner_user_id']);
@@ -902,9 +910,12 @@ class OrderserviceController extends Controller
         $query = orderservice::where('order_id','like',$order_id);
 
         if($query->value('type')== 'doctor'){
-            if($query->value('service')== 'vidcall'){
-                //$this->createVcLink();
+            foreach(order_detail::where('order_id','like','%'.$order_id.'%')->get() as $order_detail){
+                if( $order_detail['service_name'] == 'vidcall'){
+                    $this->createVcLink($order_id);
+                }
             }
+           
         }else if($query->value('type')== 'wallet'){
             $this->wallet->AddAmmount($query->value('users_ids'),$query->value('total'),null,'pawly_credit','Top Up Saldo '.$order_id);
             $query->update([
@@ -915,14 +926,14 @@ class OrderserviceController extends Controller
     }
 
        
-    public function createVcLink(request $request){
-        $query2 = orderservice::where('order_id','like',$request->order_id);
+    public function createVcLink($order_id){
+        $query2 = orderservice::where('order_id','like',$order_id);
         $url = env('Whereby_URL');
         $newDateTime = Carbon::now()->addMinute(20)->toISOString();
         //$timestamp = Carbon::now()->timestamp;
         $data = array(
                 'isLocked' => false,
-                'roomNamePrefix' =>  $request->order_id,
+                'roomNamePrefix' =>  $order_id,
                 'roomNamePattern' => 'uuid',
                 'roomMode' => 'normal',
                 'endDate' => $newDateTime,
@@ -949,7 +960,7 @@ class OrderserviceController extends Controller
         ])->post($url, $data);
         $saveddata = $response->json();
         $query = vidcalldetail::insert([
-            'booking_id' =>  $request->order_id, 
+            'booking_id' =>  $order_id, 
             'link_partner' =>  $saveddata['hostRoomUrl'] ,
             'link_user' => $saveddata['roomUrl'],
             'session_done_until' => strtotime($saveddata['endDate']),
@@ -1005,7 +1016,7 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         
         if($service==NULL){
-            $service = ['grooming','vaksin','umum'];
+            $service = ['grooming','umum','vaksin','vidcall','chat','offline'];
         }
         if($result['status'] == 200){ 
             $data = orderservice::join('users','orderservices.users_ids','=','users.id')
@@ -1105,7 +1116,7 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
     
         if($service==NULL){
-            $service = ['vaksin','grooming','umum'];
+            $service = ['grooming','umum','vaksin','vidcall','chat','offline'];
         }
         if($result['status'] == 200){ 
             $data = orderservice::where('partner_user_id','like', $result['body']['user_id'])
@@ -1238,7 +1249,7 @@ class OrderserviceController extends Controller
             if($mode=='PAST'){
                 $status = ['ORDER_COMPLATE'];
             } else if($mode=='UPCOMING'){
-               $status = ['PENDING_PAYMENT','BOOKING RESERVED'];
+               $status = ['BOOKING RESERVED'];
             }
 
             $data = orderservice::join('users','orderservices.users_ids','=','users.id')
@@ -1247,6 +1258,7 @@ class OrderserviceController extends Controller
             ->where('users.id','like', $result['body']['user_id'])
             ->where('orderservices.type','not like','wallet')
             ->wherein('orderservices.status',$status)
+            ->groupby('orderservices.order_id')
             ->orderbyraw(
                 "case
                 when order_details.service_name = 'vidcall' then 1
@@ -1340,7 +1352,7 @@ class OrderserviceController extends Controller
             if($mode=='PAST'){
                 $status = ['ORDER_COMPLATE'];
             } else if($mode=='UPCOMING'){
-               $status = ['PENDING_PAYMENT','BOOKING RESERVED'];
+               $status = ['BOOKING RESERVED'];
             }
 
             $data = orderservice::join('users','orderservices.users_ids','=','users.id')
