@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\orderservice;
+use VXM\Async\AsyncFacade as Async;
 use App\Models\couponusages;
 use App\Models\couponservice;
 use App\Models\order_detail;
@@ -753,17 +754,18 @@ class OrderserviceController extends Controller
                             'total_payment' => $orderDetail['results']['subtotal'],
                             'partnerDetail' => $orderDetail['results']['partner_detail'],
                         ];
-                        $this->mailServer->InvoicePaymentSuccessCusttomer($details);
+                        
                         $serviceData=[];
                         foreach($details['service'] as $service){ 
                             array_push($serviceData,$service['service_name']);
                         };
                         $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ". implode(" ,",$serviceData)  ."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
+                        
+                        Async::run(Mail::to($details['user_detail']['email'])->queue(new \App\Mail\CustomerInvoicePendinngPayment($details)));
+                        Async::run($this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat));
+                        Async::run(json_encode(Http::get('https://socket-pawly.onrender.com/newOrder?order_id='.$orderId.'&status='.$orderDetail['results']['status'].'&id_user='.$orderDetail['results']['users_ids'].'&partner_user_id='.$orderDetail['results']['partner_user_id'])));
 
-                        $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
-                        $this->socket->update_order($orderId, $orderDetail['results']['status'],$orderDetail['results']['users_ids'],$orderDetail['results']['partner_user_id']);
-               
-                        $this->prosesOrder($orderId);
+                        // $this->prosesOrder($orderId);
                     }
                     return response()->JSON([
                         'status' => 'success',
@@ -876,16 +878,21 @@ class OrderserviceController extends Controller
                     'total_payment' => $orderDetail['results']['subtotal'],
                     'partnerDetail' => $orderDetail['results']['partner_detail'],
                 ];
-                $this->mailServer->InvoicePaymentSuccessCusttomer($details);
+            
                 $serviceData=[];
                         foreach($details['service'] as $service){ 
                             array_push($serviceData,$service['service_name']);
                         };
-                        $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ". implode(" ",$serviceData)  ."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
 
-                $wa = $this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat);
-                $this->socket->update_order($invoice, $orderDetail['results']['status'],$orderDetail['results']['users_ids'],$orderDetail['results']['partner_user_id']);
-
+                    $chat = "Hallo, ".$details['partnerDetail']['name']." , mau info Ada bookingan masuk dari PAWLY APP:\n\nNama : ".$details['user_detail']['nickname']."\nBooking Service : ".$details['type']." - ". implode(" ",$serviceData)  ."\nBooking Code : ".$details['order_id']."\n\nMohon dibantu proses ya kak, Terimakasih 🙏😊";
+                
+                    // Async::run($this->mailServer->InvoicePaymentSuccessCusttomer($details));
+                    // Async::run($this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat));
+                    // Async::run($this->socket->update_order($orderId, $orderDetail['results']['status'],$orderDetail['results']['users_ids'],$orderDetail['results']['partner_user_id']));
+                        
+                    Async::run(Mail::to($details['user_detail']['email'])->queue(new \App\Mail\CustomerInvoicePendinngPayment($details)));
+                        Async::run($this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat));
+                        Async::run(json_encode(Http::get('https://socket-pawly.onrender.com/newOrder?order_id='.$orderId.'&status='.$orderDetail['results']['status'].'&id_user='.$orderDetail['results']['users_ids'].'&partner_user_id='.$orderDetail['results']['partner_user_id'])));
                 $this->prosesOrder($invoice);
 
                 return response()->JSON([
