@@ -765,7 +765,7 @@ class OrderserviceController extends Controller
                         Async::run($this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat));
                         Async::run(json_encode(Http::get('https://socket-pawly.onrender.com/newOrder?order_id='.$orderId.'&status='.$orderDetail['results']['status'].'&id_user='.$orderDetail['results']['users_ids'].'&partner_user_id='.$orderDetail['results']['partner_user_id'])));
 
-                        // $this->prosesOrder($orderId);
+                        $this->prosesOrder($orderId);
                     }
                     return response()->JSON([
                         'status' => 'success',
@@ -891,8 +891,9 @@ class OrderserviceController extends Controller
                     // Async::run($this->socket->update_order($orderId, $orderDetail['results']['status'],$orderDetail['results']['users_ids'],$orderDetail['results']['partner_user_id']));
                         
                     Async::run(Mail::to($details['user_detail']['email'])->queue(new \App\Mail\CustomerInvoicePendinngPayment($details)));
-                        Async::run($this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat));
-                        Async::run(json_encode(Http::get('https://socket-pawly.onrender.com/newOrder?order_id='.$orderId.'&status='.$orderDetail['results']['status'].'&id_user='.$orderDetail['results']['users_ids'].'&partner_user_id='.$orderDetail['results']['partner_user_id'])));
+                    Async::run($this->whatsapp->sendWaText($details['partnerDetail']['phone_number'], $chat));
+                    Async::run(json_encode(Http::get('https://socket-pawly.onrender.com/newOrder?order_id='.$orderId.'&status='.$orderDetail['results']['status'].'&id_user='.$orderDetail['results']['users_ids'].'&partner_user_id='.$orderDetail['results']['partner_user_id'])));
+                    
                 $this->prosesOrder($invoice);
 
                 return response()->JSON([
