@@ -1287,8 +1287,9 @@ class OrderserviceController extends Controller
                     $avgratings = round($ratings->avg('ratings'));
                     $jmlhreview = ratings::where('doctors_ids',$arr['service_id'])->count();
                 }
-                $userDetail = doctor::where('id',$arr['service_id']);
+                
                 if($arr['type'] == 'doctor'){
+                    $userDetail = doctor::where('id',$arr['service_id']);
                     $partnerDetail=[
                         'users_ids'=>$arr['partner_user_id'],
                         'partner_name'=>$userDetail->value('doctor_name'),
@@ -1298,10 +1299,11 @@ class OrderserviceController extends Controller
                         'total_review' => $jmlhreview
                     ];
                 }else if($arr['type'] == 'clinic'){
+                    $userDetail = clinic::where('id',$arr['service_id']);
                     $partnerDetail=[
                         'users_ids'=>$arr['partner_user_id'],
-                        'partner_name'=>$userDetail->value('doctor_name'),
-                        'profile_picture'=> $userDetail->value('profile_picture'),
+                        'partner_name'=>$userDetail->value('clinic_name'),
+                        'profile_picture'=> $userDetail->value('clinic_photo'),
                         'address'=> $userDetail->value('address'),
                         'rating' => $avgratings,
                         'total_review' => $jmlhreview
