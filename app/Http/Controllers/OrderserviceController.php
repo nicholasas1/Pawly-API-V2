@@ -1278,6 +1278,12 @@ class OrderserviceController extends Controller
             ->groupby('orderservices.order_id')
             ->orderbyraw(
                 "case
+                when orderservices.type = 'doctor' then 1
+                when orderservices.type = 'clinic' then 2
+                end asc"
+            )
+            ->orderbyraw(
+                "case
                 when order_details.service_name = 'vidcall' then 1
                 when order_details.service_name = 'chat' then 2
                 when order_details.service_name = 'offline' then 3
@@ -1379,6 +1385,12 @@ class OrderserviceController extends Controller
             ->where('users.id','like', $result['body']['user_id'])
             ->where('orderservices.type','not like','wallet')
             ->wherein('orderservices.status',$status)
+            ->orderbyraw(
+                "case
+                when orderservices.type = 'doctor' then 1
+                when orderservices.type = 'clinic' then 2
+                end asc"
+            )
             ->orderbyraw(
                 "case
                 when orderservices.service = 'vidcall' then 1
