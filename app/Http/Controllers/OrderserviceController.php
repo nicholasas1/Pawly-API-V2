@@ -590,7 +590,17 @@ class OrderserviceController extends Controller
                 'phone_number'=>User::where('id','like', $detail->value('users_ids'))->value('phone_number'),
                 'address' => $detail->value('address')
             ];
-        }else  if($data->value('type') == 'wallet'){
+        }else if($data->value('type') == 'clinic'){
+            $detail = clinic::where('id','like',$data->value('service_id'));
+            $res = [
+                'account_id' => $detail->value('user_id'),
+                'id'=>$detail->value('id'),
+                'name'=>$detail->value('clinic_name'),
+                'profile_picture'=>$detail->value('clinic_photo'),
+                'phone_number'=>User::where('id','like', $detail->value('user_id'))->value('phone_number'),
+                'address' => $detail->value('address')
+            ];
+        }else if($data->value('type') == 'wallet'){
             $res = [
                 'account_id' => '',
                 'id'=>'',
@@ -754,7 +764,6 @@ class OrderserviceController extends Controller
                             'total_payment' => $orderDetail['results']['subtotal'],
                             'partnerDetail' => $orderDetail['results']['partner_detail'],
                         ];
-                        
                         $serviceData=[];
                         foreach($details['service'] as $service){ 
                             array_push($serviceData,$service['service_name']);
@@ -935,7 +944,7 @@ class OrderserviceController extends Controller
 
        
     public function createVcLink($order_id){
-        $query2 = orderservice::where('order_id','like',$order_id);
+        
         $url = env('Whereby_URL');
         $newDateTime = Carbon::now()->addMinute(20)->toISOString();
         //$timestamp = Carbon::now()->timestamp;
@@ -976,7 +985,7 @@ class OrderserviceController extends Controller
             'status' => 'Active',
             'created_at' => Carbon::now()
         ]);
-        $query2->update([
+        $query2 = orderservice::where('order_id','like',$order_id)->update([
             'status' => 'ON_PROCESS',
             'updated_at' => Carbon::now()
         ]);
@@ -1269,6 +1278,12 @@ class OrderserviceController extends Controller
             ->groupby('orderservices.order_id')
             ->orderbyraw(
                 "case
+                when orderservices.type = 'doctor' then 1
+                when orderservices.type = 'clinic' then 2
+                end asc"
+            )
+            ->orderbyraw(
+                "case
                 when order_details.service_name = 'vidcall' then 1
                 when order_details.service_name = 'chat' then 2
                 when order_details.service_name = 'offline' then 3
@@ -1287,8 +1302,9 @@ class OrderserviceController extends Controller
                     $avgratings = round($ratings->avg('ratings'));
                     $jmlhreview = ratings::where('doctors_ids',$arr['service_id'])->count();
                 }
-                $userDetail = doctor::where('id',$arr['service_id']);
+                
                 if($arr['type'] == 'doctor'){
+                    $userDetail = doctor::where('id',$arr['service_id']);
                     $partnerDetail=[
                         'users_ids'=>$arr['partner_user_id'],
                         'partner_name'=>$userDetail->value('doctor_name'),
@@ -1298,10 +1314,11 @@ class OrderserviceController extends Controller
                         'total_review' => $jmlhreview
                     ];
                 }else if($arr['type'] == 'clinic'){
+                    $userDetail = clinic::where('id',$arr['service_id']);
                     $partnerDetail=[
                         'users_ids'=>$arr['partner_user_id'],
-                        'partner_name'=>$userDetail->value('doctor_name'),
-                        'profile_picture'=> $userDetail->value('profile_picture'),
+                        'partner_name'=>$userDetail->value('clinic_name'),
+                        'profile_picture'=> $userDetail->value('clinic_photo'),
                         'address'=> $userDetail->value('address'),
                         'rating' => $avgratings,
                         'total_review' => $jmlhreview
@@ -1368,6 +1385,12 @@ class OrderserviceController extends Controller
             ->where('users.id','like', $result['body']['user_id'])
             ->where('orderservices.type','not like','wallet')
             ->wherein('orderservices.status',$status)
+            ->orderbyraw(
+                "case
+                when orderservices.type = 'doctor' then 1
+                when orderservices.type = 'clinic' then 2
+                end asc"
+            )
             ->orderbyraw(
                 "case
                 when orderservices.service = 'vidcall' then 1
