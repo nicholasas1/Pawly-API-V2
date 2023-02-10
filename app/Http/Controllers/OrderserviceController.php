@@ -590,7 +590,17 @@ class OrderserviceController extends Controller
                 'phone_number'=>User::where('id','like', $detail->value('users_ids'))->value('phone_number'),
                 'address' => $detail->value('address')
             ];
-        }else  if($data->value('type') == 'wallet'){
+        }else if($data->value('type') == 'clinic'){
+            $detail = clinic::where('id','like',$data->value('service_id'));
+            $res = [
+                'account_id' => $detail->value('user_id'),
+                'id'=>$detail->value('id'),
+                'name'=>$detail->value('clinic_name'),
+                'profile_picture'=>$detail->value('clinic_photo'),
+                'phone_number'=>User::where('id','like', $detail->value('user_id'))->value('phone_number'),
+                'address' => $detail->value('address')
+            ];
+        }else if($data->value('type') == 'wallet'){
             $res = [
                 'account_id' => '',
                 'id'=>'',
@@ -754,7 +764,6 @@ class OrderserviceController extends Controller
                             'total_payment' => $orderDetail['results']['subtotal'],
                             'partnerDetail' => $orderDetail['results']['partner_detail'],
                         ];
-                        
                         $serviceData=[];
                         foreach($details['service'] as $service){ 
                             array_push($serviceData,$service['service_name']);
@@ -935,7 +944,7 @@ class OrderserviceController extends Controller
 
        
     public function createVcLink($order_id){
-        $query2 = orderservice::where('order_id','like',$order_id);
+        
         $url = env('Whereby_URL');
         $newDateTime = Carbon::now()->addMinute(20)->toISOString();
         //$timestamp = Carbon::now()->timestamp;
@@ -976,7 +985,7 @@ class OrderserviceController extends Controller
             'status' => 'Active',
             'created_at' => Carbon::now()
         ]);
-        $query2->update([
+        $query2 = orderservice::where('order_id','like',$order_id)->update([
             'status' => 'ON_PROCESS',
             'updated_at' => Carbon::now()
         ]);
