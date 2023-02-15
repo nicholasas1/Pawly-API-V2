@@ -8,6 +8,7 @@ use App\Models\couponusages;
 use App\Models\couponservice;
 use App\Models\order_detail;
 use Illuminate\Http\Request;
+use App\Models\clinic_doctor;
 use App\Http\Controllers\CouponserviceController;
 use ReallySimpleJWT\Token;
 use ReallySimpleJWT\Parse;
@@ -111,6 +112,7 @@ class OrderserviceController extends Controller
             ];
             if($type == 'doctor'){
                 $detail = doctor::where('id','like', $service_id);
+                $clinic_id = clinic_doctor::where('doctor_id','like',$service_id)->select('clinic_id')->get();
                 $res = [
                     'account_id' => $detail->value('users_ids'),
                     'id'=>$detail->value('id'),
@@ -120,6 +122,7 @@ class OrderserviceController extends Controller
                 ];
             }else if($type == 'clinic'){
                 $detail = clinic::where('id','like', $service_id);
+                $clinic_id = $service_id;
                 $checkschedule = $this->clinics->checkschedule($booking_date,$booking_time,$detail->value('id'));
                 if($checkschedule == 'NOT AVAIABLE' ){
                     return response()->JSON([
@@ -185,12 +188,15 @@ class OrderserviceController extends Controller
                 }
                 $discount = 0;
                 $subtotal = $total_price-$discount;
+                
                 $insertorderid = orderservice::where('id',$query)->update([
                     'order_Id' => $orderId,
                     'total' => $total_price,
                     'subtotal' => $subtotal,
-                    'diskon' => $discount
+                    'diskon' => $discount,
+                    'clinic_id' => $clinic_id
                 ]);
+                
                 $details = [
                     'user_detail' =>$user,
                     'order_id' =>$orderId,
@@ -253,13 +259,14 @@ class OrderserviceController extends Controller
                       array_push($serv,$temps);
                     $total_price = $total_price+$orderlist['order_price'];
                 }
-                $discount = 0;
+                $discount = $coupon_respond->value();
                 $subtotal = $total_price-$discount;
                 $insertorderid = orderservice::where('id',$query)->update([
                     'order_Id' => $orderId,
                     'total' => $total_price,
                     'subtotal' => $subtotal,
-                    'diskon' => $discount
+                    'diskon' => $discount,
+                    'clinic_id' => $clinic_id
                 ]);
                 $details = [
                     'user_detail' =>$user,

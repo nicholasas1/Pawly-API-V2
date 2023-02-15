@@ -290,4 +290,5 @@ Route::get('record/get-detail',[RekamMedisController::class,'get_record_detail']
 
 Route::post('record/changestatus',[RekamMedisController::class,'changestatus']);
 
+Route::post('clinic/adddoctor',[ClinicController::class,'clinicadddoctor']);
 // Route::post('send/wa',[whatsapp_notif::class,'sendWaText']);

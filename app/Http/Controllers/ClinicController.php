@@ -11,6 +11,7 @@ use App\Models\clinic_op_cl;
 use App\Http\Controllers\JWTValidator;
 use App\Models\clinic_schedule;
 use App\Models\clinic_service;
+use App\Models\User;
 use App\Models\clinic_schedule_clock;
 use App\Models\doctor;
 use Illuminate\Support\Facades\DB;
@@ -767,5 +768,23 @@ class ClinicController extends Controller
 		}
 	}
 
+	public function clinicadddoctor(request $request){
+		
+		$query = clinic_doctor::insert([
+			'clinic_id' => $request->clinic_id,
+			'doctor_id' => $request->doctor_id
+		]);
+
+		if($query==1){
+			return response()->JSON([
+				'status' => 'success'
+			]);
+		} else{
+			return response()->JSON([
+				'status' => 'error',
+				'msg' => ''
+			]);
+		}
+	}
 
 }
