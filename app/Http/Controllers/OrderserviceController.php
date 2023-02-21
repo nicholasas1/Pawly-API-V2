@@ -173,14 +173,14 @@ class OrderserviceController extends Controller
                 foreach($service as $orderlist){
                     if($orderlist['service_name']=='doc_consult'){
                         $detail = doctor::where('id','like', $doctor_id);
-                        $doct_consult = [
+                        $doc_consult = [
                             'account_id' => $detail->value('users_ids'),
                             'id'=>$detail->value('id'),
                             'name'=>$detail->value('doctor_name'),
                             'phone_number'=>User::where('id','like',$detail->value('users_ids'))->value('phone_number'),
                             'profile_picture'=>$detail->value('profile_picture')
                         ];
-                        array_push($res,$doct_consult);
+                        array_push($res,$doc_consult);
                     }
                     $orderinsert = order_detail::insert([
                         'order_id' => $orderId,
@@ -256,14 +256,14 @@ class OrderserviceController extends Controller
                 foreach($service as $orderlist){
                     if($orderlist['service_name']=='doc_consult'){
                         $detail = doctor::where('id','like', $doctor_id);
-                        $doct_consult = [
+                        $doc_consult = [
                             'account_id' => $detail->value('users_ids'),
                             'id'=>$detail->value('id'),
                             'name'=>$detail->value('doctor_name'),
                             'phone_number'=>User::where('id','like',$detail->value('users_ids'))->value('phone_number'),
                             'profile_picture'=>$detail->value('profile_picture')
                         ];
-                        array_push($res,$doct_consult);
+                        array_push($res,$doc_consult);
                     }
                     $orderinsert = order_detail::insert([
                         'order_id' => $orderId,
@@ -347,7 +347,7 @@ class OrderserviceController extends Controller
         }
         
         if($service==NULL){
-            $service = ['grooming','umum','vaksin','vidcall','chat','offline'];
+            $service = ['pet_shop','operasi','grooming','rawat_inap','hotel','house_call','umum','vaksin','doc_consult'];
         }
 
         $data = orderservice::where('order_id','like','%'.$orderId.'%')
@@ -428,7 +428,7 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
 
         if($service == NULL){
-            $service = ['grooming','umum','vaksin','vidcall','chat','offline'];
+            $service = ['pet_shop','operasi','grooming','rawat_inap','hotel','house_call','umum','vaksin','doc_consult'];
         }
 
         if($result['status'] == 200){
@@ -519,7 +519,7 @@ class OrderserviceController extends Controller
         }
         
         if($service==NULL){
-            $service = ['grooming','umum','vaksin','vidcall','chat','offline'];
+            $service = ['pet_shop','operasi','grooming','rawat_inap','hotel','house_call','umum','vaksin','doc_consult'];
         }
         
         $token = $request->header("Authorization");
@@ -1058,7 +1058,7 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
         
         if($service==NULL){
-            $service = ['grooming','umum','vaksin','vidcall','chat','offline'];
+            $service = ['pet_shop','operasi','grooming','rawat_inap','hotel','house_call','umum','vaksin','doc_consult'];
         }
         if($result['status'] == 200){ 
             $data = orderservice::join('users','orderservices.users_ids','=','users.id')
@@ -1158,7 +1158,7 @@ class OrderserviceController extends Controller
         $result = $this->JWTValidator->validateToken($token);
     
         if($service==NULL){
-            $service = ['grooming','umum','vaksin','vidcall','chat','offline'];
+            $service = ['pet_shop','operasi','grooming','rawat_inap','hotel','house_call','umum','vaksin','doc_consult'];
         }
         if($result['status'] == 200){ 
             $data = orderservice::where('partner_user_id','like', $result['body']['user_id'])
