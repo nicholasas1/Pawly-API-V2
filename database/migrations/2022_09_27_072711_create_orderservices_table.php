@@ -19,7 +19,7 @@ return new class extends Migration
             $table->char('pet_id',20)->nullable();
             $table->char('type',20)->nullable();
             $table->char('service_id',20)->nullable();
-            $table->char('clinic_id',20)->nullable();
+            $table->char('doctor_id',20)->nullable();
             $table->char('status',20)->nullable();
             $table->char('users_ids',20)->nullable();
             $table->char('total',20)->nullable();
