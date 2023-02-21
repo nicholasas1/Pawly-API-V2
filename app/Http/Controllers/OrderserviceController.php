@@ -68,7 +68,7 @@ class OrderserviceController extends Controller
             $price = $request->price;
             $coupon_name = $request->coupon;
             $service_id = $request->servid;
-            $clinic_id = $request->clinic_id;
+            $doctor_id = $request->doctor_id;
             $pet_id = $request->pet_id;
             $type = $request->type;
             $partner_user_id = $request->partner_user_id;
@@ -111,8 +111,7 @@ class OrderserviceController extends Controller
                     'phone_number'=>$user_detail->value('phone_number')
             ];
             if($type == 'doctor'){
-                $detail = doctor::where('id','like', $service_id);
-                $clinic_id = clinic_doctor::where('doctor_id','like',$service_id)->select('clinic_id')->get();
+                $detail = doctor::where('id','like', $doctor_id);
                 $res = [
                     'account_id' => $detail->value('users_ids'),
                     'id'=>$detail->value('id'),
@@ -159,7 +158,7 @@ class OrderserviceController extends Controller
                     'type' => $type,
                     'pet_id' => $pet_id,
                     'service_id' => $service_id,
-                    'clinic_id' => $clinic_id,
+                    'doctor_id' => $doctor_id,
                     'users_ids' => $userid,
                     'status' => 'PENDING_PAYMENT',
                     'created_at' => Carbon::now(),
@@ -173,6 +172,17 @@ class OrderserviceController extends Controller
                 $serv=[];
                 $orderId = $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 3).$query;
                 foreach($service as $orderlist){
+                    if($orderlist['service_name']=='doc_consult'){
+                        $detail = doctor::where('id','like', $doctor_id);
+                        $doct_consult = [
+                            'account_id' => $detail->value('users_ids'),
+                            'id'=>$detail->value('id'),
+                            'name'=>$detail->value('doctor_name'),
+                            'phone_number'=>User::where('id','like',$detail->value('users_ids'))->value('phone_number'),
+                            'profile_picture'=>$detail->value('profile_picture')
+                        ];
+                        array_push($res,$doct_consult);
+                    }
                     $orderinsert = order_detail::insert([
                         'order_id' => $orderId,
                         'service_id' => $orderlist['service_id'],
@@ -193,8 +203,7 @@ class OrderserviceController extends Controller
                     'order_Id' => $orderId,
                     'total' => $total_price,
                     'subtotal' => $subtotal,
-                    'diskon' => $discount,
-                    'clinic_id' => $clinic_id
+                    'diskon' => $discount
                 ]);
                 
                 $details = [
@@ -232,7 +241,7 @@ class OrderserviceController extends Controller
                     'type' => $type,
                     'pet_id' => $pet_id,
                     'service_id' => $service_id,
-                    'clinic_id' => $clinic_id,
+                    'doctor_id' => $doctor_id,
                     'users_ids' => $userid,
                     'status' => 'PENDING_PAYMENT',
                     'created_at' => Carbon::now(),
@@ -246,6 +255,17 @@ class OrderserviceController extends Controller
                 $serv=[];
                 $orderId = $ordercode.substr(str_shuffle(str_repeat($pool, 5)), 0, 3).$query;
                 foreach($service as $orderlist){
+                    if($orderlist['service_name']=='doc_consult'){
+                        $detail = doctor::where('id','like', $doctor_id);
+                        $doct_consult = [
+                            'account_id' => $detail->value('users_ids'),
+                            'id'=>$detail->value('id'),
+                            'name'=>$detail->value('doctor_name'),
+                            'phone_number'=>User::where('id','like',$detail->value('users_ids'))->value('phone_number'),
+                            'profile_picture'=>$detail->value('profile_picture')
+                        ];
+                        array_push($res,$doct_consult);
+                    }
                     $orderinsert = order_detail::insert([
                         'order_id' => $orderId,
                         'service_id' => $orderlist['service_id'],
@@ -265,8 +285,7 @@ class OrderserviceController extends Controller
                     'order_Id' => $orderId,
                     'total' => $total_price,
                     'subtotal' => $subtotal,
-                    'diskon' => $discount,
-                    'clinic_id' => $clinic_id
+                    'diskon' => $discount
                 ]);
                 $details = [
                     'user_detail' =>$user,
