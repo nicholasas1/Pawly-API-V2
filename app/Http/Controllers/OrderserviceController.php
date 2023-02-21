@@ -121,7 +121,6 @@ class OrderserviceController extends Controller
                 ];
             }else if($type == 'clinic'){
                 $detail = clinic::where('id','like', $service_id);
-                $clinic_id = $service_id;
                 $checkschedule = $this->clinics->checkschedule($booking_date,$booking_time,$detail->value('id'));
                 if($checkschedule == 'NOT AVAIABLE' ){
                     return response()->JSON([
@@ -370,7 +369,7 @@ class OrderserviceController extends Controller
                 'order_id'=>$arr['order_id'],
                 'service'=>order_detail::where('order_id','like',$orderId)->select('service_name')->get(),
                 'service_id'=>$arr['service_id'],
-                'clinic_id'=>$arr['clinic_id'],
+                'doctor_id'=>$arr['doctor_id'],
                 'pet_id'=>$arr['pet_id'],
                 'type'=>$arr['type'],
                 'status'=>$arr['status'],
@@ -462,7 +461,7 @@ class OrderserviceController extends Controller
                     'order_id'=>$arr['order_id'],
                     'service'=>order_detail::where('order_id','like',$arr['order_id'])->select('service_name')->get(),
                     'service_id'=>$arr['service_id'],
-                    'clinic_id'=>$arr['clinic_id'],
+                    'doctor_id'=>$arr['doctor_id'],
                     'pet_id'=>$arr['pet_id'],
                     'type'=>$arr['type'],
                     'status'=>$arr['status'],
@@ -557,7 +556,7 @@ class OrderserviceController extends Controller
                     'order_id'=>$arr['order_id'],
                     'service'=>order_detail::where('order_id','like',$orderId)->select('service_name')->get(),
                     'service_id'=>$arr['service_id'],
-                    'clinic_id'=>$arr['clinic_id'],
+                    'doctor_id'=>$arr['doctor_id'],
                     'pet_id'=>$arr['pet_id'],
                     'type'=>$arr['type'],
                     'status'=>$arr['status'],
