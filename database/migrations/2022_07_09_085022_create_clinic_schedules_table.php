@@ -15,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('clinic_schedules', function (Blueprint $table) {
             $table->bigIncrements("id");
-            $table->char("clinic_id",100);
-            $table->char("doctor_id",100);
-            $table->char("day",10);
-            $table->char("status",100);
-            $table->longText("description");
+            $table->char("clinic_id",100)->nullable();
+            $table->char("doctor_id",100)->nullable();
+            $table->char("day",10)->nullable();
+            $table->char("status",100)->nullable();
+            $table->longText("description")->nullable();
         });
     }
 

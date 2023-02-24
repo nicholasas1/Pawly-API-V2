@@ -787,4 +787,42 @@ class ClinicController extends Controller
 		}
 	}
 
+	public function clinicaddschedule(request $request){
+		$checkdoctclinic = clinic_doctor::where('clinic_id','like',$request->clinic_id)
+		->where('doctor_id','like',$request->doctor_id)
+		->get();
+		if($checkdoctclinic->count()==1){
+			$query = clinic_schedule::insertGetId([
+				"clinic_id" => $request->clinic_id,
+				"doctor_id" => $request->doctor_id,
+				"day" => $request->day,
+				"status" => $request->status,
+				"description" => $request->desc
+			]);
+
+			
+			foreach($request->start_hour as $start_hour){
+				$query2 = clinic_schedule_clock::insert([
+					'schedule_id' => $query,
+					'start_hour' => $start_hour['hour'],
+					'end_hour' => carbon::parse($start_hour['hour'])->addhour()
+				]);
+			}
+			
+			if($query2==1){
+				return response()->JSON([
+					'status' => 'success'
+				]);
+			}
+		} else{
+			return response()->JSON([
+				'status' => 'error',
+				'msg' => ''
+			]);
+		}
+		
+		
+	}
+	
+
 }

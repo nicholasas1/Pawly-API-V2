@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::create('clinic_schedule_clocks', function (Blueprint $table) {
             $table->bigIncrements("id");
-            $table->char("schedule_id",10);
-            $table->time("start_hour");
-            $table->time("end_hour");
+            $table->char("schedule_id",10)->nullable();
+            $table->time("start_hour")->nullable();
+            $table->time("end_hour")->nullable();
         });
     }
 
